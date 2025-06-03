@@ -9,6 +9,7 @@ import SwiftUI
 
 extension Color {
     static let appPrimaryColor = Color("AppPrimaryColor")
+    static let appScreenBackgroundColor = Color("AppScreenBackgroundColor")
 }
 
 extension Color {

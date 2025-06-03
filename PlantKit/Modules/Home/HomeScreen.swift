@@ -43,40 +43,52 @@ struct HomeScreen: View {
     @State private var isLoading = false
 
     var body: some View {
-        VStack(spacing: 20) {
-            if let image = selectedImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 300)
-                    .cornerRadius(12)
-            }
-
-            Button("Select Plant Photo") {
-                showImagePicker = true
-            }
-            .padding()
-            .background(Color.green)
-            .foregroundColor(.white)
-            .cornerRadius(10)
-
-            if isLoading {
-                ProgressView("Identifying...")
-            }
-
-            if let name = plantName {
-                Text("🌿 This is likely: **\(name)**")
-                    .font(.title2)
-            }
+        ZStack {
+            Color.appScreenBackgroundColor
+                .edgesIgnoringSafeArea(.all)
+            content
         }
-        .background(Color.secondary)
         .sheet(isPresented: $showImagePicker) {
             ImagePicker { image in
                 selectedImage = image
                 identifyPlant(image: image)
             }
         }
-        .padding()
+    }
+    
+    private var content: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                if let image = selectedImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 300)
+                        .cornerRadius(12)
+                }
+                
+                Button("Select Plant Photo") {
+                    showImagePicker = true
+                }
+                .padding()
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+                
+                if isLoading {
+                    ProgressView("Identifying...")
+                }
+                
+                if let name = plantName {
+                    Text("🌿 This is likely: **\(name)**")
+                        .font(.title2)
+                }
+                
+                Spacer()
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .background(Color.appScreenBackgroundColor)
     }
 
     func identifyPlant(image: UIImage) {

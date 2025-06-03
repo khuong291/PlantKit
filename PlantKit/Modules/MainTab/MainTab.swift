@@ -79,7 +79,6 @@ struct MainTab: View {
     var body: some View {
         ZStack {
             tabContent
-                .padding(.bottom, 60)
             VStack(spacing: 0) {
                 Spacer()
                 tabItems
@@ -157,17 +156,17 @@ struct MainTab: View {
         } label: {
             ZStack {
                 Circle()
-                    .fill(Color.appPrimaryColor)
-                    .frame(width: 66, height: 66)
+                    .fill(Color.green)
+                    .frame(width: 64, height: 64)
                     .overlay(
                         Circle()
-                            .stroke(Color.white, lineWidth: 5)
+                            .stroke(Color.white, lineWidth: 7)
                     )
 
                 Image("ic-camera")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 33, height: 33)
+                    .frame(width: 32, height: 32)
                     .foregroundColor(Color.white)
             }
         }
@@ -196,10 +195,10 @@ struct MainTab: View {
                         .scaledToFit()
                         .frame(square: tab.size)
                         .frame(square: 24)
-                        .foregroundColor(selectedTab == tab ? .appPrimaryColor : .systemGray2)
+                        .foregroundColor(selectedTab == tab ? .green : .systemGray2)
                     Text(tab.title)
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(selectedTab == tab ? .appPrimaryColor : .systemGray2)
+                        .foregroundColor(selectedTab == tab ? .green : .systemGray2)
                         .lineLimit(1)
                 }
                 Spacer()

@@ -37,6 +37,8 @@ struct ImagePicker: UIViewControllerRepresentable {
 }
 
 struct HomeScreen: View {
+    @EnvironmentObject var identifierManager: IdentifierManager
+
     @State private var selectedImage: UIImage?
     @State private var showImagePicker = false
     @State private var plantName: String?
@@ -46,7 +48,28 @@ struct HomeScreen: View {
         ZStack {
             Color.appScreenBackgroundColor
                 .edgesIgnoringSafeArea(.all)
-            content
+            VStack {
+                if let image = identifierManager.capturedImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 200)
+                        .cornerRadius(12)
+                        .padding()
+                }
+                
+                if identifierManager.isLoading {
+                    ProgressView("Identifying...")
+                } else if let name = identifierManager.identifiedPlantName {
+                    Text("Identified Plant: \(name)")
+                        .font(.headline)
+                        .padding()
+                } else if let error = identifierManager.errorMessage {
+                    Text("Error: \(error)")
+                        .foregroundColor(.red)
+                        .padding()
+                }
+            }
         }
         .sheet(isPresented: $showImagePicker) {
             ImagePicker { image in

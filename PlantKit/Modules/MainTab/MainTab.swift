@@ -55,6 +55,8 @@ struct MainTab: View {
         }
     }
     
+    @EnvironmentObject private var identifierManager: IdentifierManager
+    @StateObject private var viewModel = MainTabViewModel()
     @StateObject private var homeRouter = Router<ContentRoute>()
     @StateObject private var overviewRouter = Router<ContentRoute>()
     @StateObject private var journalRouter = Router<ContentRoute>()
@@ -87,6 +89,13 @@ struct MainTab: View {
         .onAppear {
             hasSelectedHomeView = true
             selectedTab = .home
+        }
+        .fullScreenCover(isPresented: $viewModel.isPresentingCamera) {
+            CameraView(dismissAction: viewModel.closeCamera, onImageCaptured: { image in
+                identifierManager.identify(image: image)
+            })
+            .environmentObject(viewModel.cameraManager)
+            .environmentObject(identifierManager)
         }
     }
     
@@ -144,15 +153,15 @@ struct MainTab: View {
 //                .frame(height: 0.5)
 //        }
         .overlay(alignment: .top) {
-            alarmButton
+            cameraButton
                 .offset(y: -10)
         }
     }
     
-    private var alarmButton: some View {
+    private var cameraButton: some View {
         Button {
             Haptics.shared.play()
-            // Perform your alarm action here
+            viewModel.openCamera()
         } label: {
             ZStack {
                 Circle()

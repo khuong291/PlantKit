@@ -10,6 +10,13 @@
 		1B13544F2DEDEABA00EBF77B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 1B13544E2DEDEABA00EBF77B /* FirebaseAuth */; };
 		1B1354512DEDEABA00EBF77B /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 1B1354502DEDEABA00EBF77B /* FirebaseFirestore */; };
 		1B1354532DEDEAF500EBF77B /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1B1354522DEDEAF500EBF77B /* FirebaseCore */; };
+		1BA24ABC2DEF47D700DCA65F /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 1BA24ABB2DEF47D700DCA65F /* Lottie */; };
+		1BAD97662DEF437200F7E04B /* ConfettiSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 1BAD97652DEF437200F7E04B /* ConfettiSwiftUI */; };
+		1BAD97692DEF437F00F7E04B /* Device in Frameworks */ = {isa = PBXBuildFile; productRef = 1BAD97682DEF437F00F7E04B /* Device */; };
+		1BAD976C2DEF438C00F7E04B /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = 1BAD976B2DEF438C00F7E04B /* Mixpanel */; };
+		1BAD976F2DEF439A00F7E04B /* PopupView in Frameworks */ = {isa = PBXBuildFile; productRef = 1BAD976E2DEF439A00F7E04B /* PopupView */; };
+		1BAD97722DEF43AD00F7E04B /* SwiftySound in Frameworks */ = {isa = PBXBuildFile; productRef = 1BAD97712DEF43AD00F7E04B /* SwiftySound */; };
+		1BAD97752DEF43EE00F7E04B /* ReuseAcross in Frameworks */ = {isa = PBXBuildFile; productRef = 1BAD97742DEF43EE00F7E04B /* ReuseAcross */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,9 +49,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1BAD97662DEF437200F7E04B /* ConfettiSwiftUI in Frameworks */,
+				1BAD97752DEF43EE00F7E04B /* ReuseAcross in Frameworks */,
 				1B13544F2DEDEABA00EBF77B /* FirebaseAuth in Frameworks */,
+				1BAD976F2DEF439A00F7E04B /* PopupView in Frameworks */,
 				1B1354532DEDEAF500EBF77B /* FirebaseCore in Frameworks */,
+				1BA24ABC2DEF47D700DCA65F /* Lottie in Frameworks */,
 				1B1354512DEDEABA00EBF77B /* FirebaseFirestore in Frameworks */,
+				1BAD97722DEF43AD00F7E04B /* SwiftySound in Frameworks */,
+				1BAD976C2DEF438C00F7E04B /* Mixpanel in Frameworks */,
+				1BAD97692DEF437F00F7E04B /* Device in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,6 +104,13 @@
 				1B13544E2DEDEABA00EBF77B /* FirebaseAuth */,
 				1B1354502DEDEABA00EBF77B /* FirebaseFirestore */,
 				1B1354522DEDEAF500EBF77B /* FirebaseCore */,
+				1BAD97652DEF437200F7E04B /* ConfettiSwiftUI */,
+				1BAD97682DEF437F00F7E04B /* Device */,
+				1BAD976B2DEF438C00F7E04B /* Mixpanel */,
+				1BAD976E2DEF439A00F7E04B /* PopupView */,
+				1BAD97712DEF43AD00F7E04B /* SwiftySound */,
+				1BAD97742DEF43EE00F7E04B /* ReuseAcross */,
+				1BA24ABB2DEF47D700DCA65F /* Lottie */,
 			);
 			productName = PlantKit;
 			productReference = 1BD2FC532DE96D5C0019C364 /* PlantKit.app */;
@@ -121,6 +142,13 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				1B13544D2DEDEABA00EBF77B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				1BAD97642DEF437200F7E04B /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */,
+				1BAD97672DEF437F00F7E04B /* XCRemoteSwiftPackageReference "Device" */,
+				1BAD976A2DEF438C00F7E04B /* XCRemoteSwiftPackageReference "mixpanel-swift" */,
+				1BAD976D2DEF439A00F7E04B /* XCRemoteSwiftPackageReference "PopupView" */,
+				1BAD97702DEF43AD00F7E04B /* XCRemoteSwiftPackageReference "SwiftySound" */,
+				1BAD97732DEF43EE00F7E04B /* XCLocalSwiftPackageReference "../ReuseAcross" */,
+				1BA24ABA2DEF47D700DCA65F /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1BD2FC542DE96D5C0019C364 /* Products */;
@@ -277,10 +305,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PlantKit/Preview Content\"";
-				DEVELOPMENT_TEAM = 555LCL8R2S;
+				DEVELOPMENT_TEAM = SKNJUSC35K;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PlantKit/Info.plist;
@@ -290,6 +319,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -298,6 +328,7 @@
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.plantkit.PlantKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -309,10 +340,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PlantKit/Preview Content\"";
-				DEVELOPMENT_TEAM = 555LCL8R2S;
+				DEVELOPMENT_TEAM = SKNJUSC35K;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PlantKit/Info.plist;
@@ -322,6 +354,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -330,6 +363,7 @@
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.plantkit.PlantKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -359,6 +393,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		1BAD97732DEF43EE00F7E04B /* XCLocalSwiftPackageReference "../ReuseAcross" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../ReuseAcross;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		1B13544D2DEDEABA00EBF77B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -366,6 +407,54 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 11.13.0;
+			};
+		};
+		1BA24ABA2DEF47D700DCA65F /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
+		1BAD97642DEF437200F7E04B /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/simibac/ConfettiSwiftUI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.3;
+			};
+		};
+		1BAD97672DEF437F00F7E04B /* XCRemoteSwiftPackageReference "Device" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Ekhoo/Device.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.7.0;
+			};
+		};
+		1BAD976A2DEF438C00F7E04B /* XCRemoteSwiftPackageReference "mixpanel-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mixpanel/mixpanel-swift";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		1BAD976D2DEF439A00F7E04B /* XCRemoteSwiftPackageReference "PopupView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exyte/PopupView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.1.10;
+			};
+		};
+		1BAD97702DEF43AD00F7E04B /* XCRemoteSwiftPackageReference "SwiftySound" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/adamcichy/SwiftySound.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -385,6 +474,40 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1B13544D2DEDEABA00EBF77B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
+		};
+		1BA24ABB2DEF47D700DCA65F /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BA24ABA2DEF47D700DCA65F /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
+		1BAD97652DEF437200F7E04B /* ConfettiSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BAD97642DEF437200F7E04B /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */;
+			productName = ConfettiSwiftUI;
+		};
+		1BAD97682DEF437F00F7E04B /* Device */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BAD97672DEF437F00F7E04B /* XCRemoteSwiftPackageReference "Device" */;
+			productName = Device;
+		};
+		1BAD976B2DEF438C00F7E04B /* Mixpanel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BAD976A2DEF438C00F7E04B /* XCRemoteSwiftPackageReference "mixpanel-swift" */;
+			productName = Mixpanel;
+		};
+		1BAD976E2DEF439A00F7E04B /* PopupView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BAD976D2DEF439A00F7E04B /* XCRemoteSwiftPackageReference "PopupView" */;
+			productName = PopupView;
+		};
+		1BAD97712DEF43AD00F7E04B /* SwiftySound */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BAD97702DEF43AD00F7E04B /* XCRemoteSwiftPackageReference "SwiftySound" */;
+			productName = SwiftySound;
+		};
+		1BAD97742DEF43EE00F7E04B /* ReuseAcross */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ReuseAcross;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

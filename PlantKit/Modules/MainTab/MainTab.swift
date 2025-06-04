@@ -139,7 +139,7 @@ struct MainTab: View {
             tabItem(tab: .home)
             tabItem(tab: .overview)
             Spacer()
-                .frame(width: 100)
+                .frame(width: 80)
             tabItem(tab: .journal)
             tabItem(tab: .settings)
             Spacer()

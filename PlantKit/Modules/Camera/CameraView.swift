@@ -30,9 +30,8 @@ struct CameraView: View {
         }
         .sheet(isPresented: $isShowingPhotoPicker) {
             PhotoPicker { image in
-                if let selectedImage = image {
-                    onImageCaptured(selectedImage)
-                    dismissAction()
+                if let selectedImage = image?.croppedToCenterSquare() {
+                    capturedImage = selectedImage
                 }
             }
         }

@@ -12,6 +12,8 @@ struct CameraView: View {
     let onImageCaptured: (UIImage) -> Void
     @EnvironmentObject var cameraManager: CameraManager
     
+    @State private var isShowingPhotoPicker = false
+    
     var body: some View {
         ZStack {
             Color.black
@@ -22,6 +24,14 @@ struct CameraView: View {
         .onAppear {
             DispatchQueue.global(qos: .userInitiated).async {
                 cameraManager.configure()
+            }
+        }
+        .sheet(isPresented: $isShowingPhotoPicker) {
+            PhotoPicker { image in
+                if let selectedImage = image {
+                    onImageCaptured(selectedImage)
+                    dismissAction()
+                }
             }
         }
     }
@@ -53,46 +63,88 @@ struct CameraView: View {
                     .position(x: centerX, y: centerY)
             }
 
-            // Dismiss button
-            VStack {
-                HStack {
-                    Spacer()
-                    Button {
-                        dismissAction()
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 28))
-                            .foregroundColor(.white)
-                            .padding()
-                    }
-                }
-                Spacer()
-            }
-            .padding(.top, 30)
-            .padding(.trailing, 10)
+            closeButton
             
             VStack {
                 Spacer()
-                Button(action: {
-                    Haptics.shared.play()
-                    cameraManager.capturePhoto { image in
-                        if let capturedImage = image {
-                            onImageCaptured(capturedImage)
-                        }
-                        dismissAction()
-                    }
-                }) {
-                    Circle()
-                        .fill(Color.white)
-                        .frame(width: 70, height: 70)
-                        .overlay(
-                            Circle()
-                                .stroke(Color.green, lineWidth: 4)
-                        )
-                        .shadow(color: Color.green.opacity(0.8), radius: 10, x: 0, y: 0)
+                HStack {
+                    Spacer()
+                        .frame(width: 20)
+                    
+                    photoButton
+                        .opacity(0)
+                        .disabled(true)
+                    
+                    Spacer()
+                    
+                    captureButton
+                    
+                    Spacer()
+                    
+                    photoButton
+                    
+                    Spacer()
+                        .frame(width: 20)
                 }
                 .padding(.bottom, 50)
             }
+        }
+    }
+    
+    private var closeButton: some View {
+        VStack {
+            HStack {
+                Spacer()
+                Button {
+                    dismissAction()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 28))
+                        .foregroundColor(.white)
+                        .padding()
+                }
+            }
+            Spacer()
+        }
+        .padding(.top, 30)
+        .padding(.trailing, 10)
+    }
+    
+    private var photoButton: some View {
+        Button(action: {
+            Haptics.shared.play()
+            isShowingPhotoPicker = true
+        }) {
+            Image(systemName: "photo.on.rectangle")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .foregroundColor(.white)
+                .padding(10)
+                .background(Color.clear)
+                .clipShape(Circle())
+                .shadow(color: .green.opacity(0.7), radius: 8, x: 0, y: 0)
+        }
+    }
+    
+    private var captureButton: some View {
+        Button(action: {
+            Haptics.shared.play()
+            cameraManager.capturePhoto { image in
+                if let capturedImage = image {
+                    onImageCaptured(capturedImage)
+                }
+                dismissAction()
+            }
+        }) {
+            Circle()
+                .fill(Color.white)
+                .frame(width: 70, height: 70)
+                .overlay(
+                    Circle()
+                        .stroke(Color.green, lineWidth: 4)
+                )
+                .shadow(color: Color.green.opacity(0.8), radius: 10, x: 0, y: 0)
         }
     }
 }

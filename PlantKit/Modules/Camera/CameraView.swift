@@ -13,6 +13,8 @@ struct CameraView: View {
     @EnvironmentObject var cameraManager: CameraManager
     
     @State private var isShowingPhotoPicker = false
+    @State private var capturingImage = false
+    @State private var capturedImage: UIImage? = nil
     
     var body: some View {
         ZStack {
@@ -34,6 +36,18 @@ struct CameraView: View {
                 }
             }
         }
+        .fullScreenCover(item: $capturedImage) { image in
+            PhotoPreviewView(
+                image: image,
+                onIdentify: {
+                    onImageCaptured(image)
+                    dismissAction()
+                },
+                onDismiss: {
+                    capturedImage = nil
+                }
+            )
+        }
     }
     
     private var content: some View {
@@ -43,8 +57,8 @@ struct CameraView: View {
                 .ignoresSafeArea()
 
             // Dark overlay with transparent cutout
-            Color.black.opacity(0.5)
-                .ignoresSafeArea()
+            Color.black.opacity(0.6)
+                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height + 16)
                 .mask {
                     ScanFocusMask()
                 }
@@ -118,23 +132,27 @@ struct CameraView: View {
             Image(systemName: "photo.on.rectangle")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 24, height: 24)
+                .frame(width: 28, height: 28)
                 .foregroundColor(.white)
                 .padding(10)
                 .background(Color.clear)
                 .clipShape(Circle())
-                .shadow(color: .green.opacity(0.7), radius: 8, x: 0, y: 0)
         }
     }
     
     private var captureButton: some View {
         Button(action: {
             Haptics.shared.play()
+            capturingImage = true
             cameraManager.capturePhoto { image in
-                if let capturedImage = image {
-                    onImageCaptured(capturedImage)
+//                if let capturedImage = image {
+//                    onImageCaptured(capturedImage)
+//                }
+//                dismissAction()
+                if let captured = image?.croppedToCenterSquare() {
+                    capturingImage = false
+                    capturedImage = captured
                 }
-                dismissAction()
             }
         }) {
             Circle()
@@ -145,6 +163,12 @@ struct CameraView: View {
                         .stroke(Color.green, lineWidth: 4)
                 )
                 .shadow(color: Color.green.opacity(0.8), radius: 10, x: 0, y: 0)
+                .opacity(capturingImage ? 0.5 : 1)
+                .overlay {
+                    if capturingImage {
+                        ProgressView()
+                    }
+                }
         }
     }
 }

@@ -153,14 +153,11 @@ struct HomeScreen: View {
                 .font(.title3)
                 .bold()
             
-            if identifierManager.isLoading {
-                shimmerRow()
-            } else if identifierManager.recentScans.isEmpty {
-                Text("No scans yet.")
-                    .foregroundColor(.gray)
-                    .font(.subheadline)
-            } else {
-                ForEach(identifierManager.recentScans.prefix(4)) { plant in
+            VStack {
+                if identifierManager.isLoading {
+                    shimmerRow()
+                }
+                ForEach(identifierManager.recentScans) { plant in
                     HStack(spacing: 12) {
                         if let image = plant.image {
                             Image(uiImage: image)
@@ -172,14 +169,14 @@ struct HomeScreen: View {
                         VStack(alignment: .leading) {
                             Text(plant.name)
                                 .font(.headline)
-                            Text(plant.scannedAt, style: .date)
+                            Text(plant.scannedAt, style: .time)
                                 .font(.caption)
                                 .foregroundColor(.gray)
                         }
                         Spacer()
                     }
-                    .padding(8)
-                    .background(Color(.systemGray6))
+                    .padding()
+                    .background(Color.white)
                     .cornerRadius(12)
                 }
             }
@@ -204,8 +201,10 @@ struct HomeScreen: View {
             }
             Spacer()
         }
-        .padding(8)
+        .padding()
         .redacted(reason: .placeholder)
+        .background(Color.white)
+        .cornerRadius(12)
     }
     
     private var content: some View {

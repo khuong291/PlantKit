@@ -8,7 +8,6 @@
 import SwiftUI
 
 class IdentifierManager: ObservableObject {
-    @Published var identifiedPlantName: String?
     @Published var capturedImage: UIImage?
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -17,7 +16,6 @@ class IdentifierManager: ObservableObject {
     func identify(image: UIImage) {
         isLoading = true
         errorMessage = nil
-        identifiedPlantName = nil
         capturedImage = image
         
         PlantIdentifier.identify(image: image) { result in
@@ -25,7 +23,7 @@ class IdentifierManager: ObservableObject {
                 self.isLoading = false
                 switch result {
                 case .success(let plantName):
-                    self.identifiedPlantName = plantName
+                    self.isLoading = false
                     self.saveScan(name: plantName, image: image)
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription

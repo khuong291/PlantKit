@@ -305,6 +305,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PlantKit/PlantKit.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
@@ -315,6 +316,8 @@
 				INFOPLIST_FILE = PlantKit/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PlantKit;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We use the camera to identify plants by scanning them.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use your location to show local weather for your plants.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to show local weather for your plants.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -341,6 +344,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PlantKit/PlantKit.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
@@ -351,6 +355,8 @@
 				INFOPLIST_FILE = PlantKit/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PlantKit;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We use the camera to identify plants by scanning them.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use your location to show local weather for your plants.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to show local weather for your plants.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

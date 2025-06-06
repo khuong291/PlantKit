@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "botanist.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

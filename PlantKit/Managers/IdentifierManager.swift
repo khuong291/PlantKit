@@ -12,12 +12,13 @@ class IdentifierManager: ObservableObject {
     @Published var capturedImage: UIImage?
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var recentScans: [ScannedPlant] = []
     
     func identify(image: UIImage) {
-        self.isLoading = true
-        self.errorMessage = nil
-        self.identifiedPlantName = nil
-        self.capturedImage = image // Store the image for UI
+        isLoading = true
+        errorMessage = nil
+        identifiedPlantName = nil
+        capturedImage = image
         
         PlantIdentifier.identify(image: image) { result in
             DispatchQueue.main.async {
@@ -25,10 +26,17 @@ class IdentifierManager: ObservableObject {
                 switch result {
                 case .success(let plantName):
                     self.identifiedPlantName = plantName
+                    self.saveScan(name: plantName, image: image)
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                 }
             }
         }
+    }
+
+    private func saveScan(name: String, image: UIImage) {
+        guard let data = image.jpegData(compressionQuality: 0.6) else { return }
+        let newScan = ScannedPlant(id: UUID(), name: name, scannedAt: Date(), imageData: data)
+        recentScans.insert(newScan, at: 0) // Add to top
     }
 }

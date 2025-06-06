@@ -31,7 +31,9 @@ struct CameraView: View {
         .sheet(isPresented: $isShowingPhotoPicker) {
             PhotoPicker { image in
                 if let selectedImage = image?.croppedToCenterSquare() {
-                    capturedImage = selectedImage
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        capturedImage = selectedImage
+                    }
                 }
             }
         }

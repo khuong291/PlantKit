@@ -7,76 +7,205 @@
 
 import SwiftUI
 import CoreData
-import UIKit
-
-struct ImagePicker: UIViewControllerRepresentable {
-    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
-        let parent: ImagePicker
-        init(parent: ImagePicker) { self.parent = parent }
-
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let uiImage = info[.originalImage] as? UIImage {
-                parent.onImagePicked(uiImage)
-            }
-            parent.presentationMode.wrappedValue.dismiss()
-        }
-    }
-
-    @Environment(\.presentationMode) var presentationMode
-    var onImagePicked: (UIImage) -> Void
-
-    func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
-
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.delegate = context.coordinator
-        return picker
-    }
-
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
-}
+import CoreLocation
+import Combine
 
 struct HomeScreen: View {
     @EnvironmentObject var identifierManager: IdentifierManager
-
+    
     @State private var selectedImage: UIImage?
     @State private var showImagePicker = false
     @State private var plantName: String?
     @State private var isLoading = false
-
+    @State private var searchText: String = ""
+    @State private var showAllTools = false
+    
+    @StateObject private var locationManager = LocationManager()
+    
+    private let tools: [Tool] = [
+        .init(title: "Plant Identifier", imageName: "ic-tool-plant"),
+        .init(title: "Disease Identifier", imageName: "ic-tool-disease"),
+        .init(title: "Light Meter", imageName: "ic-tool-light"),
+        .init(title: "Water Meter", imageName: "ic-tool-water"),
+        .init(title: "Ask Botanist", imageName: "ic-tool-ask"),
+        .init(title: "Mushroom Identifier", imageName: "ic-tool-mushroom"),
+        .init(title: "Insect Identifier", imageName: "ic-tool-insect"),
+        .init(title: "Bird Identifier", imageName: "ic-tool-bird")
+    ]
+    
+    private let itemsPerRow = 2
+    private let verticalSpacing: CGFloat = 8
+    
+    private var visibleTools: [Tool] {
+        showAllTools ? tools : Array(tools.prefix(4))
+    }
+    
     var body: some View {
         ZStack {
             Color.appScreenBackgroundColor
                 .edgesIgnoringSafeArea(.all)
-            VStack {
-                if let image = identifierManager.capturedImage {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 200)
-                        .cornerRadius(12)
-                        .padding()
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    topBar
+                        .padding(.top, 6)
+                    searchView
+                        .padding(.top, 16)
+                    plantToolsView
+                        .padding(.top, 32)
+                    recentlyScannedView
+                        .padding(.top, 32)
+//                    content
                 }
-                
-                if identifierManager.isLoading {
-                    ProgressView("Identifying...")
-                } else if let name = identifierManager.identifiedPlantName {
-                    Text("Identified Plant: \(name)")
+                .padding(.horizontal)
+            }
+            .scrollIndicators(.never)
+        }
+        .onAppear {
+            locationManager.requestLocation()
+        }
+    }
+    
+    private var topBar: some View {
+        HStack {
+            if let city = locationManager.city {
+                Label(city, systemImage: "location.fill")
+                    .font(.headline)
+            } else {
+                Label("Locating...", systemImage: "location.fill")
+                    .font(.headline)
+                    .foregroundColor(.gray)
+            }
+            
+            Spacer()
+            
+            // Temperature Display
+            if let temp = locationManager.temperature {
+                HStack(spacing: 4) {
+                    Image(systemName: locationManager.weatherIcon)
+                        .foregroundColor(.orange)
+                    Text("\(Int(temp))°C")
                         .font(.headline)
-                        .padding()
-                } else if let error = identifierManager.errorMessage {
-                    Text("Error: \(error)")
-                        .foregroundColor(.red)
-                        .padding()
+                        .monospacedDigit()
+                }
+                .transition(.opacity)
+            } else {
+                HStack(spacing: 4) {
+                    ProgressView()
+                        .scaleEffect(0.6)
+                    Text("Fetching weather…")
+                        .foregroundColor(.gray)
+                        .font(.subheadline)
                 }
             }
         }
-        .sheet(isPresented: $showImagePicker) {
-            ImagePicker { image in
-                selectedImage = image
-                identifyPlant(image: image)
+    }
+    
+    private var searchView: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "magnifyingglass")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+            
+            TextField("Search plants, flowers, trees...", text: $searchText)
+                .font(.subheadline)
+                .foregroundColor(.primary)
+        }
+        .padding(10)
+        .background(Color.white)
+        .cornerRadius(8)
+    }
+    
+    private var plantToolsView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Plant Tools")
+                .font(.title3)
+                .bold()
+            
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: itemsPerRow), spacing: verticalSpacing) {
+                ForEach(visibleTools) { tool in
+                    PlantToolCardView(title: tool.title, imageName: tool.imageName)
+                }
+            }
+
+            Button(action: {
+                Haptics.shared.play()
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showAllTools.toggle()
+                }
+            }) {
+                Text(showAllTools ? "Show Less" : "Show More")
+                    .font(.subheadline)
+                    .bold()
+                    .foregroundStyle(.primary)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+                    .background(Color.white)
+                    .cornerRadius(12)
+            }
+            .buttonStyle(CardButtonStyle())
+        }
+    }
+    
+    private var recentlyScannedView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Recently Scanned")
+                .font(.title3)
+                .bold()
+            
+            if identifierManager.isLoading {
+                shimmerRow()
+            } else if identifierManager.recentScans.isEmpty {
+                Text("No scans yet.")
+                    .foregroundColor(.gray)
+                    .font(.subheadline)
+            } else {
+                ForEach(identifierManager.recentScans.prefix(4)) { plant in
+                    HStack(spacing: 12) {
+                        if let image = plant.image {
+                            Image(uiImage: image)
+                                .resizable()
+                                .frame(width: 80, height: 80)
+                                .cornerRadius(8)
+                                .clipped()
+                        }
+                        VStack(alignment: .leading) {
+                            Text(plant.name)
+                                .font(.headline)
+                            Text(plant.scannedAt, style: .date)
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        Spacer()
+                    }
+                    .padding(8)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
+                }
             }
         }
+    }
+    
+    @ViewBuilder
+    func shimmerRow() -> some View {
+        HStack(spacing: 12) {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 80, height: 80)
+
+            VStack(alignment: .leading, spacing: 6) {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 120, height: 14)
+
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 80, height: 12)
+            }
+            Spacer()
+        }
+        .padding(8)
+        .redacted(reason: .placeholder)
     }
     
     private var content: some View {
@@ -90,14 +219,6 @@ struct HomeScreen: View {
                         .cornerRadius(12)
                 }
                 
-                Button("Select Plant Photo") {
-                    showImagePicker = true
-                }
-                .padding()
-                .background(Color.green)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-                
                 if isLoading {
                     ProgressView("Identifying...")
                 }
@@ -109,120 +230,11 @@ struct HomeScreen: View {
                 
                 Spacer()
             }
+            .padding()
         }
         .frame(maxWidth: .infinity)
         .background(Color.appScreenBackgroundColor)
     }
-
-    func identifyPlant(image: UIImage) {
-        isLoading = true
-        PlantIdentifier.identify(image: image) { result in
-            DispatchQueue.main.async {
-                isLoading = false
-                switch result {
-                case .success(let name):
-                    plantName = name
-                case .failure(let error):
-                    plantName = "Error: \(error.localizedDescription)"
-                }
-            }
-        }
-    }
-}
-
-struct PlantIdentifier {
-    static func identify(image: UIImage, completion: @escaping (Result<String, Error>) -> Void) {
-        print("Starting request...")
-        
-        guard let imageData = image.jpegData(compressionQuality: 0.7) else {
-            completion(.failure(NSError(domain: "EncodingError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to encode image."])))
-            return
-        }
-
-        let base64Image = imageData.base64EncodedString()
-//        let endpoint = URL(string: "http://127.0.0.1:5001/plantkit-c6c69/us-central1/identifyPlant")!
-        let endpoint = URL(string: "https://us-central1-plantkit-c6c69.cloudfunctions.net/identifyPlant")!
-        print("Endpoint URL:", endpoint)
-        
-        var request = URLRequest(url: endpoint)
-        request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 60
-        
-        let body: [String: Any] = ["image": base64Image]
-        
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: body)
-            print("Request body created successfully")
-        } catch {
-            print("Error creating request body:", error)
-            completion(.failure(error))
-            return
-        }
-        
-        print("Starting network request...")
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            print("Received response or error")
-            
-            if let error = error {
-                print("Network error:", error)
-                completion(.failure(error))
-                return
-            }
-            
-            if let httpResponse = response as? HTTPURLResponse {
-                print("HTTP Status code:", httpResponse.statusCode)
-            }
-            
-            guard let data = data else {
-                print("No data received")
-                completion(.failure(NSError(domain: "NoDataError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received."])))
-                return
-            }
-            
-            // Print raw response
-            if let responseString = String(data: data, encoding: .utf8) {
-                print("Raw response:", responseString)
-            }
-            
-            do {
-                // First try to decode as error response
-                if let errorResponse = try? JSONDecoder().decode([String: String].self, from: data),
-                   let errorMessage = errorResponse["error"] {
-                    print("Error response received:", errorMessage)
-                    completion(.failure(NSError(domain: "APIError", code: 0, userInfo: [NSLocalizedDescriptionKey: errorMessage])))
-                    return
-                }
-                
-                // Then try to decode as success response
-                let result = try JSONDecoder().decode([String: String].self, from: data)
-                if let plantName = result["plantName"] {
-                    print("Successfully decoded response")
-                    completion(.success(plantName))
-                } else {
-                    print("No plantName in response")
-                    completion(.failure(NSError(domain: "InvalidResponseError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response format."])))
-                }
-            } catch {
-                print("Decoding error:", error)
-                completion(.failure(error))
-            }
-        }
-        task.resume()
-        print("Network request initiated")
-    }
-}
-
-struct OpenAIResponse: Decodable {
-    struct Choice: Decodable {
-        struct Message: Decodable {
-            let role: String
-            let content: String
-        }
-        let message: Message
-    }
-
-    let choices: [Choice]
 }
 
 #Preview {

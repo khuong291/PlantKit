@@ -64,29 +64,13 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         Task {
             do {
                 let weather = try await weatherService.weather(for: location)
-                temperature = weather.currentWeather.temperature.value
-                weatherIcon = sfSymbol(for: weather.currentWeather.symbolName)
+                await MainActor.run {
+                    temperature = weather.currentWeather.temperature.value
+                    weatherIcon = weather.currentWeather.symbolName
+                }
             } catch {
                 print("WeatherKit error:", error.localizedDescription)
             }
         }
     }
-
-    private func sfSymbol(for symbolName: String) -> String {
-        // Use symbolName directly if preferred. Otherwise map manually.
-        return WeatherSymbolMapper[symbolName] ?? "cloud"
-    }
-
-    private let WeatherSymbolMapper: [String: String] = [
-        "clear": "sun.max.fill",
-        "cloudy": "cloud.fill",
-        "partlyCloudy": "cloud.sun.fill",
-        "mostlyCloudy": "smoke.fill",
-        "rain": "cloud.rain.fill",
-        "showers": "cloud.drizzle.fill",
-        "thunderstorms": "cloud.bolt.rain.fill",
-        "snow": "snowflake",
-        "fog": "cloud.fog.fill"
-        // Add more mappings as needed
-    ]
 }

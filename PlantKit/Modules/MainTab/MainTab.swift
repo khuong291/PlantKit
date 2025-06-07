@@ -11,17 +11,17 @@ import ReuseAcross
 struct MainTab: View {
     enum Tab: Int {
         case home
-        case overview
-        case journal
+        case diagnose
+        case myPlants
         case settings
         
         var title: String {
             switch self {
             case .home:
                 return "Home"
-            case .overview:
+            case .diagnose:
                 return "Diagnose"
-            case .journal:
+            case .myPlants:
                 return "My Plants"
             case .settings:
                 return "Settings"
@@ -32,9 +32,9 @@ struct MainTab: View {
             switch self {
             case .home:
                 return "ic-home"
-            case .overview:
+            case .diagnose:
                 return "ic-diagnose"
-            case .journal:
+            case .myPlants:
                 return "ic-my-plants"
             case .settings:
                 return "ic-settings"
@@ -45,9 +45,9 @@ struct MainTab: View {
             switch self {
             case .home:
                 return 24
-            case .overview:
+            case .diagnose:
                 return 26
-            case .journal:
+            case .myPlants:
                 return 24
             case .settings:
                 return 26
@@ -58,17 +58,20 @@ struct MainTab: View {
     @EnvironmentObject private var identifierManager: IdentifierManager
     @StateObject private var viewModel = MainTabViewModel()
     @StateObject private var homeRouter = Router<ContentRoute>()
-    @StateObject private var overviewRouter = Router<ContentRoute>()
-    @StateObject private var journalRouter = Router<ContentRoute>()
+    @StateObject private var diagnoseRouter = Router<ContentRoute>()
+    @StateObject private var myPlantsRouter = Router<ContentRoute>()
     @StateObject private var settingsRouter = Router<ContentRoute>()
     
     @State private var selectedTab: Tab = .home
-    @State private var hasSelectedHomeView = false
-    @State private var hasSelectedOverviewView = false
-    @State private var hasSelectedJournalView = false
-    @State private var hasSelectedSettingsView = false
+    @State private var hasSelectedHomeScreen = false
+    @State private var hasSelectedDiagnoseScreen = false
+    @State private var hasSelectedMyPlantsScreen = false
+    @State private var hasSelectedSettingsScreen = false
     
-    private let homeScreen =  HomeScreen()
+    private let homeScreen = HomeScreen()
+    private let diagnoseScreen = DiagnoseScreen()
+    private let myPlantsScreen = MyPlantsScreen()
+    private let settingsScreen = SettingsScreen()
     
     private var paddingBottom: Double {
         #if targetEnvironment(macCatalyst)
@@ -87,7 +90,7 @@ struct MainTab: View {
             }
         }
         .onAppear {
-            hasSelectedHomeView = true
+            hasSelectedHomeScreen = true
             selectedTab = .home
         }
         .fullScreenCover(isPresented: $viewModel.isPresentingCamera) {
@@ -101,30 +104,30 @@ struct MainTab: View {
     
     private var tabContent: some View {
         ZStack {
-            if hasSelectedHomeView {
+            if hasSelectedHomeScreen {
                 RoutingView(stack: $homeRouter.stack) {
                     homeScreen
                 }
                 .opacity(selectedTab == .home ? 1 : 0)
                 .environmentObject(homeRouter)
             }
-            if hasSelectedOverviewView {
-                RoutingView(stack: $overviewRouter.stack) {
-                    homeScreen
+            if hasSelectedDiagnoseScreen {
+                RoutingView(stack: $diagnoseRouter.stack) {
+                    diagnoseScreen
                 }
-                .opacity(selectedTab == .overview ? 1 : 0)
-                .environmentObject(overviewRouter)
+                .opacity(selectedTab == .diagnose ? 1 : 0)
+                .environmentObject(diagnoseRouter)
             }
-            if hasSelectedJournalView {
-                RoutingView(stack: $journalRouter.stack) {
-                    homeScreen
+            if hasSelectedMyPlantsScreen {
+                RoutingView(stack: $myPlantsRouter.stack) {
+                    myPlantsScreen
                 }
-                .opacity(selectedTab == .journal ? 1 : 0)
-                .environmentObject(journalRouter)
+                .opacity(selectedTab == .myPlants ? 1 : 0)
+                .environmentObject(myPlantsRouter)
             }
-            if hasSelectedSettingsView {
+            if hasSelectedSettingsScreen {
                 RoutingView(stack: $settingsRouter.stack) {
-                    homeScreen
+                    settingsScreen
                 }
                 .opacity(selectedTab == .settings ? 1 : 0)
                 .environmentObject(settingsRouter)
@@ -137,10 +140,10 @@ struct MainTab: View {
             Spacer()
                 .frame(width: 10)
             tabItem(tab: .home)
-            tabItem(tab: .overview)
+            tabItem(tab: .diagnose)
             Spacer()
                 .frame(width: 80)
-            tabItem(tab: .journal)
+            tabItem(tab: .myPlants)
             tabItem(tab: .settings)
             Spacer()
                 .frame(width: 10)
@@ -185,14 +188,14 @@ struct MainTab: View {
     private func tabItem(tab: Tab) -> some View {
         Button {
             selectedTab = tab
-            if tab == .home && !hasSelectedHomeView {
-                hasSelectedHomeView = true
-            } else if tab == .overview && !hasSelectedOverviewView {
-                hasSelectedOverviewView = true
-            } else if tab == .journal && !hasSelectedJournalView {
-                hasSelectedJournalView = true
-            } else if tab == .settings && !hasSelectedSettingsView {
-                hasSelectedSettingsView = true
+            if tab == .home && !hasSelectedHomeScreen {
+                hasSelectedHomeScreen = true
+            } else if tab == .diagnose && !hasSelectedDiagnoseScreen {
+                hasSelectedDiagnoseScreen = true
+            } else if tab == .myPlants && !hasSelectedMyPlantsScreen {
+                hasSelectedMyPlantsScreen = true
+            } else if tab == .settings && !hasSelectedSettingsScreen {
+                hasSelectedSettingsScreen = true
             }
             Haptics.shared.play()
         } label: {

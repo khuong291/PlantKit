@@ -8,7 +8,6 @@
 import SwiftUI
 
 class IdentifierManager: ObservableObject {
-    @Published var capturedImage: UIImage?
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var recentScans: [ScannedPlant] = []
@@ -16,14 +15,19 @@ class IdentifierManager: ObservableObject {
     func identify(image: UIImage, completion: @escaping (Result<Void, Error>) -> Void) {
         isLoading = true
         errorMessage = nil
-        capturedImage = image
         
-        PlantIdentifier.identify(image: image) { result in
+        // Create a weak reference to self to avoid retain cycle
+        PlantIdentifier.identify(image: image) { [weak self] result in
             DispatchQueue.main.async {
+                guard let self else {
+                    completion(.failure(NSError(domain: "IdentifierManager", code: 0, userInfo: [NSLocalizedDescriptionKey: "Manager was deallocated"])))
+                    return
+                }
+                
                 self.isLoading = false
+                
                 switch result {
                 case .success(let plantName):
-                    self.isLoading = false
                     self.saveScan(name: plantName, image: image)
                     completion(.success(()))
                 case .failure(let error):

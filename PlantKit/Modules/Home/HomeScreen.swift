@@ -57,8 +57,8 @@ struct HomeScreen: View {
                         .padding(.top, 32)
                     popularOutdoorPlantsView
                         .padding(.top, 32)
-                    recentlyScannedView
-                        .padding(.top, 32)
+//                    recentlyScannedView
+//                        .padding(.top, 32)
                 }
                 .padding(.horizontal)
             }
@@ -218,41 +218,41 @@ struct HomeScreen: View {
         }
     }
     
-    private var recentlyScannedView: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Recently Scanned")
-                .font(.title3)
-                .bold()
-            
-            VStack {
-                if identifierManager.isLoading {
-                    shimmerRow()
-                }
-                ForEach(identifierManager.recentScans) { plant in
-                    HStack(spacing: 12) {
-                        if let image = plant.image {
-                            Image(uiImage: image)
-                                .resizable()
-                                .frame(width: 80, height: 80)
-                                .cornerRadius(8)
-                                .clipped()
-                        }
-                        VStack(alignment: .leading) {
-                            Text(plant.name)
-                                .font(.headline)
-                            Text(plant.scannedAt, style: .time)
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
-                        Spacer()
-                    }
-                    .padding()
-                    .background(Color.white)
-                    .cornerRadius(12)
-                }
-            }
-        }
-    }
+//    private var recentlyScannedView: some View {
+//        VStack(alignment: .leading, spacing: 8) {
+//            Text("Recently Scanned")
+//                .font(.title3)
+//                .bold()
+//            
+//            VStack {
+//                if identifierManager.isLoading {
+//                    shimmerRow()
+//                }
+//                ForEach(identifierManager.recentScans) { plant in
+//                    HStack(spacing: 12) {
+//                        if let image = plant.image {
+//                            Image(uiImage: image)
+//                                .resizable()
+//                                .frame(width: 80, height: 80)
+//                                .cornerRadius(8)
+//                                .clipped()
+//                        }
+//                        VStack(alignment: .leading) {
+//                            Text(plant.name)
+//                                .font(.headline)
+//                            Text(plant.scannedAt, style: .time)
+//                                .font(.caption)
+//                                .foregroundColor(.gray)
+//                        }
+//                        Spacer()
+//                    }
+//                    .padding()
+//                    .background(Color.white)
+//                    .cornerRadius(12)
+//                }
+//            }
+//        }
+//    }
     
     @ViewBuilder
     func shimmerRow() -> some View {

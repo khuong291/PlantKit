@@ -75,6 +75,9 @@ struct PlantIdentifyingView: View {
     @State private var scanProgress: CGFloat = 0
     @State private var isReversing = false
     @State private var isAnimating = true
+    @State private var isApiCompleted = false
+    @State private var isCompleting = false
+    @State private var completionTimer: Timer?
     @EnvironmentObject var identifierManager: IdentifierManager
     
     private let steps = [
@@ -133,8 +136,13 @@ struct PlantIdentifyingView: View {
                 ForEach(0..<steps.count, id: \.self) { index in
                     HStack(spacing: 16) {
                         if index == currentStep {
-                            ProgressView()
-                                .tint(.white)
+                            if index == 2 && !isApiCompleted {
+                                ProgressView()
+                                    .tint(.white)
+                            } else {
+                                ProgressView()
+                                    .tint(.white)
+                            }
                         } else if index < currentStep {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 20))
@@ -158,6 +166,10 @@ struct PlantIdentifyingView: View {
         .onAppear {
             startIdentificationProcess()
         }
+        .onDisappear {
+            completionTimer?.invalidate()
+            completionTimer = nil
+        }
     }
     
     private func startIdentificationProcess() {
@@ -174,8 +186,10 @@ struct PlantIdentifyingView: View {
             print("Received result from identifierManager.identify:", result)
             switch result {
             case .success:
-                print("API call successful - waiting for simulation to complete")
-                // The simulation will handle the completion
+                print("API call successful")
+                isApiCompleted = true
+                print("Setting isApiCompleted to true")
+                checkCompletion()
             case .failure(let error):
                 print("Failure case - error:", error)
                 // Handle error case
@@ -208,16 +222,32 @@ struct PlantIdentifyingView: View {
                     Haptics.shared.play()
                     withAnimation {
                         currentStep = 3
-                    }
-                    
-                    // Wait 1 second after step 3 before completing
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        print("Calling onComplete")
+                        // Stop the scanning animation when step 3 is reached
                         isAnimating = false
-                        onComplete()
                     }
+                    checkCompletion()
                 }
             }
+        }
+    }
+    
+    private func checkCompletion() {
+        print("Checking completion - isApiCompleted:", isApiCompleted, "currentStep:", currentStep, "isCompleting:", isCompleting)
+        // Only complete when both API is done and simulation reached step 3
+        if isApiCompleted && currentStep == 3 && !isCompleting {
+            print("Both conditions met - waiting 1 second before completion")
+            isCompleting = true
+            
+            // Invalidate any existing timer
+            completionTimer?.invalidate()
+            
+            // Create new timer
+            completionTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+                print("Calling onComplete")
+                onComplete()
+            }
+        } else {
+            print("Conditions not met - waiting for both API completion and step 3")
         }
     }
     

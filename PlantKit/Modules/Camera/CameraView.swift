@@ -40,6 +40,7 @@ struct CameraView: View {
             PhotoPreviewView(
                 image: image,
                 onIdentify: {
+                    capturedImage = nil
                     dismissAction()
                 },
                 onDismiss: {

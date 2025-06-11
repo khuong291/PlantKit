@@ -161,44 +161,62 @@ struct PlantIdentifyingView: View {
     }
     
     private func startIdentificationProcess() {
+        print("Starting identification process")
         // Start scanning animation
         animateScanning()
         
+        // Start simulated steps
+        simulateSteps()
+        
         // Start identification process
+        print("Calling identifierManager.identify")
         identifierManager.identify(image: image) { result in
+            print("Received result from identifierManager.identify:", result)
             switch result {
             case .success:
-                // Step 1: Analyzing image
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                    Haptics.shared.play()
-                    withAnimation {
-                        currentStep = 1
-                    }
-                    
-                    // Step 2: Identifying characteristics
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
-                        Haptics.shared.play()
-                        withAnimation {
-                            currentStep = 2
-                        }
-                        
-                        // Complete the process
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
-                            Haptics.shared.play()
-                            withAnimation {
-                                currentStep = 3
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                isAnimating = false
-                                onComplete()
-                            }
-                        }
-                    }
-                }
-            case .failure:
+                print("API call successful - waiting for simulation to complete")
+                // The simulation will handle the completion
+            case .failure(let error):
+                print("Failure case - error:", error)
                 // Handle error case
                 isAnimating = false
                 onComplete()
+            }
+        }
+    }
+    
+    private func simulateSteps() {
+        // Step 1: Analyzing image
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            print("Step 1 complete")
+            Haptics.shared.play()
+            withAnimation {
+                currentStep = 1
+            }
+            
+            // Step 2: Identifying characteristics
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+                print("Step 2 complete")
+                Haptics.shared.play()
+                withAnimation {
+                    currentStep = 2
+                }
+                
+                // Step 3: Preparing results
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
+                    print("Step 3 complete")
+                    Haptics.shared.play()
+                    withAnimation {
+                        currentStep = 3
+                    }
+                    
+                    // Wait 1 second after step 3 before completing
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        print("Calling onComplete")
+                        isAnimating = false
+                        onComplete()
+                    }
+                }
             }
         }
     }

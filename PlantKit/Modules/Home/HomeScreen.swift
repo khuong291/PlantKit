@@ -53,9 +53,12 @@ struct HomeScreen: View {
                         .padding(.top, 16)
                     plantToolsView
                         .padding(.top, 32)
+                    popularIndoorPlantsView
+                        .padding(.top, 32)
+                    popularOutdoorPlantsView
+                        .padding(.top, 32)
                     recentlyScannedView
                         .padding(.top, 32)
-//                    content
                 }
                 .padding(.horizontal)
             }
@@ -114,6 +117,74 @@ struct HomeScreen: View {
         .padding(10)
         .background(Color.white)
         .cornerRadius(8)
+    }
+    
+    private var popularIndoorPlantsView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Popular Indoor Plants")
+                .font(.title3)
+                .bold()
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    PopularPlantCard(
+                        name: "Monstera Deliciosa",
+                        imageName: "monstera"
+                    )
+                    PopularPlantCard(
+                        name: "Snake Plant",
+                        imageName: "snake-plant"
+                    )
+                    PopularPlantCard(
+                        name: "Fiddle Leaf Fig",
+                        imageName: "fiddle-leaf"
+                    )
+                    PopularPlantCard(
+                        name: "Peace Lily",
+                        imageName: "peace-lily"
+                    )
+                    PopularPlantCard(
+                        name: "ZZ Plant",
+                        imageName: "zz-plant"
+                    )
+                }
+                .padding(.horizontal, 4)
+            }
+        }
+    }
+    
+    private var popularOutdoorPlantsView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Popular Outdoor Plants")
+                .font(.title3)
+                .bold()
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    PopularPlantCard(
+                        name: "Hydrangea",
+                        imageName: "hydrangea"
+                    )
+                    PopularPlantCard(
+                        name: "Japanese Maple",
+                        imageName: "japanese-maple"
+                    )
+                    PopularPlantCard(
+                        name: "Lavender",
+                        imageName: "lavender"
+                    )
+                    PopularPlantCard(
+                        name: "Rose Bush",
+                        imageName: "rose-bush"
+                    )
+                    PopularPlantCard(
+                        name: "Boxwood",
+                        imageName: "boxwood"
+                    )
+                }
+                .padding(.horizontal, 4)
+            }
+        }
     }
     
     private var plantToolsView: some View {
@@ -233,6 +304,41 @@ struct HomeScreen: View {
         }
         .frame(maxWidth: .infinity)
         .background(Color.appScreenBackgroundColor)
+    }
+}
+
+struct PopularPlantCard: View {
+    let name: String
+    let imageName: String
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            ZStack(alignment: .bottomLeading) {
+                Image(imageName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 200, height: 250)
+                    .clipped()
+                    .cornerRadius(16)
+                
+                LinearGradient(
+                    gradient: Gradient(colors: [.black.opacity(0.7), .clear]),
+                    startPoint: .bottom,
+                    endPoint: .top
+                )
+                .frame(height: 100)
+                .cornerRadius(16)
+                
+                Text(name)
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding(16)
+            }
+        }
+        .frame(width: 200, height: 250)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
     }
 }
 

@@ -94,11 +94,9 @@ struct MainTab: View {
             selectedTab = .home
         }
         .fullScreenCover(isPresented: $viewModel.isPresentingCamera) {
-            CameraView(dismissAction: viewModel.closeCamera, onImageCaptured: { image in
-                identifierManager.identify(image: image)
-            })
-            .environmentObject(viewModel.cameraManager)
-            .environmentObject(identifierManager)
+            CameraView(dismissAction: viewModel.closeCamera)
+                .environmentObject(viewModel.cameraManager)
+                .environmentObject(identifierManager)
         }
     }
     

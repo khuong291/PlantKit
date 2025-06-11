@@ -13,7 +13,7 @@ class IdentifierManager: ObservableObject {
     @Published var errorMessage: String?
     @Published var recentScans: [ScannedPlant] = []
     
-    func identify(image: UIImage) {
+    func identify(image: UIImage, completion: @escaping (Result<Void, Error>) -> Void) {
         isLoading = true
         errorMessage = nil
         capturedImage = image
@@ -25,8 +25,10 @@ class IdentifierManager: ObservableObject {
                 case .success(let plantName):
                     self.isLoading = false
                     self.saveScan(name: plantName, image: image)
+                    completion(.success(()))
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
+                    completion(.failure(error))
                 }
             }
         }

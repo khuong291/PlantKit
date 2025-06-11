@@ -9,7 +9,6 @@ import SwiftUI
 
 struct CameraView: View {
     let dismissAction: () -> Void
-    let onImageCaptured: (UIImage) -> Void
     @EnvironmentObject var cameraManager: CameraManager
     
     @State private var isShowingPhotoPicker = false
@@ -41,7 +40,6 @@ struct CameraView: View {
             PhotoPreviewView(
                 image: image,
                 onIdentify: {
-                    onImageCaptured(image)
                     dismissAction()
                 },
                 onDismiss: {
@@ -146,10 +144,6 @@ struct CameraView: View {
             Haptics.shared.play()
             capturingImage = true
             cameraManager.capturePhoto { image in
-//                if let capturedImage = image {
-//                    onImageCaptured(capturedImage)
-//                }
-//                dismissAction()
                 if let captured = image?.croppedToCenterSquare() {
                     capturingImage = false
                     capturedImage = captured

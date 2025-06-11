@@ -19,7 +19,7 @@ struct PhotoPreviewView: View {
 
             if isIdentifying {
                 PlantIdentifyingView(image: image, onComplete: {
-//                    onIdentify()
+                    onIdentify()
                 })
             } else {
                 VStack {
@@ -74,6 +74,8 @@ struct PlantIdentifyingView: View {
     @State private var currentStep = 0
     @State private var scanProgress: CGFloat = 0
     @State private var isReversing = false
+    @State private var isAnimating = true
+    @EnvironmentObject var identifierManager: IdentifierManager
     
     private let steps = [
         "Analyzing image",
@@ -97,25 +99,27 @@ struct PlantIdentifyingView: View {
                     )
                 
                 // Scanning animation
-                VStack(spacing: 0) {
-                    // Horizontal scanning line
-                    Rectangle()
-                        .fill(Color.green)
-                        .frame(height: 6)
-                    
-                    // Gradient overlay
-                    Rectangle()
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [.green.opacity(0.5), .clear]),
-                                startPoint: .top,
-                                endPoint: .bottom
+                if currentStep < 3 {
+                    VStack(spacing: 0) {
+                        // Horizontal scanning line
+                        Rectangle()
+                            .fill(Color.green)
+                            .frame(height: 6)
+                        
+                        // Gradient overlay
+                        Rectangle()
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [.green.opacity(0.5), .clear]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
                             )
-                        )
-                        .frame(height: UIScreen.main.bounds.width * 0.6)
+                            .frame(height: UIScreen.main.bounds.width * 0.6)
+                    }
+                    .offset(y: scanProgress)
+                    .animation(.linear(duration: 1.5), value: scanProgress)
                 }
-                .offset(y: scanProgress)
-                .animation(.linear(duration: 1.5), value: scanProgress)
             }
             .frame(width: UIScreen.main.bounds.width * 0.9, height: UIScreen.main.bounds.width * 0.9)
             .cornerRadius(16)
@@ -160,27 +164,48 @@ struct PlantIdentifyingView: View {
         // Start scanning animation
         animateScanning()
         
-        // Step 1: Analyzing image
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            withAnimation {
-                currentStep = 1
-            }
-            
-            // Step 2: Identifying characteristics
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
-                withAnimation {
-                    currentStep = 2
+        // Start identification process
+        identifierManager.identify(image: image) { result in
+            switch result {
+            case .success:
+                // Step 1: Analyzing image
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    Haptics.shared.play()
+                    withAnimation {
+                        currentStep = 1
+                    }
+                    
+                    // Step 2: Identifying characteristics
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+                        Haptics.shared.play()
+                        withAnimation {
+                            currentStep = 2
+                        }
+                        
+                        // Complete the process
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
+                            Haptics.shared.play()
+                            withAnimation {
+                                currentStep = 3
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                isAnimating = false
+                                onComplete()
+                            }
+                        }
+                    }
                 }
-                
-                // Complete the process
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    onComplete()
-                }
+            case .failure:
+                // Handle error case
+                isAnimating = false
+                onComplete()
             }
         }
     }
     
     private func animateScanning() {
+        guard isAnimating else { return }
+        
         withAnimation(.linear(duration: 1.5)) {
             if isReversing {
                 scanProgress = 0
@@ -188,8 +213,10 @@ struct PlantIdentifyingView: View {
                 scanProgress = UIScreen.main.bounds.width * 0.9 - 6 // Total height minus line height
             }
         } completion: {
-            isReversing.toggle()
-            animateScanning()
+            if isAnimating {
+                isReversing.toggle()
+                animateScanning()
+            }
         }
     }
 }

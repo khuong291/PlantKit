@@ -165,28 +165,40 @@ struct ChatBubble: View {
     let timestamp: Date
     
     var body: some View {
-        HStack(alignment: .top, spacing: 8) {
+        HStack {
             if !isUser {
                 Image("ic-tool-ask")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 32, height: 32)
                     .clipShape(Circle())
-            }
-            
-            VStack(alignment: isUser ? .trailing : .leading, spacing: 4) {
-                Text(message)
-                    .padding(12)
-                    .background(isUser ? Color.green : Color.white)
-                    .foregroundColor(isUser ? .white : .primary)
-                    .cornerRadius(16)
                 
-                Text(timestamp, style: .time)
-                    .font(.caption2)
-                    .foregroundColor(.gray)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(message)
+                        .padding(12)
+                        .background(Color.white)
+                        .foregroundColor(.primary)
+                        .cornerRadius(16)
+                    
+                    Text(timestamp, style: .time)
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+            } else {
+                Spacer()
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text(message)
+                        .padding(12)
+                        .background(Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(16)
+                    
+                    Text(timestamp, style: .time)
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                }
             }
-            
-            if isUser { Spacer() }
         }
     }
 }

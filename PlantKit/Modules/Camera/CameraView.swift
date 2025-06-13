@@ -9,10 +9,10 @@ import SwiftUI
 
 struct CameraView: View {
     let dismissAction: () -> Void
+    let onSwitchTab: (MainTab.Tab) -> Void
     @EnvironmentObject var cameraManager: CameraManager
     @EnvironmentObject var identifierManager: IdentifierManager
     @Environment(\.dismiss) private var dismiss
-    @Binding var selectedTab: MainTab.Tab
     
     @State private var isShowingPhotoPicker = false
     @State private var capturingImage = false
@@ -68,7 +68,7 @@ struct CameraView: View {
                 ScanResultScreen(
                     plantName: plantName,
                     dismissAction: dismissAction,
-                    selectedTab: $selectedTab
+                    onSwitchTab: onSwitchTab
                 )
             }
         }

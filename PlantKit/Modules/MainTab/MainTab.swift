@@ -94,7 +94,7 @@ struct MainTab: View {
             selectedTab = .home
         }
         .fullScreenCover(isPresented: $viewModel.isPresentingCamera) {
-            CameraView(dismissAction: viewModel.closeCamera, selectedTab: $selectedTab)
+            CameraView(dismissAction: viewModel.closeCamera, onSwitchTab: switchToTab)
                 .environmentObject(viewModel.cameraManager)
                 .environmentObject(identifierManager)
         }
@@ -185,17 +185,7 @@ struct MainTab: View {
     
     private func tabItem(tab: Tab) -> some View {
         Button {
-            selectedTab = tab
-            if tab == .home && !hasSelectedHomeScreen {
-                hasSelectedHomeScreen = true
-            } else if tab == .diagnose && !hasSelectedDiagnoseScreen {
-                hasSelectedDiagnoseScreen = true
-            } else if tab == .myPlants && !hasSelectedMyPlantsScreen {
-                hasSelectedMyPlantsScreen = true
-            } else if tab == .settings && !hasSelectedSettingsScreen {
-                hasSelectedSettingsScreen = true
-            }
-            Haptics.shared.play()
+            switchToTab(tab)
         } label: {
             HStack {
                 Spacer()
@@ -218,5 +208,19 @@ struct MainTab: View {
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(CardButtonStyle())
+    }
+    
+    private func switchToTab(_ tab: Tab) {
+        selectedTab = tab
+        if tab == .home && !hasSelectedHomeScreen {
+            hasSelectedHomeScreen = true
+        } else if tab == .diagnose && !hasSelectedDiagnoseScreen {
+            hasSelectedDiagnoseScreen = true
+        } else if tab == .myPlants && !hasSelectedMyPlantsScreen {
+            hasSelectedMyPlantsScreen = true
+        } else if tab == .settings && !hasSelectedSettingsScreen {
+            hasSelectedSettingsScreen = true
+        }
+        Haptics.shared.play()
     }
 }

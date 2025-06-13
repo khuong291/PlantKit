@@ -3,9 +3,9 @@ import SwiftUI
 struct ScanResultScreen: View {
     let plantName: String
     let dismissAction: () -> Void
+    let onSwitchTab: (MainTab.Tab) -> Void
     @EnvironmentObject var identifierManager: IdentifierManager
     @Environment(\.dismiss) private var dismiss
-    @Binding var selectedTab: MainTab.Tab
     
     var body: some View {
         VStack(spacing: 20) {
@@ -33,13 +33,13 @@ struct ScanResultScreen: View {
             // Action Buttons
             ShinyBorderButton(systemName: "leaf.fill", title: "Add to My Plants") {
                 Haptics.shared.play()
-                selectedTab = .myPlants
+                onSwitchTab(.myPlants)
                 dismiss()
                 dismissAction()
             }
             .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
             .padding(.horizontal, 24)
-            .padding(.bottom, 20)
+            .padding(.bottom, 40)
         }
         .padding()
         .navigationBarTitle("Scan Result", displayMode: .inline)

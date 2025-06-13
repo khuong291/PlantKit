@@ -8,13 +8,15 @@
 import SwiftUI
 
 struct ShinyBorderButton: View {
+    let systemName: String
+    let title: String
     var onTap: () -> Void
 
     var body: some View {
         Button(action: onTap) {
             HStack {
-                Image(systemName: "sparkles")
-                Text("Identify")
+                Image(systemName: systemName)
+                Text(title)
             }
             .font(.title3)
             .fontWeight(.semibold)

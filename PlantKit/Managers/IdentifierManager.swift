@@ -12,6 +12,7 @@ class IdentifierManager: ObservableObject {
     @Published var errorMessage: String?
     @Published var recentScans: [ScannedPlant] = []
     @Published var lastIdentifiedPlant: String?
+    @Published var myPlantsScreenID = UUID()
     
     func identify(image: UIImage, completion: @escaping (Result<Void, Error>) -> Void) {
         isLoading = true
@@ -45,5 +46,6 @@ class IdentifierManager: ObservableObject {
         guard let data = image.jpegData(compressionQuality: 0.6) else { return }
         let newScan = ScannedPlant(id: UUID(), name: name, scannedAt: Date(), imageData: data)
         recentScans.insert(newScan, at: 0) // Add to top
+        myPlantsScreenID = UUID()
     }
 }

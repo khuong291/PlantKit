@@ -47,7 +47,7 @@ struct PhotoPreviewView: View {
 
                 Spacer()
 
-                ShinyBorderButton {
+                ShinyBorderButton(systemName: "sparkles", title: "Identify") {
                     onIdentify()
                 }
                 .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)

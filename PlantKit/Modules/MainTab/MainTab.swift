@@ -118,7 +118,7 @@ struct MainTab: View {
             }
             if hasSelectedMyPlantsScreen {
                 RoutingView(stack: $myPlantsRouter.stack) {
-                    myPlantsScreen
+                    myPlantsScreen.id(identifierManager.myPlantsScreenID)
                 }
                 .opacity(selectedTab == .myPlants ? 1 : 0)
                 .environmentObject(myPlantsRouter)

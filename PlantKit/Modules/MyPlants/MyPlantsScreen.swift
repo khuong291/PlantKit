@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MyPlantsScreen: View {
     @EnvironmentObject var identifierManager: IdentifierManager
+    @State private var refreshID = UUID()
     
     var body: some View {
         ZStack {
@@ -52,6 +53,10 @@ struct MyPlantsScreen: View {
                     .padding()
                 }
             }
+        }
+        .id(refreshID)
+        .onAppear {
+            refreshID = UUID()
         }
     }
 }

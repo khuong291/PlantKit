@@ -28,27 +28,18 @@ struct ScanResultScreen: View {
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
             
-            // Action Buttons
-            VStack(spacing: 12) {
-                Button(action: {
-                    // Add to My Plants action
-                    Haptics.shared.play()
-                    selectedTab = .myPlants
-                    dismiss()
-                    dismissAction()
-                }) {
-                    Text("Add to My Plants")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.green)
-                        .cornerRadius(10)
-                }
-            }
-            .padding(.horizontal)
-            
             Spacer()
+            
+            // Action Buttons
+            ShinyBorderButton(systemName: "leaf.fill", title: "Add to My Plants") {
+                Haptics.shared.play()
+                selectedTab = .myPlants
+                dismiss()
+                dismissAction()
+            }
+            .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 20)
         }
         .padding()
         .navigationBarTitle("Scan Result", displayMode: .inline)

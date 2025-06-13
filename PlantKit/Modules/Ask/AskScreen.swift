@@ -9,49 +9,52 @@ import SwiftUI
 
 struct AskScreen: View {
     @EnvironmentObject var conversationManager: ConversationManager
+    @EnvironmentObject var askRouter: Router<ContentRoute>
     @State private var showInbox = false
 
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: 0) {
-                    // Beautiful Header
-                    BeautifulHeader {
-                        withAnimation {
-                            showInbox = true
-                        }
+        ZStack {
+            Color.appScreenBackgroundColor
+                .edgesIgnoringSafeArea(.all)
+            content
+        }
+    }
+    
+    private var content: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                // Beautiful Header
+                BeautifulHeader {
+                    withAnimation {
+                        showInbox = true
                     }
-                    .padding(.top, 32)
-                    .padding(.bottom, 24)
-
-                    // Inbox Section
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text("My Inbox")
-                            .font(.title2).bold()
-                            .padding(.horizontal)
-                            .padding(.bottom, 8)
-
-                        if conversationManager.conversations.isEmpty {
-                            EmptyInboxView()
-                                .padding(.top, 32)
-                        } else {
-                            conversationList
-                        }
-                    }
-                    .background(Color.white)
-                    .cornerRadius(24)
-                    .padding(.horizontal, 0)
                 }
-                .background(Color(.systemGroupedBackground))
+
+                // Inbox Section
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("My Inbox")
+                        .font(.title2).bold()
+                        .padding(.bottom)
+                    Divider()
+                    if conversationManager.conversations.isEmpty {
+                        EmptyInboxView()
+                            .padding(.top, 32)
+                    } else {
+                        conversationList
+                    }
+                }
+                .padding()
+                .background(Color.white)
             }
-            .navigationBarHidden(true)
         }
     }
 
     private var conversationList: some View {
         VStack(spacing: 0) {
             ForEach(conversationManager.conversations) { conversation in
-                NavigationLink(destination: ConversationScreen(conversationId: conversation.id)) {
+                Button {
+                    askRouter.navigate(to: .conversation(conversation.id))
+                } label: {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(conversation.title)
@@ -76,6 +79,7 @@ struct AskScreen: View {
                     .background(Color.white)
                     .cornerRadius(12)
                 }
+                .buttonStyle(PlainButtonStyle())
 
                 if conversation.id != conversationManager.conversations.last?.id {
                     Divider()
@@ -92,41 +96,33 @@ struct BeautifulHeader: View {
     var onContinue: () -> Void
     var body: some View {
         VStack(spacing: 16) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(Color.blue)
-                    .frame(width: 100, height: 100)
-                Image("bg-ask")
-                    .resizable()
-                    .aspectRatio(1, contentMode: .fit)
-                    .frame(maxWidth: .infinity)
+            Image("bg-ask")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 150, height: 150)
+                .cornerRadius(16)
+            VStack(spacing: 4) {
+                Text("Ask Botanist")
+                    .font(.largeTitle).bold()
+                Text("Get expert plant advice instantly, powered by AI, trusted by botanists.")
+                    .font(.body)
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal)
             }
-            Text("PlantApp")
-                .font(.headline)
-                .foregroundColor(.gray)
-            Text("Ask Botanist")
-                .font(.largeTitle).bold()
-            Text("Get expert plant advice instantly—powered by AI, trusted by botanists.")
-                .font(.body)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
-                .padding(.horizontal, 16)
             Button(action: onContinue) {
                 Text("Continue")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.blue)
+                    .background(Color.green)
                     .foregroundColor(.white)
-                    .cornerRadius(16)
+                    .clipShape(.capsule)
             }
-            .padding(.horizontal, 32)
+            .padding(.horizontal)
         }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(32)
-        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
-        .padding(.horizontal)
+        .padding(.vertical)
+        .background(Color.appScreenBackgroundColor)
     }
 }
 
@@ -149,7 +145,27 @@ struct EmptyInboxView: View {
     }
 }
 
+extension View {
+    func hideTabBar() -> some View {
+        self.modifier(HideTabBarModifier())
+    }
+}
+
+struct HideTabBarModifier: ViewModifier {
+    @Environment(\.presentationMode) var presentationMode
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                UITabBar.appearance().isHidden = true
+            }
+            .onDisappear {
+                UITabBar.appearance().isHidden = false
+            }
+    }
+}
+
 #Preview {
     AskScreen()
         .environmentObject(ConversationManager())
+        .environmentObject(Router<ContentRoute>())
 }

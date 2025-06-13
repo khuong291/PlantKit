@@ -5,6 +5,7 @@ struct ConversationScreen: View {
     @EnvironmentObject var conversationManager: ConversationManager
     @Environment(\.dismiss) private var dismiss
     @State private var messageText = ""
+    @State private var scrollProxy: ScrollViewProxy? = nil
     
     private var conversation: Conversation? {
         conversationManager.conversations.first { $0.id == conversationId }
@@ -15,24 +16,33 @@ struct ConversationScreen: View {
             Color.appScreenBackgroundColor
                 .edgesIgnoringSafeArea(.all)
             VStack(spacing: 0) {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        if let conversation = conversation {
-                            if conversation.messages.isEmpty {
-                                Spacer()
-                                emptyView
-                                    .frame(maxWidth: .infinity)
-                                Spacer()
-                            } else {
-                                conversationList
-                                Spacer()
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            if let conversation = conversation {
+                                if conversation.messages.isEmpty {
+                                    Spacer()
+                                    emptyView
+                                        .frame(maxWidth: .infinity)
+                                    Spacer()
+                                } else {
+                                    conversationList
+                                    Spacer()
+                                }
                             }
                         }
+                        .padding()
+                        .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height - 100)
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height - 100)
+                    .frame(maxWidth: .infinity)
+                    .onAppear {
+                        scrollProxy = proxy
+                        scrollToBottom()
+                    }
+                    .onChange(of: conversation?.messages.count) { _ in
+                        scrollToBottom()
+                    }
                 }
-                .frame(maxWidth: .infinity)
                 
                 // Message input bar
                 HStack(spacing: 12) {
@@ -68,6 +78,12 @@ struct ConversationScreen: View {
         .navigationBarTitleDisplayMode(.inline)
     }
     
+    private func scrollToBottom() {
+        withAnimation {
+            scrollProxy?.scrollTo("bottom", anchor: .bottom)
+        }
+    }
+    
     private var emptyView: some View {
         VStack(spacing: 10) {
             Image(systemSymbol: .bubbleLeftAndBubbleRightFill)
@@ -76,6 +92,7 @@ struct ConversationScreen: View {
             Text("No messages yet. Ask anything about your plants!")
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
+                .padding(.horizontal)
         }
     }
     
@@ -92,13 +109,52 @@ struct ConversationScreen: View {
                 
                 if conversationManager.isLoading {
                     HStack {
-                        Spacer()
-                        ProgressView()
-                            .padding()
+                        TypingIndicator()
                         Spacer()
                     }
                 }
+                
+                Color.clear
+                    .frame(height: 1)
+                    .id("bottom")
             }
+        }
+    }
+}
+
+struct TypingIndicator: View {
+    @State private var animationOffset = 0.0
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            Image("ic-tool-ask")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 32, height: 32)
+                .clipShape(Circle())
+            
+            HStack(spacing: 4) {
+                ForEach(0..<3) { index in
+                    Circle()
+                        .fill(Color.gray.opacity(0.5))
+                        .frame(width: 8, height: 8)
+                        .offset(y: animationOffset)
+                        .animation(
+                            Animation.easeInOut(duration: 0.5)
+                                .repeatForever()
+                                .delay(0.2 * Double(index)),
+                            value: animationOffset
+                        )
+                }
+            }
+            .padding(12)
+            .background(Color.white)
+            .cornerRadius(16)
+            
+            Spacer()
+        }
+        .onAppear {
+            animationOffset = -5
         }
     }
 }
@@ -109,8 +165,14 @@ struct ChatBubble: View {
     let timestamp: Date
     
     var body: some View {
-        HStack {
-            if isUser { Spacer() }
+        HStack(alignment: .top, spacing: 8) {
+            if !isUser {
+                Image("ic-tool-ask")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 32, height: 32)
+                    .clipShape(Circle())
+            }
             
             VStack(alignment: isUser ? .trailing : .leading, spacing: 4) {
                 Text(message)
@@ -124,7 +186,7 @@ struct ChatBubble: View {
                     .foregroundColor(.gray)
             }
             
-            if !isUser { Spacer() }
+            if isUser { Spacer() }
         }
     }
 }

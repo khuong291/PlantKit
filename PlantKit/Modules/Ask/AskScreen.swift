@@ -24,10 +24,7 @@ struct AskScreen: View {
         ScrollView {
             VStack(spacing: 0) {
                 // Beautiful Header
-                BeautifulHeader {
-                    Haptics.shared.play()
-                    askRouter.navigate(to: .conversation(.init()))
-                }
+                BeautifulHeader()
 
                 // Inbox Section
                 VStack(alignment: .leading, spacing: 0) {
@@ -96,7 +93,9 @@ struct AskScreen: View {
 // MARK: - Beautiful Header
 
 struct BeautifulHeader: View {
-    var onContinue: () -> Void
+    @EnvironmentObject var conversationManager: ConversationManager
+    @EnvironmentObject var askRouter: Router<ContentRoute>
+    
     var body: some View {
         VStack(spacing: 16) {
             Image("bg-ask")
@@ -113,7 +112,12 @@ struct BeautifulHeader: View {
                     .foregroundColor(.secondary)
                     .padding(.horizontal)
             }
-            Button(action: onContinue) {
+            Button(action: {
+                Haptics.shared.play()
+                let newConversation = conversationManager.createNewConversation()
+                conversationManager.currentConversationId = newConversation.id
+                askRouter.navigate(to: .conversation(newConversation.id))
+            }) {
                 Text("Ask New Question")
                     .font(.headline)
                     .frame(maxWidth: .infinity)

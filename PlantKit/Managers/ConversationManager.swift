@@ -29,10 +29,11 @@ class ConversationManager: ObservableObject {
         conversations.first { $0.id == currentConversationId }
     }
     
-    func createNewConversation() {
+    func createNewConversation() -> Conversation {
         let newConversation = Conversation()
         conversations.insert(newConversation, at: 0)
         currentConversationId = newConversation.id
+        return newConversation
     }
     
     func sendMessage(_ content: String) {

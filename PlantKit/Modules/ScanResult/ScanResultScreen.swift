@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ScanResultScreen: View {
     let plantName: String
+    let dismissAction: () -> Void
     @EnvironmentObject var identifierManager: IdentifierManager
     @Environment(\.dismiss) private var dismiss
     @Binding var selectedTab: MainTab.Tab
@@ -34,6 +35,7 @@ struct ScanResultScreen: View {
                     Haptics.shared.play()
                     selectedTab = .myPlants
                     dismiss()
+                    dismissAction()
                 }) {
                     Text("Add to My Plants")
                         .font(.headline)
@@ -41,18 +43,6 @@ struct ScanResultScreen: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.green)
-                        .cornerRadius(10)
-                }
-                
-                Button(action: {
-                    // Learn More action
-                }) {
-                    Text("Learn More")
-                        .font(.headline)
-                        .foregroundColor(.green)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.green.opacity(0.1))
                         .cornerRadius(10)
                 }
             }
@@ -64,8 +54,3 @@ struct ScanResultScreen: View {
         .navigationBarTitle("Scan Result", displayMode: .inline)
     }
 }
-
-#Preview {
-    ScanResultScreen(plantName: "Monstera Deliciosa", selectedTab: .constant(.home))
-        .environmentObject(IdentifierManager())
-} 

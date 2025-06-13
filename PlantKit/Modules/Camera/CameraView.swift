@@ -65,9 +65,11 @@ struct CameraView: View {
         }
         .fullScreenCover(isPresented: $showScanResult) {
             if let plantName = identifierManager.lastIdentifiedPlant {
-                NavigationView {
-                    ScanResultScreen(plantName: plantName, selectedTab: $selectedTab)
-                }
+                ScanResultScreen(
+                    plantName: plantName,
+                    dismissAction: dismissAction,
+                    selectedTab: $selectedTab
+                )
             }
         }
     }

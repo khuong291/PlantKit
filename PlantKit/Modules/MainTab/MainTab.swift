@@ -11,7 +11,7 @@ import ReuseAcross
 struct MainTab: View {
     enum Tab: Int {
         case home
-        case diagnose
+        case ask
         case myPlants
         case settings
         
@@ -19,8 +19,8 @@ struct MainTab: View {
             switch self {
             case .home:
                 return "Home"
-            case .diagnose:
-                return "Diagnose"
+            case .ask:
+                return "Ask"
             case .myPlants:
                 return "My Plants"
             case .settings:
@@ -32,8 +32,8 @@ struct MainTab: View {
             switch self {
             case .home:
                 return "ic-home"
-            case .diagnose:
-                return "ic-diagnose"
+            case .ask:
+                return "ic-chat"
             case .myPlants:
                 return "ic-my-plants"
             case .settings:
@@ -45,8 +45,8 @@ struct MainTab: View {
             switch self {
             case .home:
                 return 24
-            case .diagnose:
-                return 26
+            case .ask:
+                return 24
             case .myPlants:
                 return 24
             case .settings:
@@ -58,18 +58,18 @@ struct MainTab: View {
     @EnvironmentObject private var identifierManager: IdentifierManager
     @StateObject private var viewModel = MainTabViewModel()
     @StateObject private var homeRouter = Router<ContentRoute>()
-    @StateObject private var diagnoseRouter = Router<ContentRoute>()
+    @StateObject private var askRouter = Router<ContentRoute>()
     @StateObject private var myPlantsRouter = Router<ContentRoute>()
     @StateObject private var settingsRouter = Router<ContentRoute>()
     
     @State private var selectedTab: Tab = .home
     @State private var hasSelectedHomeScreen = false
-    @State private var hasSelectedDiagnoseScreen = false
+    @State private var hasSelectedAskScreen = false
     @State private var hasSelectedMyPlantsScreen = false
     @State private var hasSelectedSettingsScreen = false
     
     private let homeScreen = HomeScreen()
-    private let diagnoseScreen = DiagnoseScreen()
+    private let askScreen = AskScreen()
     private let myPlantsScreen = MyPlantsScreen()
     private let settingsScreen = SettingsScreen()
     
@@ -109,12 +109,12 @@ struct MainTab: View {
                 .opacity(selectedTab == .home ? 1 : 0)
                 .environmentObject(homeRouter)
             }
-            if hasSelectedDiagnoseScreen {
-                RoutingView(stack: $diagnoseRouter.stack) {
-                    diagnoseScreen
+            if hasSelectedAskScreen {
+                RoutingView(stack: $askRouter.stack) {
+                    askScreen
                 }
-                .opacity(selectedTab == .diagnose ? 1 : 0)
-                .environmentObject(diagnoseRouter)
+                .opacity(selectedTab == .ask ? 1 : 0)
+                .environmentObject(askRouter)
             }
             if hasSelectedMyPlantsScreen {
                 RoutingView(stack: $myPlantsRouter.stack) {
@@ -138,7 +138,7 @@ struct MainTab: View {
             Spacer()
                 .frame(width: 10)
             tabItem(tab: .home)
-            tabItem(tab: .diagnose)
+            tabItem(tab: .ask)
             Spacer()
                 .frame(width: 80)
             tabItem(tab: .myPlants)
@@ -214,8 +214,8 @@ struct MainTab: View {
         selectedTab = tab
         if tab == .home && !hasSelectedHomeScreen {
             hasSelectedHomeScreen = true
-        } else if tab == .diagnose && !hasSelectedDiagnoseScreen {
-            hasSelectedDiagnoseScreen = true
+        } else if tab == .ask && !hasSelectedAskScreen {
+            hasSelectedAskScreen = true
         } else if tab == .myPlants && !hasSelectedMyPlantsScreen {
             hasSelectedMyPlantsScreen = true
         } else if tab == .settings && !hasSelectedSettingsScreen {

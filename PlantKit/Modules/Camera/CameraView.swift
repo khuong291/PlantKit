@@ -14,12 +14,35 @@ struct CameraView: View {
     @State private var isShowingPhotoPicker = false
     @State private var capturingImage = false
     @State private var capturedImage: UIImage? = nil
+    @State private var isIdentifying = false
     
     var body: some View {
         ZStack {
             Color.black
                 .edgesIgnoringSafeArea(.all)
             content
+            
+            if let image = capturedImage {
+                if isIdentifying {
+                    PlantIdentifyingView(image: image, onComplete: {
+                        capturedImage = nil
+                        isIdentifying = false
+                        dismissAction()
+                    })
+                } else {
+                    PhotoPreviewView(
+                        image: image,
+                        onIdentify: {
+                            withAnimation {
+                                isIdentifying = true
+                            }
+                        },
+                        onDismiss: {
+                            capturedImage = nil
+                        }
+                    )
+                }
+            }
         }
         .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
         .onAppear {
@@ -35,18 +58,6 @@ struct CameraView: View {
                     }
                 }
             }
-        }
-        .fullScreenCover(item: $capturedImage) { image in
-            PhotoPreviewView(
-                image: image,
-                onIdentify: {
-                    capturedImage = nil
-                    dismissAction()
-                },
-                onDismiss: {
-                    capturedImage = nil
-                }
-            )
         }
     }
     
@@ -120,7 +131,7 @@ struct CameraView: View {
             }
             Spacer()
         }
-        .padding(.top, 30)
+        .padding(.top, 50)
         .padding(.trailing, 10)
     }
     

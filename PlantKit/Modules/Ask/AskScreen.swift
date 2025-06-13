@@ -38,13 +38,17 @@ struct AskScreen: View {
                     Divider()
                     if conversationManager.conversations.isEmpty {
                         EmptyInboxView()
-                            .padding(.top, 32)
+                            .frame(maxHeight: .infinity)
                     } else {
                         conversationList
                     }
+                    Spacer()
                 }
                 .padding()
+                .frame(maxHeight: .infinity)
                 .background(Color.white)
+                
+                Spacer()
             }
         }
     }
@@ -111,7 +115,7 @@ struct BeautifulHeader: View {
                     .padding(.horizontal)
             }
             Button(action: onContinue) {
-                Text("Continue")
+                Text("Ask New Question")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -131,17 +135,21 @@ struct BeautifulHeader: View {
 struct EmptyInboxView: View {
     var body: some View {
         VStack(spacing: 12) {
-            Image(systemName: "plus.bubble")
-                .font(.system(size: 40))
-                .foregroundColor(.gray)
+            Spacer()
+            Image("ic-chat")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 40, height: 40)
+                .foregroundColor(.secondary.opacity(0.3))
             Text("No Chats")
                 .font(.title3).bold()
             Text("As you talk with AI, your conversations will appear here.")
                 .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
+            Spacer()
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 

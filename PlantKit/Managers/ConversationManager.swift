@@ -29,13 +29,6 @@ class ConversationManager: ObservableObject {
         conversations.first { $0.id == currentConversationId }
     }
     
-    init() {
-        // Add a default conversation
-        let newConversation = Conversation()
-        conversations.append(newConversation)
-        currentConversationId = newConversation.id
-    }
-    
     func createNewConversation() {
         let newConversation = Conversation()
         conversations.insert(newConversation, at: 0)

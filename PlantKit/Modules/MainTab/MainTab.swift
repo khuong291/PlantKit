@@ -84,9 +84,16 @@ struct MainTab: View {
     var body: some View {
         ZStack {
             tabContent
-            VStack(spacing: 0) {
-                Spacer()
-                tabItems
+            if !askRouter.stack.contains(where: { route in
+                if case .conversation = route {
+                    return true
+                }
+                return false
+            }) {
+                VStack(spacing: 0) {
+                    Spacer()
+                    tabItems
+                }
             }
         }
         .onAppear {

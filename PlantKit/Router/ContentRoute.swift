@@ -20,7 +20,6 @@ enum ContentRoute: Routable {
             AskScreen()
         case .conversation(let id):
             ConversationScreen(conversationId: id)
-                .hideTabBar()
         }
     }
 }

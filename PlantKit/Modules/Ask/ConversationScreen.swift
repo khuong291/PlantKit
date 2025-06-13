@@ -62,7 +62,6 @@ struct ConversationScreen: View {
                         .foregroundColor(Color.gray.opacity(0.2)),
                     alignment: .top
                 )
-                .padding(.bottom, 100)
             }
         }
         .navigationTitle(conversation?.title ?? "Conversation")

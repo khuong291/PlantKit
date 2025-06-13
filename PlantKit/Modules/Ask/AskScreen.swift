@@ -25,9 +25,8 @@ struct AskScreen: View {
             VStack(spacing: 0) {
                 // Beautiful Header
                 BeautifulHeader {
-                    withAnimation {
-                        showInbox = true
-                    }
+                    Haptics.shared.play()
+                    askRouter.navigate(to: .conversation(.init()))
                 }
 
                 // Inbox Section
@@ -150,25 +149,6 @@ struct EmptyInboxView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
-extension View {
-    func hideTabBar() -> some View {
-        self.modifier(HideTabBarModifier())
-    }
-}
-
-struct HideTabBarModifier: ViewModifier {
-    @Environment(\.presentationMode) var presentationMode
-    func body(content: Content) -> some View {
-        content
-            .onAppear {
-                UITabBar.appearance().isHidden = true
-            }
-            .onDisappear {
-                UITabBar.appearance().isHidden = false
-            }
     }
 }
 

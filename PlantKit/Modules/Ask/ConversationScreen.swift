@@ -165,7 +165,7 @@ struct ChatBubble: View {
     let timestamp: Date
     
     var body: some View {
-        HStack {
+        HStack(alignment: .top) {
             if !isUser {
                 Image("ic-tool-ask")
                     .resizable()

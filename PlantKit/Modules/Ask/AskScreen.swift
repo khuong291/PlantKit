@@ -56,6 +56,11 @@ struct AskScreen: View {
                     askRouter.navigate(to: .conversation(conversation.id))
                 } label: {
                     HStack {
+                        Image("ic-tool-ask")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 46, height: 46)
+                            .clipShape(Circle())
                         VStack(alignment: .leading, spacing: 4) {
                             Text(conversation.title)
                                 .font(.headline)

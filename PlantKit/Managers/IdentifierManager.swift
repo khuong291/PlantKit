@@ -11,10 +11,12 @@ class IdentifierManager: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var recentScans: [ScannedPlant] = []
+    @Published var lastIdentifiedPlant: String?
     
     func identify(image: UIImage, completion: @escaping (Result<Void, Error>) -> Void) {
         isLoading = true
         errorMessage = nil
+        lastIdentifiedPlant = nil
         
         // Create a weak reference to self to avoid retain cycle
         PlantIdentifier.identify(image: image) { [weak self] result in
@@ -28,6 +30,7 @@ class IdentifierManager: ObservableObject {
                 
                 switch result {
                 case .success(let plantName):
+                    self.lastIdentifiedPlant = plantName
                     self.saveScan(name: plantName, image: image)
                     completion(.success(()))
                 case .failure(let error):

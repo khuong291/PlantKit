@@ -10,11 +10,15 @@ import SwiftUI
 struct CameraView: View {
     let dismissAction: () -> Void
     @EnvironmentObject var cameraManager: CameraManager
+    @EnvironmentObject var identifierManager: IdentifierManager
+    @Environment(\.dismiss) private var dismiss
+    @Binding var selectedTab: MainTab.Tab
     
     @State private var isShowingPhotoPicker = false
     @State private var capturingImage = false
     @State private var capturedImage: UIImage? = nil
     @State private var isIdentifying = false
+    @State private var showScanResult = false
     
     var body: some View {
         ZStack {
@@ -27,7 +31,7 @@ struct CameraView: View {
                     PlantIdentifyingView(image: image, onComplete: {
                         capturedImage = nil
                         isIdentifying = false
-                        dismissAction()
+                        showScanResult = true
                     })
                 } else {
                     PhotoPreviewView(
@@ -56,6 +60,13 @@ struct CameraView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         capturedImage = selectedImage
                     }
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $showScanResult) {
+            if let plantName = identifierManager.lastIdentifiedPlant {
+                NavigationView {
+                    ScanResultScreen(plantName: plantName, selectedTab: $selectedTab)
                 }
             }
         }

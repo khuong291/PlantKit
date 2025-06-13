@@ -94,7 +94,7 @@ struct MainTab: View {
             selectedTab = .home
         }
         .fullScreenCover(isPresented: $viewModel.isPresentingCamera) {
-            CameraView(dismissAction: viewModel.closeCamera)
+            CameraView(dismissAction: viewModel.closeCamera, selectedTab: $selectedTab)
                 .environmentObject(viewModel.cameraManager)
                 .environmentObject(identifierManager)
         }

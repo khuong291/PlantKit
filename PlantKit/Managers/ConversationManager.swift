@@ -58,23 +58,79 @@ class ConversationManager: ObservableObject {
             conversations[index].title = content
         }
         
-        // Simulate bot response (in a real app, this would call an API)
+        // Call askBotanist API
         isLoading = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-            guard let self = self,
-                  let conversationIndex = self.conversations.firstIndex(where: { $0.id == conversationId }) else {
+        askBotanist(message: content) { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self = self,
+                      let conversationIndex = self.conversations.firstIndex(where: { $0.id == conversationId }) else {
+                    return
+                }
+                switch result {
+                case .success(let reply):
+                    let botResponse = Message(
+                        content: reply,
+                        isUser: false,
+                        timestamp: Date()
+                    )
+                    self.conversations[conversationIndex].messages.append(botResponse)
+                    self.conversations[conversationIndex].lastMessageDate = botResponse.timestamp
+                case .failure(let error):
+                    let errorMessage = Message(
+                        content: "Sorry, something went wrong: \(error.localizedDescription)",
+                        isUser: false,
+                        timestamp: Date()
+                    )
+                    self.conversations[conversationIndex].messages.append(errorMessage)
+                    self.conversations[conversationIndex].lastMessageDate = errorMessage.timestamp
+                }
+                self.isLoading = false
+            }
+        }
+    }
+    
+    private func askBotanist(message: String, completion: @escaping (Result<String, Error>) -> Void) {
+        guard let url = URL(string: "https://us-central1-plantkit-c6c69.cloudfunctions.net/askBotanist") else {
+            completion(.failure(NSError(domain: "URL", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
+            return
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 60
+        let body: [String: Any] = ["message": message]
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        } catch {
+            completion(.failure(error))
+            return
+        }
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
                 return
             }
-            
-            let botResponse = Message(
-                content: "I'm a plant expert bot. I can help you with your plant-related questions!",
-                isUser: false,
-                timestamp: Date()
-            )
-            self.conversations[conversationIndex].messages.append(botResponse)
-            self.conversations[conversationIndex].lastMessageDate = botResponse.timestamp
-            self.isLoading = false
+            guard let data = data else {
+                completion(.failure(NSError(domain: "NoData", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received."])))
+                return
+            }
+            do {
+                if let errorResponse = try? JSONDecoder().decode([String: String].self, from: data),
+                   let errorMessage = errorResponse["error"] {
+                    completion(.failure(NSError(domain: "APIError", code: 0, userInfo: [NSLocalizedDescriptionKey: errorMessage])))
+                    return
+                }
+                let result = try JSONDecoder().decode([String: String].self, from: data)
+                if let reply = result["reply"] {
+                    completion(.success(reply))
+                } else {
+                    completion(.failure(NSError(domain: "InvalidResponse", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response format."])))
+                }
+            } catch {
+                completion(.failure(error))
+            }
         }
+        task.resume()
     }
     
     func switchConversation(to id: UUID) {

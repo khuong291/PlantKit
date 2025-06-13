@@ -57,6 +57,7 @@ struct HomeScreen: View {
                         .padding(.top, 32)
                     popularOutdoorPlantsView
                         .padding(.top, 32)
+                        .padding(.bottom, 70)
 //                    recentlyScannedView
 //                        .padding(.top, 32)
                 }

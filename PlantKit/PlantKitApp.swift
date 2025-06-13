@@ -23,6 +23,7 @@ struct PlantKitApp: App {
     
     @StateObject var cameraManager = CameraManager()
     @StateObject var identifierManager = IdentifierManager()
+    @StateObject var conversationManager = ConversationManager()
 
     var body: some Scene {
         WindowGroup {
@@ -30,6 +31,7 @@ struct PlantKitApp: App {
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .environmentObject(cameraManager)
                 .environmentObject(identifierManager)
+                .environmentObject(conversationManager)
         }
     }
 }

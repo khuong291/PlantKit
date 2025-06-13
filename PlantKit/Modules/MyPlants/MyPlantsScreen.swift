@@ -51,7 +51,6 @@ struct MyPlantsScreen: View {
                 .foregroundStyle(.green)
             Text("No plants yet. Scan a plant to add it here!")
                 .foregroundColor(.secondary)
-                .font(.footnote)
                 .multilineTextAlignment(.center)
         }
     }

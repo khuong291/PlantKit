@@ -46,9 +46,9 @@ struct PlantDetails: Codable {
             let windResistance: String? // e.g. "50km/h"
         }
         struct Soil: Codable {
-            let phRange: [Int] // e.g. [6,7,8]
-            let phLabel: String // e.g. "Neutral"
-            let types: [String] // e.g. ["Universal soil", "Tropical plant soil"]
+            let phRange: [Double]
+            let phLabel: String
+            let types: [String]
         }
         struct Light: Codable {
             let amount: String // e.g. "8 to 12 hrs/day"

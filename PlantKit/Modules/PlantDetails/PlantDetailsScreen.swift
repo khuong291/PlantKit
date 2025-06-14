@@ -443,7 +443,7 @@ struct PlantDetailsScreen: View {
             // pH
             HStack(spacing: 4) {
                 ForEach(0...14, id: \.self) { ph in
-                    let isActive = soil.phRange.contains(ph)
+                    let isActive = soil.phRange.contains(Double(ph))
                     RoundedRectangle(cornerRadius: 4)
                         .fill(isActive ? Color.green : Color(.systemGray6))
                         .frame(width: 22, height: 22)
@@ -611,7 +611,7 @@ private let mockPlantDetails = PlantDetails(
             windResistance: "50km/h"
         ),
         soil: .init(
-            phRange: [6,7,8],
+            phRange: [6.0, 7.0, 8.0],
             phLabel: "Neutral",
             types: ["Universal soil", "Tropical plant soil", "Vegetable garden soil"]
         ),

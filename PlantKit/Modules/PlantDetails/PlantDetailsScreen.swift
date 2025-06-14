@@ -130,7 +130,7 @@ struct PlantDetailsScreen: View {
                 .foregroundColor(.primary)
                 .padding(.horizontal)
             Text(details.description)
-                .font(.body)
+                .font(.subheadline)
                 .foregroundColor(.primary)
                 .padding(.top, 2)
                 .padding()
@@ -157,12 +157,10 @@ struct PlantDetailsScreen: View {
                         Text("Habitat")
                             .font(.headline)
                         Text("Natural Habitats")
-                            .font(.caption)
+                            .font(.subheadline)
                             .foregroundColor(.secondary)
                         Text(details.general.habitat)
-                            .font(.body)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.primary)
+                            .font(.subheadline)
                     }
                 }
                 .padding(.bottom, 14)
@@ -181,12 +179,10 @@ struct PlantDetailsScreen: View {
                 Divider()
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Environmental Benefits")
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                     Text(details.general.environmentalBenefits.joined(separator: ", "))
-                        .font(.body)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary)
+                        .font(.subheadline)
                 }
                 .padding(.top, 14)
             }
@@ -224,28 +220,31 @@ struct PlantDetailsScreen: View {
             Divider()
             HStack {
                 Text("Height")
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
                 Spacer()
                 Text(details.physical.height)
-                    .foregroundColor(.primary)
+                    .font(.subheadline)
             }
             .padding(.vertical, 14)
             Divider()
             HStack {
                 Text("Crown Diameter")
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
                 Spacer()
                 Text(details.physical.crownDiameter)
-                    .foregroundColor(.primary)
+                    .font(.subheadline)
             }
             .padding(.vertical, 14)
             Divider()
             HStack {
                 Text("Form")
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
                 Spacer()
                 Text(details.physical.form)
-                    .foregroundColor(.primary)
+                    .font(.subheadline)
             }
             .padding(.top, 14)
         }
@@ -269,20 +268,22 @@ struct PlantDetailsScreen: View {
             Divider()
             HStack {
                 Text("Mature Height Time")
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
                 Spacer()
                 Text(details.development.matureHeightTime)
-                    .foregroundColor(.primary)
+                .font(.subheadline)
             }
             .padding(.vertical, 14)
             Divider()
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text("Growth Speed")
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                     Spacer()
                     Text("\(details.development.growthSpeed)")
-                        .foregroundColor(.primary)
+                        .font(.subheadline)
                 }
                 GrowthBar(value: details.development.growthSpeed, max: 10)
             }
@@ -290,19 +291,20 @@ struct PlantDetailsScreen: View {
             Divider()
             VStack(alignment: .leading, spacing: 6) {
                 Text("Propagation Methods")
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
                 Text(details.development.propagationMethods.joined(separator: ", "))
-                    .fontWeight(.semibold)
-                    .foregroundColor(.primary)
+                    .font(.subheadline)
             }
             .padding(.vertical, 14)
             Divider()
             HStack {
                 Text("Cycle")
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
                 Spacer()
                 Text(details.development.cycle)
-                    .foregroundColor(.primary)
+                    .font(.subheadline)
             }
             .padding(.top, 14)
         }
@@ -345,7 +347,7 @@ struct PlantDetailsScreen: View {
                     .font(.headline)
                 Spacer()
                 Text(String(format: "%.1f°C", climatic.minTemperature))
-                    .font(.headline)
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
             }
             // Hardiness Zone
@@ -365,58 +367,112 @@ struct PlantDetailsScreen: View {
             // Temperature
             VStack(alignment: .leading, spacing: 2) {
                 Text("Temperature")
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
-                RangeBar(
-                    range: 0...50,
-                    highlight: climatic.temperatureRange.lower...climatic.temperatureRange.upper,
-                    ideal: climatic.idealTemperatureRange.lower...climatic.idealTemperatureRange.upper
-                )
-                HStack {
-                    Text("Tolérée")
-                        .font(.caption2)
-                        .foregroundColor(.green)
-                    Spacer()
-                    Text("Idéale")
-                        .font(.caption2)
-                        .foregroundColor(.green)
+                VStack(spacing: 0) {
+                    RangeBar(
+                        range: 0...50,
+                        highlight: climatic.temperatureRange.lower...climatic.temperatureRange.upper,
+                        ideal: climatic.idealTemperatureRange.lower...climatic.idealTemperatureRange.upper
+                    )
+                    GeometryReader { geo in
+                        let width = geo.size.width
+                        let range = 50.0 - 0.0
+                        let tStart = CGFloat((climatic.temperatureRange.lower - 0.0) / range) * width
+                        let tEnd = CGFloat((climatic.temperatureRange.upper - 0.0) / range) * width
+                        let iStart = CGFloat((climatic.idealTemperatureRange.lower - 0.0) / range) * width
+                        let iEnd = CGFloat((climatic.idealTemperatureRange.upper - 0.0) / range) * width
+                        ZStack(alignment: .topLeading) {
+                            HStack {
+                                Text("0")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text("50")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                            // Tolerated range labels
+                            Text("\(Int(climatic.temperatureRange.lower))")
+                                .font(.caption2)
+                                .offset(x: tStart - 0)
+                            Text("\(Int(climatic.temperatureRange.upper))")
+                                .font(.caption2)
+                                .offset(x: tEnd - 10)
+                            // Ideal range labels
+                            Text("\(Int(climatic.idealTemperatureRange.lower))")
+                                .font(.caption2)
+                                .offset(x: iStart - 0)
+                            Text("\(Int(climatic.idealTemperatureRange.upper))")
+                                .font(.caption2)
+                                .offset(x: iEnd - 10)
+                        }
+                    }
+                    .frame(height: 20)
                 }
+                // Legend
+                HStack(spacing: 12) {
+                    Spacer()
+                    HStack(spacing: 4) {
+                        Circle().fill(Color.green.opacity(0.4)).frame(width: 10, height: 10)
+                        Text("Tolerated").font(.caption2)
+                    }
+                    HStack(spacing: 4) {
+                        Circle().fill(Color.green).frame(width: 10, height: 10)
+                        Text("Ideal").font(.caption2)
+                    }
+                    Spacer()
+                }
+                .padding(.top, 2)
             }
+            .padding(.top, 14)
             // Humidity
             VStack(alignment: .leading, spacing: 2) {
                 Text("Humidity")
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
-                RangeBar(
-                    range: 0...100,
-                    highlight: Double(climatic.humidityRange.lower)...Double(climatic.humidityRange.upper),
-                    ideal: Double(climatic.humidityRange.lower)...Double(climatic.humidityRange.upper),
-                    isPercent: true
-                )
-                HStack {
-                    Text("0%")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                    Spacer()
-                    Text("100%")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
+                VStack(spacing: 0) {
+                    RangeBar(
+                        range: 0...100,
+                        highlight: Double(climatic.humidityRange.lower)...Double(climatic.humidityRange.upper),
+                        ideal: Double(climatic.humidityRange.lower)...Double(climatic.humidityRange.upper),
+                        isPercent: true
+                    )
+                    GeometryReader { geo in
+                        let width = geo.size.width
+                        let range = 100.0
+                        let hStart = CGFloat(Double(climatic.humidityRange.lower) / range) * width
+                        let hEnd = CGFloat(Double(climatic.humidityRange.upper) / range) * width
+                        ZStack(alignment: .topLeading) {
+                            HStack {
+                                Text("0%")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text("100%")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                            Text("\(climatic.humidityRange.lower)")
+                                .font(.caption2)
+                                .offset(x: hStart - 0)
+                            Text("\(climatic.humidityRange.upper)")
+                                .font(.caption2)
+                                .offset(x: hEnd - 10)
+                        }
+                    }
+                    .frame(height: 28)
                 }
             }
             // Wind Resistance
             if let wind = climatic.windResistance {
                 HStack {
                     Text("Wind Resistance")
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                     Spacer()
                     Text(wind)
                         .font(.subheadline)
-                        .foregroundColor(.yellow)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
-                        .background(Color.yellow.opacity(0.15))
-                        .cornerRadius(8)
                 }
             }
         }
@@ -428,7 +484,7 @@ struct PlantDetailsScreen: View {
     }
     
     private func soilCard(_ soil: PlantDetails.Conditions.Soil) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
                 Image(systemName: "mountain.2")
                     .font(.title2)
@@ -437,32 +493,42 @@ struct PlantDetailsScreen: View {
                     .font(.headline)
                 Spacer()
                 Text(soil.phLabel)
-                    .font(.headline)
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
             }
             // pH
-            HStack(spacing: 4) {
-                ForEach(0...14, id: \.self) { ph in
-                    let isActive = soil.phRange.contains(Double(ph))
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(isActive ? Color.green : Color(.systemGray6))
-                        .frame(width: 22, height: 22)
-                        .overlay(
-                            Text("\(ph)")
-                                .font(.caption2)
-                                .foregroundColor(isActive ? .white : .gray)
-                        )
+            GeometryReader { geometry in
+                let spacing: CGFloat = 4
+                let totalSpacing = spacing * CGFloat(14) // 15 numbers (0-14) need 14 spaces
+                let availableWidth = geometry.size.width - totalSpacing
+                let barWidth = availableWidth / 15 // Divide by 15 for 0-14
+                
+                HStack(spacing: spacing) {
+                    ForEach(0...14, id: \.self) { ph in
+                        let isActive = soil.phRange.contains(Double(ph))
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(isActive ? Color.green : Color(.systemGray6))
+                            .frame(width: barWidth, height: 22)
+                            .overlay(
+                                Text("\(ph)")
+                                    .font(.caption2)
+                                    .foregroundColor(isActive ? .white : .gray)
+                            )
+                    }
                 }
             }
+            .frame(height: 22)
+            .padding(.top, 14)
             // Types
             VStack(alignment: .leading, spacing: 2) {
                 Text("Types")
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
                 Text(soil.types.joined(separator: ", "))
-                    .font(.body)
+                    .font(.subheadline)
                     .foregroundColor(.primary)
             }
+            .padding(.top, 14)
         }
         .padding()
         .background(Color.white)
@@ -482,25 +548,20 @@ struct PlantDetailsScreen: View {
             }
             HStack {
                 Text("Amount")
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
                 Spacer()
                 Text(light.amount)
-                    .font(.body)
+                    .font(.subheadline)
                     .foregroundColor(.primary)
             }
             HStack {
                 Text("Type")
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
                 Spacer()
                 Text(light.type)
                     .font(.subheadline)
-                    .foregroundColor(.yellow)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 2)
-                    .background(Color.yellow.opacity(0.15))
-                    .cornerRadius(8)
             }
         }
         .padding()
@@ -516,7 +577,7 @@ struct FlagChip: View {
     var body: some View {
         HStack(spacing: 4) {
             Text(label)
-                .font(.caption)
+                .font(.subheadline)
                 .foregroundColor(.primary)
         }
         .padding(.vertical, 4)

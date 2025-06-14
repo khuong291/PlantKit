@@ -142,13 +142,13 @@ struct PlantDetailsScreen: View {
     }
     
     private func generalSection(details: PlantDetails) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 6) {
             Text("General")
                 .font(.headline)
                 .foregroundColor(.primary)
                 .padding(.horizontal)
             VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .top, spacing: 12) {
+                HStack(alignment: .top, spacing: 6) {
                     Image(systemName: "globe")
                         .font(.title2)
                         .foregroundColor(.primary)
@@ -164,7 +164,7 @@ struct PlantDetailsScreen: View {
                             .foregroundColor(.primary)
                     }
                 }
-                .padding(.bottom, 8)
+                .padding(.bottom, 14)
                 Divider()
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Countries of Origin")
@@ -176,7 +176,7 @@ struct PlantDetailsScreen: View {
                         }
                     }
                 }
-                .padding(.vertical, 8)
+                .padding(.vertical, 14)
                 Divider()
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Environmental Benefits")
@@ -187,7 +187,7 @@ struct PlantDetailsScreen: View {
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
                 }
-                .padding(.top, 8)
+                .padding(.top, 14)
             }
             .padding()
             .background(Color.white)
@@ -212,14 +212,14 @@ struct PlantDetailsScreen: View {
     
     private func physicalCard(details: PlantDetails) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .center, spacing: 12) {
+            HStack(alignment: .center, spacing: 6) {
                 Image(systemName: "atom")
                     .font(.title2)
                     .foregroundColor(.primary)
                 Text("Physical")
                     .font(.headline)
             }
-            .padding(.bottom, 8)
+            .padding(.bottom, 14)
             Divider()
             HStack {
                 Text("Height")
@@ -228,7 +228,7 @@ struct PlantDetailsScreen: View {
                 Text(details.physical.height)
                     .foregroundColor(.primary)
             }
-            .padding(.vertical, 6)
+            .padding(.vertical, 14)
             Divider()
             HStack {
                 Text("Crown Diameter")
@@ -237,7 +237,7 @@ struct PlantDetailsScreen: View {
                 Text(details.physical.crownDiameter)
                     .foregroundColor(.primary)
             }
-            .padding(.vertical, 6)
+            .padding(.vertical, 14)
             Divider()
             HStack {
                 Text("Form")
@@ -246,7 +246,7 @@ struct PlantDetailsScreen: View {
                 Text(details.physical.form)
                     .foregroundColor(.primary)
             }
-            .padding(.vertical, 6)
+            .padding(.top, 14)
         }
         .padding()
         .background(Color.white)
@@ -257,14 +257,14 @@ struct PlantDetailsScreen: View {
     
     private func developmentCard(details: PlantDetails) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .center, spacing: 12) {
+            HStack(alignment: .center, spacing: 6) {
                 Image(systemName: "leaf")
                     .font(.title2)
                     .foregroundColor(.primary)
                 Text("Development")
                     .font(.headline)
             }
-            .padding(.bottom, 8)
+            .padding(.bottom, 14)
             Divider()
             HStack {
                 Text("Mature Height Time")
@@ -273,7 +273,7 @@ struct PlantDetailsScreen: View {
                 Text(details.development.matureHeightTime)
                     .foregroundColor(.primary)
             }
-            .padding(.vertical, 6)
+            .padding(.vertical, 14)
             Divider()
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
@@ -285,7 +285,7 @@ struct PlantDetailsScreen: View {
                 }
                 GrowthBar(value: details.development.growthSpeed, max: 10)
             }
-            .padding(.vertical, 6)
+            .padding(.vertical, 14)
             Divider()
             VStack(alignment: .leading, spacing: 6) {
                 Text("Propagation Methods")
@@ -294,7 +294,7 @@ struct PlantDetailsScreen: View {
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
             }
-            .padding(.vertical, 6)
+            .padding(.vertical, 14)
             Divider()
             HStack {
                 Text("Cycle")
@@ -303,7 +303,7 @@ struct PlantDetailsScreen: View {
                 Text(details.development.cycle)
                     .foregroundColor(.primary)
             }
-            .padding(.vertical, 6)
+            .padding(.top, 14)
         }
         .padding()
         .background(Color.white)
@@ -348,6 +348,38 @@ struct GrowthBar: View {
     }
 }
 
+#if DEBUG
+private let mockPlantDetails = PlantDetails(
+    commonName: "Aloe Vera",
+    scientificName: "Aloe barbadensis miller",
+    description: "Aloe Vera is a succulent plant species known for its medicinal properties and thick, fleshy leaves filled with a gel-like substance.",
+    general: .init(
+        habitat: "Arid and semi-arid climates",
+        originCountries: ["Sudan", "Arabian Peninsula"],
+        environmentalBenefits: ["Air purification", "Soil erosion control"]
+    ),
+    physical: .init(
+        height: "24-39 inches",
+        crownDiameter: "Up to 20 inches",
+        form: "Rosette"
+    ),
+    development: .init(
+        matureHeightTime: "3-4 years",
+        growthSpeed: 5,
+        propagationMethods: ["Offsets", "Cuttings"],
+        cycle: "Perennial"
+    )
+)
+
+private let mockImage: UIImage? = {
+    return UIImage(named: "peace-lily")
+}()
+#endif
+
 #Preview {
-    PlantDetailsScreen(plantDetails: nil, capturedImage: nil, onSwitchTab: { _ in })
+    PlantDetailsScreen(
+        plantDetails: mockPlantDetails,
+        capturedImage: mockImage,
+        onSwitchTab: { _ in }
+    )
 }

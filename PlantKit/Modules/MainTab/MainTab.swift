@@ -117,7 +117,7 @@ struct MainTab: View {
             identifierManager.lastPlantDetails = nil
         }) {
             if let details = identifierManager.lastPlantDetails, let image = detailsImage {
-                PlantDetailsScreen(plantDetails: details, capturedImage: image)
+                PlantDetailsScreen(plantDetails: details, capturedImage: image, onSwitchTab: switchToTab)
             }
         }
     }

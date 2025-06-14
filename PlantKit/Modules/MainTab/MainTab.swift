@@ -67,6 +67,8 @@ struct MainTab: View {
     @State private var hasSelectedAskScreen = false
     @State private var hasSelectedMyPlantsScreen = false
     @State private var hasSelectedSettingsScreen = false
+    @State private var showPlantDetails = false
+    @State private var detailsImage: UIImage? = nil
     
     private let homeScreen = HomeScreen()
     private let askScreen = AskScreen()
@@ -102,9 +104,21 @@ struct MainTab: View {
             selectedTab = .home
         }
         .fullScreenCover(isPresented: $viewModel.isPresentingCamera) {
-            CameraView(dismissAction: viewModel.closeCamera, onSwitchTab: switchToTab)
-                .environmentObject(viewModel.cameraManager)
-                .environmentObject(identifierManager)
+            CameraView(
+                dismissAction: viewModel.closeCamera,
+                onSwitchTab: switchToTab,
+                showPlantDetailsAfterCamera: showPlantDetailsAfterCamera
+            )
+            .environmentObject(viewModel.cameraManager)
+            .environmentObject(identifierManager)
+        }
+        .fullScreenCover(isPresented: $showPlantDetails, onDismiss: {
+            detailsImage = nil
+            identifierManager.lastPlantDetails = nil
+        }) {
+            if let details = identifierManager.lastPlantDetails, let image = detailsImage {
+                PlantDetailsScreen(plantDetails: details, capturedImage: image)
+            }
         }
     }
     
@@ -231,5 +245,13 @@ struct MainTab: View {
             hasSelectedSettingsScreen = true
         }
         Haptics.shared.play()
+    }
+    
+    func showPlantDetailsAfterCamera(image: UIImage) {
+        detailsImage = image
+        viewModel.isPresentingCamera = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            showPlantDetails = true
+        }
     }
 }

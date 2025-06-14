@@ -14,8 +14,11 @@ struct PlantDetailsScreen: View {
     private let tabs = ["Overview", "Requirements", "Culture", "FAQ", "Articles"]
     
     var body: some View {
-        print("PlantDetailsScreen loaded, plantDetails:", plantDetails != nil, "capturedImage:", capturedImage != nil)
-        return content
+        ZStack {
+            Color.appScreenBackgroundColor
+                .edgesIgnoringSafeArea(.all)
+            content
+        }
     }
     
     private var content: some View {
@@ -76,7 +79,6 @@ struct PlantDetailsScreen: View {
             .padding(.bottom, 40)
         }
         .edgesIgnoringSafeArea(.top)
-        .background(Color.red.opacity(0.2))
     }
     
     private var headerImageView: some View {
@@ -165,7 +167,7 @@ struct PlantDetailsScreen: View {
                         .foregroundColor(.secondary)
                     HStack(spacing: 8) {
                         ForEach(details.general.originCountries, id: \.self) { country in
-                            FlagChip(flag: countryFlag(for: country), label: country)
+                            FlagChip(label: country)
                         }
                     }
                 }
@@ -304,29 +306,12 @@ struct PlantDetailsScreen: View {
         .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
         .padding(.horizontal)
     }
-    
-    // Helper to get flag emoji from country name (simple mapping, can be improved)
-    private func countryFlag(for country: String) -> String {
-        switch country.lowercased() {
-        case "india": return "🇮🇳"
-        case "philippines": return "🇵🇭"
-        case "indonesia": return "🇮🇩"
-        case "vietnam": return "🇻🇳"
-        case "china": return "🇨🇳"
-        case "japan": return "🇯🇵"
-        case "thailand": return "🇹🇭"
-        case "usa", "united states": return "🇺🇸"
-        default: return "🌱"
-        }
-    }
 }
 
 struct FlagChip: View {
-    let flag: String
     let label: String
     var body: some View {
         HStack(spacing: 4) {
-            Text(flag)
             Text(label)
                 .font(.caption)
                 .foregroundColor(.primary)

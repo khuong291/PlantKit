@@ -10,6 +10,7 @@ import SwiftUI
 struct CameraView: View {
     let dismissAction: () -> Void
     let onSwitchTab: (MainTab.Tab) -> Void
+    let showPlantDetailsAfterCamera: (UIImage) -> Void
     @EnvironmentObject var cameraManager: CameraManager
     @EnvironmentObject var identifierManager: IdentifierManager
     @Environment(\.dismiss) private var dismiss
@@ -18,7 +19,6 @@ struct CameraView: View {
     @State private var capturingImage = false
     @State private var capturedImage: UIImage? = nil
     @State private var isIdentifying = false
-    @State private var showScanResult = false
     
     var body: some View {
         ZStack {
@@ -29,8 +29,8 @@ struct CameraView: View {
             if let image = capturedImage {
                 if isIdentifying {
                     PlantIdentifyingView(image: image, onComplete: {
-                        capturedImage = nil
                         isIdentifying = false
+                        showPlantDetailsAfterCamera(image)
                     })
                 } else {
                     PhotoPreviewView(
@@ -38,17 +38,6 @@ struct CameraView: View {
                         onIdentify: {
                             withAnimation {
                                 isIdentifying = true
-                            }
-                            identifierManager.identify(image: image) { result in
-                                DispatchQueue.main.async {
-                                    isIdentifying = false
-                                    switch result {
-                                    case .success:
-                                        showScanResult = true
-                                    case .failure:
-                                        break
-                                    }
-                                }
                             }
                         },
                         onDismiss: {
@@ -71,11 +60,6 @@ struct CameraView: View {
                         capturedImage = selectedImage
                     }
                 }
-            }
-        }
-        .fullScreenCover(isPresented: $showScanResult) {
-            if let details = identifierManager.lastPlantDetails, let image = capturedImage {
-                PlantDetailsScreen(plantDetails: details, capturedImage: image)
             }
         }
     }

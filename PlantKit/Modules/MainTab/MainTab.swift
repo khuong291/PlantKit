@@ -93,6 +93,7 @@ struct MainTab: View {
                 VStack(spacing: 0) {
                     Spacer()
                     tabItems
+                        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: -2)
                 }
             }
         }
@@ -185,6 +186,7 @@ struct MainTab: View {
                     .scaledToFit()
                     .frame(width: 32, height: 32)
                     .foregroundColor(Color.white)
+                    .shadow(color: Color.green.opacity(0.8), radius: 10, x: 0, y: 0)
             }
         }
         .buttonStyle(CardButtonStyle())

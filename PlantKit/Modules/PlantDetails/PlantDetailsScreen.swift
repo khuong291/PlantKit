@@ -60,6 +60,7 @@ struct PlantDetailsScreen: View {
                         descriptionSection(details: details)
                         generalSection(details: details)
                         characteristicsSection(details: details)
+                        conditionsSection(details: details)
                     }
                 } else {
                     VStack {
@@ -311,6 +312,203 @@ struct PlantDetailsScreen: View {
         .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
         .padding(.horizontal)
     }
+    
+    private func conditionsSection(details: PlantDetails) -> some View {
+        guard let conditions = details.conditions else { return AnyView(EmptyView()) }
+        return AnyView(
+            VStack(alignment: .leading, spacing: 16) {
+                Text("CONDITIONS")
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                    .padding(.horizontal)
+                if let climatic = conditions.climatic {
+                    climaticCard(climatic)
+                }
+                if let soil = conditions.soil {
+                    soilCard(soil)
+                }
+                if let light = conditions.light {
+                    lightCard(light)
+                }
+            }
+            .padding(.bottom, 20)
+        )
+    }
+    
+    private func climaticCard(_ climatic: PlantDetails.Conditions.Climatic) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "thermometer.sun")
+                    .font(.title2)
+                    .foregroundColor(.primary)
+                Text("Climatic")
+                    .font(.headline)
+                Spacer()
+                Text(String(format: "%.1f°C", climatic.minTemperature))
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+            }
+            // Hardiness Zone
+            HStack(spacing: 4) {
+                ForEach(1...13, id: \.self) { zone in
+                    let isActive = climatic.hardinessZone.contains(zone)
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(isActive ? Color(hue: Double(zone)/13.0, saturation: 0.5, brightness: 1) : Color(.systemGray6))
+                        .frame(width: 22, height: 22)
+                        .overlay(
+                            Text("\(zone)")
+                                .font(.caption2)
+                                .foregroundColor(isActive ? .white : .gray)
+                        )
+                }
+            }
+            // Temperature
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Temperature")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                RangeBar(
+                    range: 0...50,
+                    highlight: climatic.temperatureRange.lower...climatic.temperatureRange.upper,
+                    ideal: climatic.idealTemperatureRange.lower...climatic.idealTemperatureRange.upper
+                )
+                HStack {
+                    Text("Tolérée")
+                        .font(.caption2)
+                        .foregroundColor(.green)
+                    Spacer()
+                    Text("Idéale")
+                        .font(.caption2)
+                        .foregroundColor(.green)
+                }
+            }
+            // Humidity
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Humidity")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                RangeBar(
+                    range: 0...100,
+                    highlight: Double(climatic.humidityRange.lower)...Double(climatic.humidityRange.upper),
+                    ideal: Double(climatic.humidityRange.lower)...Double(climatic.humidityRange.upper),
+                    isPercent: true
+                )
+                HStack {
+                    Text("0%")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text("100%")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+            // Wind Resistance
+            if let wind = climatic.windResistance {
+                HStack {
+                    Text("Wind Resistance")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text(wind)
+                        .font(.subheadline)
+                        .foregroundColor(.yellow)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Color.yellow.opacity(0.15))
+                        .cornerRadius(8)
+                }
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+        .padding(.horizontal)
+    }
+    
+    private func soilCard(_ soil: PlantDetails.Conditions.Soil) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "mountain.2")
+                    .font(.title2)
+                    .foregroundColor(.primary)
+                Text("Soil")
+                    .font(.headline)
+                Spacer()
+                Text(soil.phLabel)
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+            }
+            // pH
+            HStack(spacing: 4) {
+                ForEach(0...14, id: \.self) { ph in
+                    let isActive = soil.phRange.contains(ph)
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(isActive ? Color.green : Color(.systemGray6))
+                        .frame(width: 22, height: 22)
+                        .overlay(
+                            Text("\(ph)")
+                                .font(.caption2)
+                                .foregroundColor(isActive ? .white : .gray)
+                        )
+                }
+            }
+            // Types
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Types")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Text(soil.types.joined(separator: ", "))
+                    .font(.body)
+                    .foregroundColor(.primary)
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+        .padding(.horizontal)
+    }
+    
+    private func lightCard(_ light: PlantDetails.Conditions.Light) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "lightbulb")
+                    .font(.title2)
+                    .foregroundColor(.primary)
+                Text("Light")
+                    .font(.headline)
+            }
+            HStack {
+                Text("Amount")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Spacer()
+                Text(light.amount)
+                    .font(.body)
+                    .foregroundColor(.primary)
+            }
+            HStack {
+                Text("Type")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Spacer()
+                Text(light.type)
+                    .font(.subheadline)
+                    .foregroundColor(.yellow)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 2)
+                    .background(Color.yellow.opacity(0.15))
+                    .cornerRadius(8)
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+        .padding(.horizontal)
+    }
 }
 
 struct FlagChip: View {
@@ -348,6 +546,40 @@ struct GrowthBar: View {
     }
 }
 
+private struct RangeBar: View {
+    let range: ClosedRange<Double>
+    let highlight: ClosedRange<Double>
+    let ideal: ClosedRange<Double>?
+    var isPercent: Bool = false
+    var body: some View {
+        GeometryReader { geo in
+            let width = geo.size.width
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(Color(.systemGray6))
+                    .frame(height: 14)
+                Capsule()
+                    .fill(Color.green.opacity(0.4))
+                    .frame(
+                        width: width * CGFloat((highlight.upperBound - highlight.lowerBound) / (range.upperBound - range.lowerBound)),
+                        height: 14
+                    )
+                    .offset(x: width * CGFloat((highlight.lowerBound - range.lowerBound) / (range.upperBound - range.lowerBound)))
+                if let ideal = ideal {
+                    Capsule()
+                        .fill(Color.green)
+                        .frame(
+                            width: width * CGFloat((ideal.upperBound - ideal.lowerBound) / (range.upperBound - range.lowerBound)),
+                            height: 14
+                        )
+                        .offset(x: width * CGFloat((ideal.lowerBound - range.lowerBound) / (range.upperBound - range.lowerBound)))
+                }
+            }
+        }
+        .frame(height: 14)
+    }
+}
+
 #if DEBUG
 private let mockPlantDetails = PlantDetails(
     commonName: "Aloe Vera",
@@ -368,6 +600,25 @@ private let mockPlantDetails = PlantDetails(
         growthSpeed: 5,
         propagationMethods: ["Offsets", "Cuttings"],
         cycle: "Perennial"
+    ),
+    conditions: .init(
+        climatic: .init(
+            hardinessZone: [1,2,3,4,5,6,7,8,9,10,11,12,13],
+            minTemperature: -1.1,
+            temperatureRange: .init(lower: 5, upper: 40),
+            idealTemperatureRange: .init(lower: 20, upper: 30),
+            humidityRange: .init(lower: 60, upper: 85),
+            windResistance: "50km/h"
+        ),
+        soil: .init(
+            phRange: [6,7,8],
+            phLabel: "Neutral",
+            types: ["Universal soil", "Tropical plant soil", "Vegetable garden soil"]
+        ),
+        light: .init(
+            amount: "8 to 12 hrs/day",
+            type: "Full sun"
+        )
     )
 )
 

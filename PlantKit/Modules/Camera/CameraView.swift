@@ -31,7 +31,6 @@ struct CameraView: View {
                     PlantIdentifyingView(image: image, onComplete: {
                         capturedImage = nil
                         isIdentifying = false
-                        showScanResult = true
                     })
                 } else {
                     PhotoPreviewView(
@@ -39,6 +38,17 @@ struct CameraView: View {
                         onIdentify: {
                             withAnimation {
                                 isIdentifying = true
+                            }
+                            identifierManager.identify(image: image) { result in
+                                DispatchQueue.main.async {
+                                    isIdentifying = false
+                                    switch result {
+                                    case .success:
+                                        showScanResult = true
+                                    case .failure:
+                                        break
+                                    }
+                                }
                             }
                         },
                         onDismiss: {
@@ -64,9 +74,8 @@ struct CameraView: View {
             }
         }
         .fullScreenCover(isPresented: $showScanResult) {
-            if let details = identifierManager.lastPlantDetails, let image = capturedImage, let imageData = image.jpegData(compressionQuality: 0.7) {
-                let imageBase64 = imageData.base64EncodedString()
-                PlantDetailsScreen(imageBase64: imageBase64)
+            if let details = identifierManager.lastPlantDetails, let image = capturedImage {
+                PlantDetailsScreen(plantDetails: details, capturedImage: image)
             }
         }
     }

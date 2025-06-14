@@ -8,34 +8,21 @@
 import SwiftUI
 
 struct PlantDetailsScreen: View {
-    @StateObject private var viewModel = PlantDetailsViewModel()
+    let plantDetails: PlantDetails?
+    let capturedImage: UIImage?
     @State private var selectedTab = 0
     private let tabs = ["Overview", "Requirements", "Culture", "FAQ", "Articles"]
     
-    // For demo: you would pass the imageBase64 from the previous screen
-    var imageBase64: String? = nil
-    
     var body: some View {
-        content
-            .onAppear {
-                if let imageBase64, viewModel.plantDetails == nil {
-                    viewModel.fetchPlantDetails(imageBase64: imageBase64)
-                }
-            }
+        print("PlantDetailsScreen loaded, plantDetails:", plantDetails != nil, "capturedImage:", capturedImage != nil)
+        return content
     }
     
     private var content: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
                 headerImageView
-                if viewModel.isLoading {
-                    ProgressView("Loading plant details...")
-                        .padding()
-                } else if let error = viewModel.errorMessage {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .padding()
-                } else if let details = viewModel.plantDetails {
+                if let details = plantDetails {
                     VStack(alignment: .leading, spacing: 0) {
                         // Title & Subtitle
                         Text(details.commonName)
@@ -70,18 +57,15 @@ struct PlantDetailsScreen: View {
                         characteristicsSection(details: details)
                     }
                 } else {
-                    // Placeholder UI
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text("...")
-                            .font(.system(size: 32, weight: .bold))
-                            .padding(.top, 14)
-                            .padding(.horizontal)
-                        Text("...")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal)
-                            .padding(.bottom, 12)
+                    VStack {
+                        Text("No plant details available")
+                            .foregroundColor(.red)
+                            .font(.title)
+                        Text("plantDetails is nil: \(plantDetails == nil)")
+                        Text("capturedImage is nil: \(capturedImage == nil)")
                     }
+                    .frame(maxWidth: .infinity, minHeight: 300)
+                    .background(Color.yellow.opacity(0.3))
                 }
             }
             ShinyBorderButton(systemName: "leaf.fill", title: "Add to My Plants") {
@@ -92,16 +76,27 @@ struct PlantDetailsScreen: View {
             .padding(.bottom, 40)
         }
         .edgesIgnoringSafeArea(.top)
-        .background(Color(.systemGroupedBackground))
+        .background(Color.red.opacity(0.2))
     }
     
     private var headerImageView: some View {
         ZStack(alignment: .topTrailing) {
-            Image("peace-lily")
-                .resizable()
-                .scaledToFill()
+            if let uiImage = capturedImage {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: UIScreen.main.bounds.width - 100)
+                    .clipped()
+            } else {
+                ZStack {
+                    Color.secondary.opacity(0.2)
+                    Image("peace-lily")
+                        .resizable()
+                        .scaledToFill()
+                }
                 .frame(height: UIScreen.main.bounds.width - 100)
                 .clipped()
+            }
             Button(action: {
                 // Dismiss or close action
             }) {
@@ -364,5 +359,5 @@ struct GrowthBar: View {
 }
 
 #Preview {
-    PlantDetailsScreen()
+    PlantDetailsScreen(plantDetails: nil, capturedImage: nil)
 }

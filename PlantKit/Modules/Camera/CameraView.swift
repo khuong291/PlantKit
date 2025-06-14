@@ -64,12 +64,9 @@ struct CameraView: View {
             }
         }
         .fullScreenCover(isPresented: $showScanResult) {
-            if let plantName = identifierManager.lastIdentifiedPlant {
-                ScanResultScreen(
-                    plantName: plantName,
-                    dismissAction: dismissAction,
-                    onSwitchTab: onSwitchTab
-                )
+            if let details = identifierManager.lastPlantDetails, let image = capturedImage, let imageData = image.jpegData(compressionQuality: 0.7) {
+                let imageBase64 = imageData.base64EncodedString()
+                PlantDetailsScreen(imageBase64: imageBase64)
             }
         }
     }

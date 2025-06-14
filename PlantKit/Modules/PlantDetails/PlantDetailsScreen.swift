@@ -8,60 +8,84 @@
 import SwiftUI
 
 struct PlantDetailsScreen: View {
+    @StateObject private var viewModel = PlantDetailsViewModel()
     @State private var selectedTab = 0
     private let tabs = ["Overview", "Requirements", "Culture", "FAQ", "Articles"]
     
+    // For demo: you would pass the imageBase64 from the previous screen
+    var imageBase64: String? = nil
+    
     var body: some View {
         content
+            .onAppear {
+                if let imageBase64, viewModel.plantDetails == nil {
+                    viewModel.fetchPlantDetails(imageBase64: imageBase64)
+                }
+            }
     }
     
     private var content: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
                 headerImageView
-                
-                // Main content
-                VStack(alignment: .leading, spacing: 0) {
-                    // Title & Subtitle
-                    Text("Peace Lily")
-                        .font(.system(size: 32, weight: .bold))
-                        .padding(.top, 14)
-                        .padding(.horizontal)
-                    Text("Spathiphyllum, including Spathiphyllum wallisii")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal)
-                        .padding(.bottom, 12)
-                    
-                    // Tabs
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            ForEach(tabs.indices, id: \.self) { idx in
-                                Button(action: { selectedTab = idx }) {
-                                    Text(tabs[idx])
-                                        .font(.system(size: 16, weight: .medium))
-                                        .foregroundColor(selectedTab == idx ? .white : .primary)
-                                        .padding(.vertical, 8)
-                                        .padding(.horizontal, 18)
-                                        .background(selectedTab == idx ? Color.black : Color.secondary.opacity(0.1))
-                                        .cornerRadius(16)
+                if viewModel.isLoading {
+                    ProgressView("Loading plant details...")
+                        .padding()
+                } else if let error = viewModel.errorMessage {
+                    Text(error)
+                        .foregroundColor(.red)
+                        .padding()
+                } else if let details = viewModel.plantDetails {
+                    VStack(alignment: .leading, spacing: 0) {
+                        // Title & Subtitle
+                        Text(details.commonName)
+                            .font(.system(size: 32, weight: .bold))
+                            .padding(.top, 14)
+                            .padding(.horizontal)
+                        Text(details.scientificName)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal)
+                            .padding(.bottom, 12)
+                        // Tabs
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 12) {
+                                ForEach(tabs.indices, id: \.self) { idx in
+                                    Button(action: { selectedTab = idx }) {
+                                        Text(tabs[idx])
+                                            .font(.system(size: 16, weight: .medium))
+                                            .foregroundColor(selectedTab == idx ? .white : .primary)
+                                            .padding(.vertical, 8)
+                                            .padding(.horizontal, 18)
+                                            .background(selectedTab == idx ? Color.black : Color.secondary.opacity(0.1))
+                                            .cornerRadius(16)
+                                    }
                                 }
                             }
+                            .padding(.horizontal)
+                            .padding(.bottom, 12)
                         }
-                        .padding(.horizontal)
-                        .padding(.bottom, 12)
+                        descriptionSection(details: details)
+                        generalSection(details: details)
+                        characteristicsSection(details: details)
                     }
-                    
-                    descriptionSection
-                    generalSection
-                    characteristicsSection
+                } else {
+                    // Placeholder UI
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("...")
+                            .font(.system(size: 32, weight: .bold))
+                            .padding(.top, 14)
+                            .padding(.horizontal)
+                        Text("...")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal)
+                            .padding(.bottom, 12)
+                    }
                 }
             }
-            
-            // Save Button
             ShinyBorderButton(systemName: "leaf.fill", title: "Add to My Plants") {
                 Haptics.shared.play()
-               
             }
             .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
             .padding(.horizontal, 24)
@@ -96,14 +120,13 @@ struct PlantDetailsScreen: View {
         .background(Color(.systemGroupedBackground))
     }
     
-    private var descriptionSection: some View {
-        // Overview Section
+    private func descriptionSection(details: PlantDetails) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Description")
                 .font(.headline)
                 .foregroundColor(.primary)
                 .padding(.horizontal)
-            Text("Peace Lily (Spathiphyllum) is an evergreen perennial flowering plant in the family Araceae. It grows from rhizomes and has large, glossy, dark green leaves. Peace Lilies are popular as houseplants for their attractive foliage and white flowers.")
+            Text(details.description)
                 .font(.body)
                 .foregroundColor(.primary)
                 .padding(.top, 2)
@@ -115,8 +138,8 @@ struct PlantDetailsScreen: View {
         }
         .padding(.bottom, 20)
     }
-
-    private var generalSection: some View {
+    
+    private func generalSection(details: PlantDetails) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("General")
                 .font(.headline)
@@ -133,7 +156,7 @@ struct PlantDetailsScreen: View {
                         Text("Natural Habitats")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text("Tropical forests, Grasslands")
+                        Text(details.general.habitat)
                             .font(.body)
                             .fontWeight(.semibold)
                             .foregroundColor(.primary)
@@ -146,9 +169,9 @@ struct PlantDetailsScreen: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                     HStack(spacing: 8) {
-                        FlagChip(flag: "🇮🇳", label: "India")
-                        FlagChip(flag: "🇵🇭", label: "Philippines")
-                        FlagChip(flag: "🇮🇩", label: "Indonesia")
+                        ForEach(details.general.originCountries, id: \.self) { country in
+                            FlagChip(flag: countryFlag(for: country), label: country)
+                        }
                     }
                 }
                 .padding(.vertical, 8)
@@ -157,7 +180,7 @@ struct PlantDetailsScreen: View {
                     Text("Environmental Benefits")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    Text("Oxygen production, Air purification")
+                    Text(details.general.environmentalBenefits.joined(separator: ", "))
                         .font(.body)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
@@ -172,20 +195,20 @@ struct PlantDetailsScreen: View {
         }
         .padding(.bottom, 20)
     }
-
-    private var characteristicsSection: some View {
+    
+    private func characteristicsSection(details: PlantDetails) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Characteristics")
                 .font(.headline)
                 .foregroundColor(.primary)
                 .padding(.horizontal)
-            physicalCard
-            developmentCard
+            physicalCard(details: details)
+            developmentCard(details: details)
         }
         .padding(.bottom, 20)
     }
-
-    private var physicalCard: some View {
+    
+    private func physicalCard(details: PlantDetails) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center, spacing: 12) {
                 Image(systemName: "atom")
@@ -200,7 +223,7 @@ struct PlantDetailsScreen: View {
                 Text("Height")
                     .foregroundColor(.secondary)
                 Spacer()
-                Text("2 to 9 m")
+                Text(details.physical.height)
                     .foregroundColor(.primary)
             }
             .padding(.vertical, 6)
@@ -209,7 +232,7 @@ struct PlantDetailsScreen: View {
                 Text("Crown Diameter")
                     .foregroundColor(.secondary)
                 Spacer()
-                Text("1 to 3 m")
+                Text(details.physical.crownDiameter)
                     .foregroundColor(.primary)
             }
             .padding(.vertical, 6)
@@ -218,7 +241,7 @@ struct PlantDetailsScreen: View {
                 Text("Form")
                     .foregroundColor(.secondary)
                 Spacer()
-                Text("Herb")
+                Text(details.physical.form)
                     .foregroundColor(.primary)
             }
             .padding(.vertical, 6)
@@ -229,8 +252,8 @@ struct PlantDetailsScreen: View {
         .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
         .padding(.horizontal)
     }
-
-    private var developmentCard: some View {
+    
+    private func developmentCard(details: PlantDetails) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center, spacing: 12) {
                 Image(systemName: "leaf")
@@ -245,7 +268,7 @@ struct PlantDetailsScreen: View {
                 Text("Mature Height Time")
                     .foregroundColor(.secondary)
                 Spacer()
-                Text("30 years")
+                Text(details.development.matureHeightTime)
                     .foregroundColor(.primary)
             }
             .padding(.vertical, 6)
@@ -255,17 +278,17 @@ struct PlantDetailsScreen: View {
                     Text("Growth Speed")
                         .foregroundColor(.secondary)
                     Spacer()
-                    Text("7")
+                    Text("\(details.development.growthSpeed)")
                         .foregroundColor(.primary)
                 }
-                GrowthBar(value: 7, max: 10)
+                GrowthBar(value: details.development.growthSpeed, max: 10)
             }
             .padding(.vertical, 6)
             Divider()
             VStack(alignment: .leading, spacing: 6) {
                 Text("Propagation Methods")
                     .foregroundColor(.secondary)
-                Text("Seed propagation, Stem cuttings")
+                Text(details.development.propagationMethods.joined(separator: ", "))
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
             }
@@ -275,7 +298,7 @@ struct PlantDetailsScreen: View {
                 Text("Cycle")
                     .foregroundColor(.secondary)
                 Spacer()
-                Text("Perennial")
+                Text(details.development.cycle)
                     .foregroundColor(.primary)
             }
             .padding(.vertical, 6)
@@ -285,6 +308,21 @@ struct PlantDetailsScreen: View {
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
         .padding(.horizontal)
+    }
+    
+    // Helper to get flag emoji from country name (simple mapping, can be improved)
+    private func countryFlag(for country: String) -> String {
+        switch country.lowercased() {
+        case "india": return "🇮🇳"
+        case "philippines": return "🇵🇭"
+        case "indonesia": return "🇮🇩"
+        case "vietnam": return "🇻🇳"
+        case "china": return "🇨🇳"
+        case "japan": return "🇯🇵"
+        case "thailand": return "🇹🇭"
+        case "usa", "united states": return "🇺🇸"
+        default: return "🌱"
+        }
     }
 }
 

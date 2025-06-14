@@ -8,17 +8,17 @@
 import SwiftUI
 
 struct PlantIdentifier {
-    static func identify(image: UIImage, completion: @escaping (Result<String, Error>) -> Void) {
+    static func identify(image: UIImage, completion: @escaping (Result<PlantDetails, Error>) -> Void) {
         print("PlantIdentifier: Starting request...")
         
         guard let imageData = image.jpegData(compressionQuality: 0.7) else {
             print("PlantIdentifier: Failed to encode image")
-            completion(.failure(NSError(domain: "EncodingError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to encode image."])))
+            completion(.failure(NSError(domain: "EncodingError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to encode image."])) )
             return
         }
 
         let base64Image = imageData.base64EncodedString()
-        let endpoint = URL(string: "https://us-central1-plantkit-c6c69.cloudfunctions.net/identifyPlant")!
+        let endpoint = URL(string: "https://us-central1-plantkit-c6c69.cloudfunctions.net/getPlantDetails")!
         print("PlantIdentifier: Endpoint URL:", endpoint)
         
         var request = URLRequest(url: endpoint)
@@ -53,7 +53,7 @@ struct PlantIdentifier {
             
             guard let data = data else {
                 print("PlantIdentifier: No data received")
-                completion(.failure(NSError(domain: "NoDataError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received."])))
+                completion(.failure(NSError(domain: "NoDataError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received."])) )
                 return
             }
             
@@ -70,16 +70,10 @@ struct PlantIdentifier {
                     completion(.failure(NSError(domain: "APIError", code: 0, userInfo: [NSLocalizedDescriptionKey: errorMessage])))
                     return
                 }
-                
-                // Then try to decode as success response
-                let result = try JSONDecoder().decode([String: String].self, from: data)
-                if let plantName = result["plantName"] {
-                    print("PlantIdentifier: Successfully decoded response with plant name:", plantName)
-                    completion(.success(plantName))
-                } else {
-                    print("PlantIdentifier: No plantName in response")
-                    completion(.failure(NSError(domain: "InvalidResponseError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response format."])))
-                }
+                // Try to decode as PlantDetails
+                let details = try JSONDecoder().decode(PlantDetails.self, from: data)
+                print("PlantIdentifier: Successfully decoded PlantDetails")
+                completion(.success(details))
             } catch {
                 print("PlantIdentifier: Decoding error:", error)
                 completion(.failure(error))

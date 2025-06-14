@@ -6,33 +6,31 @@
 //
 
 import SwiftUI
+import Combine
 
 class IdentifierManager: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var recentScans: [ScannedPlant] = []
-    @Published var lastIdentifiedPlant: String?
+    @Published var lastPlantDetails: PlantDetails?
     @Published var myPlantsScreenID = UUID()
+    private var cancellables = Set<AnyCancellable>()
     
     func identify(image: UIImage, completion: @escaping (Result<Void, Error>) -> Void) {
         isLoading = true
         errorMessage = nil
-        lastIdentifiedPlant = nil
-        
-        // Create a weak reference to self to avoid retain cycle
+        lastPlantDetails = nil
         PlantIdentifier.identify(image: image) { [weak self] result in
             DispatchQueue.main.async {
-                guard let self else {
+                guard let self = self else {
                     completion(.failure(NSError(domain: "IdentifierManager", code: 0, userInfo: [NSLocalizedDescriptionKey: "Manager was deallocated"])))
                     return
                 }
-                
                 self.isLoading = false
-                
                 switch result {
-                case .success(let plantName):
-                    self.lastIdentifiedPlant = plantName
-                    self.saveScan(name: plantName, image: image)
+                case .success(let details):
+                    self.lastPlantDetails = details
+                    self.saveScan(name: details.commonName, image: image)
                     completion(.success(()))
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription

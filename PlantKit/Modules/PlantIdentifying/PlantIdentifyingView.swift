@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PlantIdentifyingView: View {
     let image: UIImage
-    let onComplete: () -> Void
+    let onComplete: (Bool) -> Void
     
     @State private var currentStep = 0
     @State private var scanProgress: CGFloat = 0
@@ -19,12 +19,14 @@ struct PlantIdentifyingView: View {
     @State private var isCompleting = false
     @State private var completionTimer: Timer?
     @State private var errorMessage: String? = nil
+    @State private var hasError: Bool = false
+    @State private var showErrorAlert: Bool = false
     @EnvironmentObject var identifierManager: IdentifierManager
     
     private let steps = [
         "Analyzing image",
         "Identifying characteristics",
-        "Preparing results"
+        "Finalizing results"
     ]
     
     var body: some View {
@@ -101,39 +103,39 @@ struct PlantIdentifyingView: View {
                 
                 Spacer()
             }
-            // Error overlay
-            if let errorMessage = errorMessage {
-                Color.black.opacity(0.7).ignoresSafeArea()
-                VStack(spacing: 24) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 48))
-                        .foregroundColor(.yellow)
-                    Text("Identification Failed")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    Text(errorMessage)
-                        .font(.body)
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                    Button(action: {
-                        onComplete()
-                    }) {
-                        Text("Try Again")
-                            .font(.headline)
-                            .foregroundColor(.black)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.yellow)
-                            .cornerRadius(12)
-                    }
-                    .padding(.horizontal, 40)
-                }
-                .padding(32)
-                .background(Color.black.opacity(0.85))
-                .cornerRadius(24)
-                .padding(32)
-            }
+//            // Error overlay
+//            if let errorMessage = errorMessage {
+//                Color.black.opacity(0.7).ignoresSafeArea()
+//                VStack(spacing: 24) {
+//                    Image(systemName: "exclamationmark.triangle.fill")
+//                        .font(.system(size: 48))
+//                        .foregroundColor(.yellow)
+//                    Text("Identification Failed")
+//                        .font(.title2)
+//                        .fontWeight(.bold)
+//                        .foregroundColor(.white)
+//                    Text(errorMessage)
+//                        .font(.body)
+//                        .foregroundColor(.white)
+//                        .multilineTextAlignment(.center)
+//                    Button(action: {
+//                        onComplete(false)
+//                    }) {
+//                        Text("Try Again")
+//                            .font(.headline)
+//                            .foregroundColor(.black)
+//                            .padding()
+//                            .frame(maxWidth: .infinity)
+//                            .background(Color.yellow)
+//                            .cornerRadius(12)
+//                    }
+//                    .padding(.horizontal, 40)
+//                }
+//                .padding(32)
+//                .background(Color.black.opacity(0.85))
+//                .cornerRadius(24)
+//                .padding(32)
+//            }
         }
         .onAppear {
             startIdentificationProcess()
@@ -141,6 +143,15 @@ struct PlantIdentifyingView: View {
         .onDisappear {
             completionTimer?.invalidate()
             completionTimer = nil
+        }
+        .alert(isPresented: $showErrorAlert) {
+            Alert(
+                title: Text("Identification Failed"),
+                message: Text("Please take another image and try again"),
+                dismissButton: .default(Text("Try Again")) {
+                    onComplete(false)
+                }
+            )
         }
     }
     
@@ -164,9 +175,11 @@ struct PlantIdentifyingView: View {
                 checkCompletion()
             case .failure(let error):
                 print("Failure case - error:", error)
-                // Handle error case
                 isAnimating = false
                 errorMessage = error.localizedDescription
+                hasError = true
+                completionTimer?.invalidate()
+                showErrorAlert = true
             }
         }
     }
@@ -175,6 +188,7 @@ struct PlantIdentifyingView: View {
         // Step 1: Analyzing image
         let step1Duration = Double.random(in: 4.0...5.2)
         DispatchQueue.main.asyncAfter(deadline: .now() + step1Duration) {
+            if hasError { return }
             print("Step 1 complete")
             Haptics.shared.play()
             withAnimation {
@@ -184,6 +198,7 @@ struct PlantIdentifyingView: View {
             // Step 2: Identifying characteristics
             let step2Duration = Double.random(in: 3.5...5.0)
             DispatchQueue.main.asyncAfter(deadline: .now() + step2Duration) {
+                if hasError { return }
                 print("Step 2 complete")
                 Haptics.shared.play()
                 withAnimation {
@@ -192,6 +207,7 @@ struct PlantIdentifyingView: View {
                 
                 // Step 3: Preparing results
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
+                    if hasError { return }
                     print("Step 3 complete")
                     Haptics.shared.play()
                     withAnimation {
@@ -211,14 +227,10 @@ struct PlantIdentifyingView: View {
         if isApiCompleted && currentStep == 3 && !isCompleting {
             print("Both conditions met - waiting 1 second before completion")
             isCompleting = true
-            
-            // Invalidate any existing timer
             completionTimer?.invalidate()
-            
-            // Create new timer
             completionTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
-                print("Calling onComplete")
-                onComplete()
+                print("Calling onComplete (success)")
+                onComplete(true)
             }
         } else {
             print("Conditions not met - waiting for both API completion and step 3")
@@ -226,7 +238,7 @@ struct PlantIdentifyingView: View {
     }
     
     private func animateScanning() {
-        guard isAnimating else { return }
+        guard isAnimating, !hasError else { return }
         
         withAnimation(.linear(duration: 1.5)) {
             if isReversing {

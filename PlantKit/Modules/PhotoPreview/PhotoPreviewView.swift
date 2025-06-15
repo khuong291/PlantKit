@@ -52,7 +52,7 @@ struct PhotoPreviewView: View {
                 }
                 .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
                 .padding(.horizontal, 24)
-                .padding(.bottom, 40)
+                .padding(.bottom, 50)
             }
         }
     }

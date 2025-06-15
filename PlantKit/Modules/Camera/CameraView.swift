@@ -28,9 +28,13 @@ struct CameraView: View {
             
             if let image = capturedImage {
                 if isIdentifying {
-                    PlantIdentifyingView(image: image, onComplete: {
+                    PlantIdentifyingView(image: image, onComplete: { success in
                         isIdentifying = false
-                        showPlantDetailsAfterCamera(image)
+                        if success {
+                            showPlantDetailsAfterCamera(image)
+                        } else {
+                            capturedImage = nil
+                        }
                     })
                 } else {
                     PhotoPreviewView(

@@ -360,55 +360,41 @@ struct PlantDetailsScreen: View {
                 Text("Hardiness Zone")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                HStack(spacing: 4) {
-                    ForEach(1...13, id: \.self) { zone in
-                        let isActive = climatic.hardinessZone.contains(zone)
-                        let hue = (1.0 - Double(zone - 1)/12.0) * 0.7
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color(hue: hue, saturation: 1, brightness: 1).opacity(isActive ? 1 : 0.3))
-                            .frame(width: 22, height: 22)
-                            .overlay(
-                                Text("\(zone)")
-                                    .font(.caption2)
-                                    .foregroundColor(isActive ? .white : .gray)
-                            )
+                GeometryReader { geometry in
+                    let spacing: CGFloat = 4
+                    let totalSpacing = spacing * CGFloat(12)
+                    let barWidth = (geometry.size.width - totalSpacing) / 13
+                    let zoneColors: [Color] = [
+                        Color(red: 0.85, green: 0.90, blue: 1.0), // 1 - light blue
+                        Color(red: 0.80, green: 0.85, blue: 1.0), // 2 - blue
+                        Color(red: 0.90, green: 0.80, blue: 1.0), // 3 - purple
+                        Color(red: 0.95, green: 0.80, blue: 1.0), // 4 - pink
+                        Color(red: 0.95, green: 0.90, blue: 1.0), // 5 - lavender
+                        Color(red: 0.90, green: 1.0, blue: 0.90), // 6 - light green
+                        Color(red: 0.95, green: 1.0, blue: 0.90), // 7 - green-yellow
+                        Color(red: 1.0, green: 1.0, blue: 0.90), // 8 - yellow
+                        Color(red: 1.0, green: 0.98, blue: 0.85), // 9 - light orange
+                        Color(red: 1.0, green: 0.90, blue: 0.70), // 10 - orange
+                        Color(red: 1.0, green: 0.75, blue: 0.60), // 11 - deep orange
+                        Color(red: 1.0, green: 0.70, blue: 0.60), // 12 - red-orange
+                        Color(red: 0.95, green: 0.80, blue: 0.80)  // 13 - light red
+                    ]
+                    HStack(spacing: spacing) {
+                        ForEach(1...13, id: \.self) { zone in
+                            let isActive = climatic.hardinessZone.contains(zone)
+                            let color = (zone-1) < zoneColors.count ? zoneColors[zone-1] : Color.gray
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(color)
+                                .frame(width: barWidth, height: 28)
+                                .overlay(
+                                    Text("\(zone)")
+                                        .font(.caption2.bold())
+                                        .foregroundColor(.white)
+                                )
+                                .opacity(isActive ? 1 : 0.5)
+                        }
                     }
                 }
-//                // Legend for temperature breakpoints as colored circles with text, in 3 lines
-//                let zoneLegend: [(color: Color, label: String)] = [
-//                    (Color(hue: (1.0 - Double(0)/12.0) * 0.7, saturation: 0.6, brightness: 1), "< -45.6°C"),
-//                    (Color(hue: (1.0 - Double(1)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-45.5 to -40.1°C"),
-//                    (Color(hue: (1.0 - Double(2)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-40.0 to -34.5°C"),
-//                    (Color(hue: (1.0 - Double(3)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-34.4 to -28.9°C"),
-//                    (Color(hue: (1.0 - Double(4)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-28.8 to -23.4°C"),
-//                    (Color(hue: (1.0 - Double(5)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-23.3 to -17.8°C"),
-//                    (Color(hue: (1.0 - Double(6)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-17.7 to -12.3°C"),
-//                    (Color(hue: (1.0 - Double(7)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-12.2 to -6.7°C"),
-//                    (Color(hue: (1.0 - Double(8)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-6.6 to -1.2°C"),
-//                    (Color(hue: (1.0 - Double(9)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-1.1 to 4.4°C"),
-//                    (Color(hue: (1.0 - Double(10)/12.0) * 0.7, saturation: 0.6, brightness: 1), "4.5 to 10.0°C"),
-//                    (Color(hue: (1.0 - Double(11)/12.0) * 0.7, saturation: 0.6, brightness: 1), "10.1 to 15.6°C"),
-//                    (Color(hue: (1.0 - Double(12)/12.0) * 0.7, saturation: 0.6, brightness: 1), "> 15.6°C")
-//                ]
-//                let legendRows: [[Int]] = stride(from: 0, to: zoneLegend.count, by: 3).map { start in
-//                    Array(start..<min(start+3, zoneLegend.count))
-//                }
-//                VStack(alignment: .leading, spacing: 2) {
-//                    ForEach(legendRows, id: \.self) { row in
-//                        HStack(spacing: 12) {
-//                            ForEach(row, id: \ .self) { idx in
-//                                HStack(spacing: 4) {
-//                                    Circle()
-//                                        .fill(zoneLegend[idx].color)
-//                                        .frame(width: 10, height: 10)
-//                                    Text(zoneLegend[idx].label)
-//                                        .font(.caption2)
-//                                        .foregroundColor(.secondary)
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
             }
             // Temperature
             VStack(alignment: .leading) {
@@ -471,7 +457,7 @@ struct PlantDetailsScreen: View {
                 }
                 .padding(.top, 2)
             }
-            .padding(.top, 14)
+            .padding(.top, 20)
             // Humidity
             VStack(alignment: .leading) {
                 Text("Humidity")
@@ -578,13 +564,14 @@ struct PlantDetailsScreen: View {
                             }()
                             let isActive = Double(ph) >= soil.phRange[0] && Double(ph) <= soil.phRange[1]
                             RoundedRectangle(cornerRadius: 4)
-                                .fill(isActive ? phColor : Color.secondary.opacity(0.1))
+                                .fill(phColor)
                                 .frame(width: barWidth, height: 22)
                                 .overlay(
                                     Text("\(ph)")
                                         .font(.caption2)
-                                        .foregroundColor(isActive ? .white : .gray)
+                                        .foregroundColor(.white)
                                 )
+                                .opacity(isActive ? 1 : 0.2)
                         }
                     }
                 }

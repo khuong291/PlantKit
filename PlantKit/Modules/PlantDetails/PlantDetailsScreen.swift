@@ -365,19 +365,19 @@ struct PlantDetailsScreen: View {
                     let totalSpacing = spacing * CGFloat(12)
                     let barWidth = (geometry.size.width - totalSpacing) / 13
                     let zoneColors: [Color] = [
-                        Color(red: 0.85, green: 0.90, blue: 1.0), // 1 - light blue
-                        Color(red: 0.80, green: 0.85, blue: 1.0), // 2 - blue
-                        Color(red: 0.90, green: 0.80, blue: 1.0), // 3 - purple
-                        Color(red: 0.95, green: 0.80, blue: 1.0), // 4 - pink
-                        Color(red: 0.95, green: 0.90, blue: 1.0), // 5 - lavender
-                        Color(red: 0.90, green: 1.0, blue: 0.90), // 6 - light green
-                        Color(red: 0.95, green: 1.0, blue: 0.90), // 7 - green-yellow
-                        Color(red: 1.0, green: 1.0, blue: 0.90), // 8 - yellow
-                        Color(red: 1.0, green: 0.98, blue: 0.85), // 9 - light orange
-                        Color(red: 1.0, green: 0.90, blue: 0.70), // 10 - orange
-                        Color(red: 1.0, green: 0.75, blue: 0.60), // 11 - deep orange
-                        Color(red: 1.0, green: 0.70, blue: 0.60), // 12 - red-orange
-                        Color(red: 0.95, green: 0.80, blue: 0.80)  // 13 - light red
+                        Color(red: 0.2, green: 0.4, blue: 0.8),   // 1 - deep blue
+                        Color(red: 0.3, green: 0.5, blue: 0.9),   // 2 - royal blue
+                        Color(red: 0.4, green: 0.3, blue: 0.9),   // 3 - indigo
+                        Color(red: 0.6, green: 0.3, blue: 0.9),   // 4 - purple
+                        Color(red: 0.8, green: 0.3, blue: 0.9),   // 5 - violet
+                        Color(red: 0.3, green: 0.8, blue: 0.4),   // 6 - emerald
+                        Color(red: 0.4, green: 0.9, blue: 0.3),   // 7 - lime
+                        Color(red: 0.9, green: 0.9, blue: 0.2),   // 8 - yellow
+                        Color(red: 0.9, green: 0.7, blue: 0.2),   // 9 - amber
+                        Color(red: 0.9, green: 0.5, blue: 0.2),   // 10 - orange
+                        Color(red: 0.9, green: 0.3, blue: 0.2),   // 11 - coral
+                        Color(red: 0.8, green: 0.2, blue: 0.2),   // 12 - red
+                        Color(red: 0.6, green: 0.2, blue: 0.2)    // 13 - burgundy
                     ]
                     HStack(spacing: spacing) {
                         ForEach(1...13, id: \.self) { zone in
@@ -391,7 +391,7 @@ struct PlantDetailsScreen: View {
                                         .font(.caption2.bold())
                                         .foregroundColor(.white)
                                 )
-                                .opacity(isActive ? 1 : 0.5)
+                                .opacity(isActive ? 1 : 0.2)
                         }
                     }
                 }
@@ -455,9 +455,8 @@ struct PlantDetailsScreen: View {
                     }
                     Spacer()
                 }
-                .padding(.top, 2)
             }
-            .padding(.top, 20)
+            .padding(.top, 32)
             // Humidity
             VStack(alignment: .leading) {
                 Text("Humidity")
@@ -704,7 +703,6 @@ private struct RangeBar: View {
     }
 }
 
-#if DEBUG
 private let mockPlantDetails = PlantDetails(
     commonName: "Aloe Vera",
     scientificName: "Aloe barbadensis miller",
@@ -727,7 +725,7 @@ private let mockPlantDetails = PlantDetails(
     ),
     conditions: .init(
         climatic: .init(
-            hardinessZone: [1,2,3,4,5,6,7,8,9,10,11,12,13],
+            hardinessZone: [7,8,9,10],
             minTemperature: -1.1,
             temperatureRange: .init(lower: 5, upper: 40),
             idealTemperatureRange: .init(lower: 20, upper: 30),
@@ -749,7 +747,6 @@ private let mockPlantDetails = PlantDetails(
 private let mockImage: UIImage? = {
     return UIImage(named: "peace-lily")
 }()
-#endif
 
 #Preview {
     PlantDetailsScreen(

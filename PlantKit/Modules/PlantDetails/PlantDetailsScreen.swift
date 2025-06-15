@@ -355,27 +355,53 @@ struct PlantDetailsScreen: View {
                 Text("Hardiness Zone")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                let zoneTemperatureRanges = [
-                    "< -45.6°C", "-45.5 to -40.1°C", "-40.0 to -34.5°C", "-34.4 to -28.9°C", "-28.8 to -23.4°C", "-23.3 to -17.8°C", "-17.7 to -12.3°C", "-12.2 to -6.7°C", "-6.6 to -1.2°C", "-1.1 to 4.4°C", "4.5 to 10.0°C", "10.1 to 15.6°C", "> 15.6°C"
+                let zoneTemperatureBreakpoints = [
+                    "< -45.6°C", "-40.1°C", "-34.5°C", "-28.9°C", "-23.4°C", "-17.8°C", "-12.3°C", "-6.7°C", "-1.2°C", "4.4°C", "10.0°C", "15.6°C", "> 15.6°C"
                 ]
                 HStack(spacing: 4) {
                     ForEach(1...13, id: \.self) { zone in
                         let isActive = climatic.hardinessZone.contains(zone)
                         let hue = (1.0 - Double(zone - 1)/12.0) * 0.7
-                        VStack(spacing: 2) {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(isActive ? Color(hue: hue, saturation: 0.6, brightness: 1) : Color(.systemGray6))
-                                .frame(width: 22, height: 22)
-                                .overlay(
-                                    Text("\(zone)")
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(isActive ? Color(hue: hue, saturation: 0.6, brightness: 1) : Color(.systemGray6))
+                            .frame(width: 22, height: 22)
+                            .overlay(
+                                Text("\(zone)")
+                                    .font(.caption2)
+                                    .foregroundColor(isActive ? .white : .gray)
+                            )
+                    }
+                }
+                // Legend for temperature breakpoints as colored circles with text, in 3 lines
+                let zoneLegend: [(color: Color, label: String)] = [
+                    (Color(hue: (1.0 - Double(0)/12.0) * 0.7, saturation: 0.6, brightness: 1), "< -45.6°C"),
+                    (Color(hue: (1.0 - Double(1)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-45.5 to -40.1°C"),
+                    (Color(hue: (1.0 - Double(2)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-40.0 to -34.5°C"),
+                    (Color(hue: (1.0 - Double(3)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-34.4 to -28.9°C"),
+                    (Color(hue: (1.0 - Double(4)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-28.8 to -23.4°C"),
+                    (Color(hue: (1.0 - Double(5)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-23.3 to -17.8°C"),
+                    (Color(hue: (1.0 - Double(6)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-17.7 to -12.3°C"),
+                    (Color(hue: (1.0 - Double(7)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-12.2 to -6.7°C"),
+                    (Color(hue: (1.0 - Double(8)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-6.6 to -1.2°C"),
+                    (Color(hue: (1.0 - Double(9)/12.0) * 0.7, saturation: 0.6, brightness: 1), "-1.1 to 4.4°C"),
+                    (Color(hue: (1.0 - Double(10)/12.0) * 0.7, saturation: 0.6, brightness: 1), "4.5 to 10.0°C"),
+                    (Color(hue: (1.0 - Double(11)/12.0) * 0.7, saturation: 0.6, brightness: 1), "10.1 to 15.6°C"),
+                    (Color(hue: (1.0 - Double(12)/12.0) * 0.7, saturation: 0.6, brightness: 1), "> 15.6°C")
+                ]
+                let legendRows = [[0,1,2,3,4], [5,6,7,8], [9,10,11,12]]
+                VStack(alignment: .leading, spacing: 2) {
+                    ForEach(legendRows, id: \.self) { row in
+                        HStack(spacing: 12) {
+                            ForEach(row, id: \ .self) { idx in
+                                HStack(spacing: 4) {
+                                    Circle()
+                                        .fill(zoneLegend[idx].color)
+                                        .frame(width: 10, height: 10)
+                                    Text(zoneLegend[idx].label)
                                         .font(.caption2)
-                                        .foregroundColor(isActive ? .white : .gray)
-                                )
-                            Text(zoneTemperatureRanges[zone-1])
-                                .font(.system(size: 8))
-                                .foregroundColor(.secondary)
-                                .frame(width: 32)
-                                .multilineTextAlignment(.center)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
                         }
                     }
                 }
@@ -600,7 +626,6 @@ struct PlantDetailsScreen: View {
                 Spacer()
                 Text(light.amount)
                     .font(.subheadline)
-                    .foregroundColor(.primary)
             }
             HStack {
                 Text("Type")

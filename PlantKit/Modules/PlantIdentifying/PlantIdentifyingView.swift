@@ -18,6 +18,7 @@ struct PlantIdentifyingView: View {
     @State private var isApiCompleted = false
     @State private var isCompleting = false
     @State private var completionTimer: Timer?
+    @State private var errorMessage: String? = nil
     @EnvironmentObject var identifierManager: IdentifierManager
     
     private let steps = [
@@ -100,6 +101,39 @@ struct PlantIdentifyingView: View {
                 
                 Spacer()
             }
+            // Error overlay
+            if let errorMessage = errorMessage {
+                Color.black.opacity(0.7).ignoresSafeArea()
+                VStack(spacing: 24) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 48))
+                        .foregroundColor(.yellow)
+                    Text("Identification Failed")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Text(errorMessage)
+                        .font(.body)
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                    Button(action: {
+                        onComplete()
+                    }) {
+                        Text("Try Again")
+                            .font(.headline)
+                            .foregroundColor(.black)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.yellow)
+                            .cornerRadius(12)
+                    }
+                    .padding(.horizontal, 40)
+                }
+                .padding(32)
+                .background(Color.black.opacity(0.85))
+                .cornerRadius(24)
+                .padding(32)
+            }
         }
         .onAppear {
             startIdentificationProcess()
@@ -132,7 +166,7 @@ struct PlantIdentifyingView: View {
                 print("Failure case - error:", error)
                 // Handle error case
                 isAnimating = false
-                onComplete()
+                errorMessage = error.localizedDescription
             }
         }
     }

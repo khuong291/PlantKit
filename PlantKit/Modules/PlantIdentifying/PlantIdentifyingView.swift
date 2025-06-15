@@ -77,15 +77,10 @@ struct PlantIdentifyingView: View {
                 VStack(spacing: 24) {
                     ForEach(0..<steps.count, id: \.self) { index in
                         HStack(spacing: 16) {
-                            if index == currentStep {
-                                if index == 2 && !isApiCompleted {
-                                    ProgressView()
-                                        .tint(.white)
-                                } else {
-                                    ProgressView()
-                                        .tint(.white)
-                                }
-                            } else if index < currentStep {
+                            if index == currentStep || (index == 2 && currentStep == 3) {
+                                ProgressView()
+                                    .tint(.white)
+                            } else if index < currentStep && index != 2 {
                                 Image(systemName: "checkmark.circle.fill")
                                     .font(.system(size: 20))
                                     .foregroundColor(.green)
@@ -144,7 +139,8 @@ struct PlantIdentifyingView: View {
     
     private func simulateSteps() {
         // Step 1: Analyzing image
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+        let step1Duration = Double.random(in: 4.0...5.2)
+        DispatchQueue.main.asyncAfter(deadline: .now() + step1Duration) {
             print("Step 1 complete")
             Haptics.shared.play()
             withAnimation {
@@ -152,7 +148,8 @@ struct PlantIdentifyingView: View {
             }
             
             // Step 2: Identifying characteristics
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+            let step2Duration = Double.random(in: 3.5...5.0)
+            DispatchQueue.main.asyncAfter(deadline: .now() + step2Duration) {
                 print("Step 2 complete")
                 Haptics.shared.play()
                 withAnimation {

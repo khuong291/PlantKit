@@ -509,7 +509,10 @@ struct PlantDetailsScreen: View {
                     
                     HStack(spacing: spacing) {
                         ForEach(0...14, id: \.self) { ph in
-                            let isActive = soil.phRange.contains(Double(ph))
+                            let isActive = soil.phRange.contains { phValue in
+                                let phInt = Int(phValue)
+                                return phInt == ph
+                            }
                             RoundedRectangle(cornerRadius: 4)
                                 .fill(isActive ? Color.green : Color(.systemGray6))
                                 .frame(width: barWidth, height: 22)
@@ -522,6 +525,11 @@ struct PlantDetailsScreen: View {
                     }
                 }
                 .frame(height: 22)
+                // Add pH range text below the visualization
+                Text("pH Range: \(String(format: "%.1f", soil.phRange[0])) - \(String(format: "%.1f", soil.phRange[1]))")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 4)
             }
             .padding(.top, 14)
             // Types

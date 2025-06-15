@@ -351,17 +351,33 @@ struct PlantDetailsScreen: View {
                     .foregroundColor(.secondary)
             }
             // Hardiness Zone
-            HStack(spacing: 4) {
-                ForEach(1...13, id: \.self) { zone in
-                    let isActive = climatic.hardinessZone.contains(zone)
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(isActive ? Color(hue: Double(zone)/13.0, saturation: 0.5, brightness: 1) : Color(.systemGray6))
-                        .frame(width: 22, height: 22)
-                        .overlay(
-                            Text("\(zone)")
-                                .font(.caption2)
-                                .foregroundColor(isActive ? .white : .gray)
-                        )
+            VStack(alignment: .leading) {
+                Text("Hardiness Zone")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                let zoneTemperatureRanges = [
+                    "< -45.6°C", "-45.5 to -40.1°C", "-40.0 to -34.5°C", "-34.4 to -28.9°C", "-28.8 to -23.4°C", "-23.3 to -17.8°C", "-17.7 to -12.3°C", "-12.2 to -6.7°C", "-6.6 to -1.2°C", "-1.1 to 4.4°C", "4.5 to 10.0°C", "10.1 to 15.6°C", "> 15.6°C"
+                ]
+                HStack(spacing: 4) {
+                    ForEach(1...13, id: \.self) { zone in
+                        let isActive = climatic.hardinessZone.contains(zone)
+                        let hue = (1.0 - Double(zone - 1)/12.0) * 0.7
+                        VStack(spacing: 2) {
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(isActive ? Color(hue: hue, saturation: 0.6, brightness: 1) : Color(.systemGray6))
+                                .frame(width: 22, height: 22)
+                                .overlay(
+                                    Text("\(zone)")
+                                        .font(.caption2)
+                                        .foregroundColor(isActive ? .white : .gray)
+                                )
+                            Text(zoneTemperatureRanges[zone-1])
+                                .font(.system(size: 8))
+                                .foregroundColor(.secondary)
+                                .frame(width: 32)
+                                .multilineTextAlignment(.center)
+                        }
+                    }
                 }
             }
             // Temperature
@@ -509,12 +525,30 @@ struct PlantDetailsScreen: View {
                     
                     HStack(spacing: spacing) {
                         ForEach(0...14, id: \.self) { ph in
-                            let isActive = soil.phRange.contains { phValue in
-                                let phInt = Int(phValue)
-                                return phInt == ph
-                            }
+                            // Color for each pH value
+                            let phColor: Color = {
+                                switch ph {
+                                case 0: return Color(red: 0.95, green: 0.13, blue: 0.13) // red
+                                case 1: return Color(red: 0.98, green: 0.33, blue: 0.13) // orange-red
+                                case 2: return Color(red: 0.98, green: 0.56, blue: 0.13) // orange
+                                case 3: return Color(red: 0.98, green: 0.80, blue: 0.13) // yellow-orange
+                                case 4: return Color(red: 0.97, green: 0.97, blue: 0.13) // yellow
+                                case 5: return Color(red: 0.67, green: 0.93, blue: 0.13) // yellow-green
+                                case 6: return Color(red: 0.33, green: 0.85, blue: 0.13) // green
+                                case 7: return Color(red: 0.13, green: 0.75, blue: 0.33) // neutral green
+                                case 8: return Color(red: 0.13, green: 0.75, blue: 0.60) // green-cyan
+                                case 9: return Color(red: 0.13, green: 0.65, blue: 0.85) // cyan
+                                case 10: return Color(red: 0.13, green: 0.45, blue: 0.98) // blue
+                                case 11: return Color(red: 0.27, green: 0.27, blue: 0.85) // indigo
+                                case 12: return Color(red: 0.45, green: 0.13, blue: 0.85) // violet
+                                case 13: return Color(red: 0.60, green: 0.13, blue: 0.85) // purple
+                                case 14: return Color(red: 0.75, green: 0.13, blue: 0.85) // magenta-purple
+                                default: return Color.gray
+                                }
+                            }()
+                            let isActive = Double(ph) >= soil.phRange[0] && Double(ph) <= soil.phRange[1]
                             RoundedRectangle(cornerRadius: 4)
-                                .fill(isActive ? Color.green : Color(.systemGray6))
+                                .fill(isActive ? phColor : Color.secondary.opacity(0.1))
                                 .frame(width: barWidth, height: 22)
                                 .overlay(
                                     Text("\(ph)")
@@ -685,7 +719,7 @@ private let mockPlantDetails = PlantDetails(
             windResistance: "50km/h"
         ),
         soil: .init(
-            phRange: [6.0, 7.0, 8.0],
+            phRange: [11, 12, 13, 14],
             phLabel: "Neutral",
             types: ["Universal soil", "Tropical plant soil", "Vegetable garden soil"]
         ),

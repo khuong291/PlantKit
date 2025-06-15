@@ -167,7 +167,7 @@ struct PlantDetailsScreen: View {
                 Divider()
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Countries of Origin")
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                     HStack(spacing: 8) {
                         ForEach(details.general.originCountries, id: \.self) { country in
@@ -365,7 +365,7 @@ struct PlantDetailsScreen: View {
                 }
             }
             // Temperature
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading) {
                 Text("Temperature")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
@@ -427,7 +427,7 @@ struct PlantDetailsScreen: View {
             }
             .padding(.top, 14)
             // Humidity
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading) {
                 Text("Humidity")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
@@ -496,28 +496,33 @@ struct PlantDetailsScreen: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
-            // pH
-            GeometryReader { geometry in
-                let spacing: CGFloat = 4
-                let totalSpacing = spacing * CGFloat(14) // 15 numbers (0-14) need 14 spaces
-                let availableWidth = geometry.size.width - totalSpacing
-                let barWidth = availableWidth / 15 // Divide by 15 for 0-14
-                
-                HStack(spacing: spacing) {
-                    ForEach(0...14, id: \.self) { ph in
-                        let isActive = soil.phRange.contains(Double(ph))
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(isActive ? Color.green : Color(.systemGray6))
-                            .frame(width: barWidth, height: 22)
-                            .overlay(
-                                Text("\(ph)")
-                                    .font(.caption2)
-                                    .foregroundColor(isActive ? .white : .gray)
-                            )
+            VStack(alignment: .leading) {
+                // pH
+                Text("Potential of Hydrogen (pH)")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                GeometryReader { geometry in
+                    let spacing: CGFloat = 4
+                    let totalSpacing = spacing * CGFloat(14) // 15 numbers (0-14) need 14 spaces
+                    let availableWidth = geometry.size.width - totalSpacing
+                    let barWidth = availableWidth / 15 // Divide by 15 for 0-14
+                    
+                    HStack(spacing: spacing) {
+                        ForEach(0...14, id: \.self) { ph in
+                            let isActive = soil.phRange.contains(Double(ph))
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(isActive ? Color.green : Color(.systemGray6))
+                                .frame(width: barWidth, height: 22)
+                                .overlay(
+                                    Text("\(ph)")
+                                        .font(.caption2)
+                                        .foregroundColor(isActive ? .white : .gray)
+                                )
+                        }
                     }
                 }
+                .frame(height: 22)
             }
-            .frame(height: 22)
             .padding(.top, 14)
             // Types
             VStack(alignment: .leading, spacing: 2) {

@@ -1,14 +1,38 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1" systemVersion="11A491" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="false" userDefinedModelVersionIdentifier="">
-    <entity name="Plant" representedClassName="Plant" syncable="YES" codeGenerationType="class">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24A348" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Plant" representedClassName=".Plant" syncable="YES">
+        <attribute name="climaticHardinessZone" optional="YES" attributeType="String"/>
+        <attribute name="climaticHumidityLower" optional="YES" attributeType="Integer 16" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="climaticHumidityUpper" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="climaticIdealTemperatureLower" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="climaticIdealTemperatureUpper" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="climaticMinTemperature" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="climaticTemperatureLower" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="climaticTemperatureUpper" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="climaticWindResistance" optional="YES" attributeType="String"/>
         <attribute name="commonName" attributeType="String"/>
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="developmentCycle" optional="YES" attributeType="String"/>
+        <attribute name="developmentGrowthSpeed" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="developmentMatureHeightTime" optional="YES" attributeType="String"/>
+        <attribute name="developmentPropagationMethods" optional="YES" attributeType="String"/>
+        <attribute name="generalEnvironmentalBenefits" optional="YES" attributeType="String"/>
+        <attribute name="generalHabitat" optional="YES" attributeType="String"/>
+        <attribute name="generalOriginCountries" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="String"/>
         <attribute name="imageData" optional="YES" attributeType="Binary"/>
-        <attribute name="scientificName" attributeType="String"/>
+        <attribute name="lightAmount" optional="YES" attributeType="String"/>
+        <attribute name="lightType" optional="YES" attributeType="String"/>
+        <attribute name="physicalCrownDiameter" optional="YES" attributeType="String"/>
+        <attribute name="physicalForm" optional="YES" attributeType="String"/>
+        <attribute name="physicalHeight" optional="YES" attributeType="String"/>
+        <attribute name="plantDescription" optional="YES" attributeType="String"/>
+        <attribute name="plantImage" optional="YES" attributeType="Binary"/>
         <attribute name="scannedAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="scientificName" attributeType="String"/>
+        <attribute name="soilPhLabel" optional="YES" attributeType="String"/>
+        <attribute name="soilPhRange" optional="YES" attributeType="String"/>
+        <attribute name="soilTypes" optional="YES" attributeType="String"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
     </entity>
-    <elements>
-        <element name="Plant" positionX="-63" positionY="-18" width="128" height="134"/>
-    </elements>
 </model>

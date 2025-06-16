@@ -39,16 +39,7 @@ class CoreDataManager {
     // MARK: - Plant Operations
     
     func savePlant(details: PlantDetails, image: UIImage) {
-        let plant = Plant(context: viewContext)
-        plant.id = details.id
-        plant.commonName = details.commonName
-        plant.scientificName = details.scientificName
-        plant.createdAt = details.createdAt
-        plant.scannedAt = Date()
-        if let imageData = image.jpegData(compressionQuality: 0.6) {
-            plant.imageData = imageData
-        }
-        saveContext()
+        
     }
     
     func fetchPlants() -> [Plant] {

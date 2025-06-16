@@ -49,9 +49,6 @@ struct MyPlantsScreen: View {
             refreshID = UUID()
             updatePlantDetailsList()
         }
-        .onChange(of: plants) { _ in
-            updatePlantDetailsList()
-        }
     }
     
     private func updatePlantDetailsList() {
@@ -70,13 +67,13 @@ struct MyPlantsScreen: View {
     }
     
     private func plantDetails(from plant: Plant) -> PlantDetails? {
-        guard let idString = plant.id,
-              let id = UUID(uuidString: idString),
-              let commonName = plant.commonName,
-              let scientificName = plant.scientificName,
-              let plantDescription = plant.plantDescription,
-              let createdAt = plant.createdAt,
-              let updatedAt = plant.updatedAt else { return nil }
+        // id is required as UUID
+        guard let idString = plant.id, let id = UUID(uuidString: idString) else { return nil }
+        guard let commonName = plant.commonName else { return nil }
+        guard let scientificName = plant.scientificName else { return nil }
+        guard let plantDescription = plant.plantDescription else { return nil }
+        guard let createdAt = plant.createdAt else { return nil }
+        guard let updatedAt = plant.updatedAt else { return nil }
         // General
         let general = PlantDetails.General(
             habitat: plant.generalHabitat ?? "",
@@ -98,10 +95,13 @@ struct MyPlantsScreen: View {
         )
         // Conditions
         var conditions: PlantDetails.Conditions? = nil
-        if plant.climaticHardinessZone != nil || plant.soilPhLabel != nil || plant.lightAmount != nil {
+        let climaticHardinessZone = plant.climaticHardinessZone ?? ""
+        let soilPhLabel = plant.soilPhLabel ?? ""
+        let lightAmount = plant.lightAmount ?? ""
+        if !climaticHardinessZone.isEmpty || !soilPhLabel.isEmpty || !lightAmount.isEmpty {
             var climatic: PlantDetails.Conditions.Climatic? = nil
-            if let hardinessZoneStr = plant.climaticHardinessZone {
-                let hardinessZone = hardinessZoneStr.split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+            if !climaticHardinessZone.isEmpty {
+                let hardinessZone = climaticHardinessZone.split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
                 climatic = PlantDetails.Conditions.Climatic(
                     hardinessZone: hardinessZone,
                     minTemperature: plant.climaticMinTemperature,
@@ -112,17 +112,19 @@ struct MyPlantsScreen: View {
                 )
             }
             var soil: PlantDetails.Conditions.Soil? = nil
-            if let phRangeStr = plant.soilPhRange {
-                let phRange = phRangeStr.split(separator: ",").compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }
+            let soilPhRange = plant.soilPhRange ?? ""
+            if !soilPhRange.isEmpty {
+                let phRange = soilPhRange.split(separator: ",").compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }
                 soil = PlantDetails.Conditions.Soil(
                     phRange: phRange,
-                    phLabel: plant.soilPhLabel ?? "",
+                    phLabel: soilPhLabel,
                     types: (plant.soilTypes ?? "").split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
                 )
             }
             var light: PlantDetails.Conditions.Light? = nil
-            if let amount = plant.lightAmount, let type = plant.lightType {
-                light = PlantDetails.Conditions.Light(amount: amount, type: type)
+            let lightType = plant.lightType ?? ""
+            if !lightAmount.isEmpty && !lightType.isEmpty {
+                light = PlantDetails.Conditions.Light(amount: lightAmount, type: lightType)
             }
             conditions = PlantDetails.Conditions(climatic: climatic, soil: soil, light: light)
         }

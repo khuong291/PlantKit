@@ -1,6 +1,6 @@
 import Foundation
 
-struct PlantDetails: Codable {
+struct PlantDetails: Codable, Identifiable {
     let id: UUID
     let plantImageData: Data
     let commonName: String

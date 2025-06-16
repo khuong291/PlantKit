@@ -125,7 +125,7 @@ struct PlantDetailsScreen: View {
                         Haptics.shared.play()
                         let newConversation = conversationManager.createNewConversation()
                         conversationManager.currentConversationId = newConversation.id
-                        myPlantsRouter.navigate(to: .conversation(newConversation.id))
+                        myPlantsRouter.navigate(to: .conversation(newConversation.id, plantDetails))
                     }
                     .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
                 }

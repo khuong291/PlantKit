@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ConversationScreen: View {
     let conversationId: UUID
+    let plantDetails: PlantDetails?
+    
     @EnvironmentObject var conversationManager: ConversationManager
     @Environment(\.dismiss) private var dismiss
     @State private var messageText = ""
@@ -39,7 +41,7 @@ struct ConversationScreen: View {
                         scrollProxy = proxy
                         scrollToBottom()
                     }
-                    .onChange(of: conversation?.messages.count) { _ in
+                    .onChange(of: conversation?.messages.count) { _, _ in
                         scrollToBottom()
                     }
                 }
@@ -53,7 +55,7 @@ struct ConversationScreen: View {
                     
                     Button {
                         if !messageText.isEmpty {
-                            conversationManager.sendMessage(messageText)
+                            conversationManager.sendMessage(messageText, plantDetails: plantDetails)
                             messageText = ""
                             Haptics.shared.play()
                         }
@@ -205,7 +207,7 @@ struct ChatBubble: View {
 
 #Preview {
     NavigationView {
-        ConversationScreen(conversationId: UUID())
+        ConversationScreen(conversationId: UUID(), plantDetails: nil)
             .environmentObject(ConversationManager())
     }
 } 

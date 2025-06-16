@@ -10,7 +10,7 @@ import SwiftUI
 enum ContentRoute: Routable {
     case home
     case ask
-    case conversation(UUID)
+    case conversation(UUID, PlantDetails?)
     case plantDetails(PlantDetails)
 
     var body: some View {
@@ -19,8 +19,8 @@ enum ContentRoute: Routable {
             HomeScreen()
         case .ask:
             AskScreen()
-        case .conversation(let id):
-            ConversationScreen(conversationId: id)
+        case .conversation(let id, let plantDetails):
+            ConversationScreen(conversationId: id, plantDetails: plantDetails)
         case .plantDetails(let details):
             PlantDetailsScreen(
                 plantDetails: details,

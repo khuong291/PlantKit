@@ -36,7 +36,7 @@ class ConversationManager: ObservableObject {
         return newConversation
     }
     
-    func sendMessage(_ content: String) {
+    func sendMessage(_ content: String, plantDetails: PlantDetails? = nil) {
         guard let conversationId = currentConversationId,
               let index = conversations.firstIndex(where: { $0.id == conversationId }) else {
             return
@@ -54,7 +54,7 @@ class ConversationManager: ObservableObject {
         
         // Call askBotanist API
         isLoading = true
-        askBotanist(message: content) { [weak self] result in
+        askBotanist(message: content, plantDetails: plantDetails) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self = self,
                       let conversationIndex = self.conversations.firstIndex(where: { $0.id == conversationId }) else {
@@ -83,7 +83,7 @@ class ConversationManager: ObservableObject {
         }
     }
     
-    private func askBotanist(message: String, completion: @escaping (Result<String, Error>) -> Void) {
+    private func askBotanist(message: String, plantDetails: PlantDetails? = nil, completion: @escaping (Result<String, Error>) -> Void) {
         guard let url = URL(string: "https://us-central1-plantkit-c6c69.cloudfunctions.net/askBotanist") else {
             completion(.failure(NSError(domain: "URL", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
             return

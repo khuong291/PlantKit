@@ -33,7 +33,7 @@ class IdentifierManager: ObservableObject {
                 case .success(let details):
                     self.lastPlantDetails = details
                     // Save to CoreData
-                    CoreDataManager.shared.savePlant(details: details, image: image)
+                    CoreDataManager.shared.savePlant(details: details)
                     self.myPlantsScreenID = UUID() // Trigger UI refresh
                     completion(.success(()))
                 case .failure(let error):

@@ -15,6 +15,7 @@ struct MyPlantsScreen: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \Plant.scannedAt, ascending: false)],
         animation: .default)
     private var plants: FetchedResults<Plant>
+    @State private var plantDetailsList: [PlantDetails] = []
     
     var body: some View {
         ZStack {
@@ -28,7 +29,7 @@ struct MyPlantsScreen: View {
                             .bold()
                         Spacer()
                     }
-                    if plants.isEmpty {
+                    if plantDetailsList.isEmpty {
                         Spacer()
                         emptyView
                             .frame(maxWidth: .infinity)
@@ -46,7 +47,15 @@ struct MyPlantsScreen: View {
         .id(refreshID)
         .onAppear {
             refreshID = UUID()
+            updatePlantDetailsList()
         }
+        .onChange(of: plants) { _ in
+            updatePlantDetailsList()
+        }
+    }
+    
+    private func updatePlantDetailsList() {
+        plantDetailsList = plants.compactMap { plantDetails(from: $0) }
     }
     
     private var emptyView: some View {
@@ -60,12 +69,83 @@ struct MyPlantsScreen: View {
         }
     }
     
+    private func plantDetails(from plant: Plant) -> PlantDetails? {
+        guard let idString = plant.id,
+              let id = UUID(uuidString: idString),
+              let commonName = plant.commonName,
+              let scientificName = plant.scientificName,
+              let plantDescription = plant.plantDescription,
+              let createdAt = plant.createdAt,
+              let updatedAt = plant.updatedAt else { return nil }
+        // General
+        let general = PlantDetails.General(
+            habitat: plant.generalHabitat ?? "",
+            originCountries: (plant.generalOriginCountries ?? "").split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) },
+            environmentalBenefits: (plant.generalEnvironmentalBenefits ?? "").split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+        )
+        // Physical
+        let physical = PlantDetails.Physical(
+            height: plant.physicalHeight ?? "",
+            crownDiameter: plant.physicalCrownDiameter ?? "",
+            form: plant.physicalForm ?? ""
+        )
+        // Development
+        let development = PlantDetails.Development(
+            matureHeightTime: plant.developmentMatureHeightTime ?? "",
+            growthSpeed: Int(plant.developmentGrowthSpeed),
+            propagationMethods: (plant.developmentPropagationMethods ?? "").split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) },
+            cycle: plant.developmentCycle ?? ""
+        )
+        // Conditions
+        var conditions: PlantDetails.Conditions? = nil
+        if plant.climaticHardinessZone != nil || plant.soilPhLabel != nil || plant.lightAmount != nil {
+            var climatic: PlantDetails.Conditions.Climatic? = nil
+            if let hardinessZoneStr = plant.climaticHardinessZone {
+                let hardinessZone = hardinessZoneStr.split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+                climatic = PlantDetails.Conditions.Climatic(
+                    hardinessZone: hardinessZone,
+                    minTemperature: plant.climaticMinTemperature,
+                    temperatureRange: .init(lower: plant.climaticTemperatureLower, upper: plant.climaticTemperatureUpper),
+                    idealTemperatureRange: .init(lower: plant.climaticIdealTemperatureLower, upper: plant.climaticIdealTemperatureUpper),
+                    humidityRange: .init(lower: Int(plant.climaticHumidityLower), upper: Int(plant.climaticHumidityUpper)),
+                    windResistance: plant.climaticWindResistance
+                )
+            }
+            var soil: PlantDetails.Conditions.Soil? = nil
+            if let phRangeStr = plant.soilPhRange {
+                let phRange = phRangeStr.split(separator: ",").compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }
+                soil = PlantDetails.Conditions.Soil(
+                    phRange: phRange,
+                    phLabel: plant.soilPhLabel ?? "",
+                    types: (plant.soilTypes ?? "").split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+                )
+            }
+            var light: PlantDetails.Conditions.Light? = nil
+            if let amount = plant.lightAmount, let type = plant.lightType {
+                light = PlantDetails.Conditions.Light(amount: amount, type: type)
+            }
+            conditions = PlantDetails.Conditions(climatic: climatic, soil: soil, light: light)
+        }
+        return PlantDetails(
+            id: id,
+            plantImageData: plant.plantImage ?? Data(),
+            commonName: commonName,
+            scientificName: scientificName,
+            plantDescription: plantDescription,
+            general: general,
+            physical: physical,
+            development: development,
+            conditions: conditions,
+            createdAt: createdAt,
+            updatedAt: updatedAt
+        )
+    }
+    
     private var listView: some View {
         LazyVStack {
-            ForEach(plants) { plant in
+            ForEach(plantDetailsList) { details in
                 HStack(spacing: 16) {
-                    if let imageData = plant.imageData,
-                       let uiImage = UIImage(data: imageData) {
+                    if let uiImage = UIImage(data: details.plantImageData) {
                         Image(uiImage: uiImage)
                             .resizable()
                             .frame(width: 80, height: 80)
@@ -77,16 +157,14 @@ struct MyPlantsScreen: View {
                             )
                     }
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(plant.commonName ?? "")
+                        Text(details.commonName)
                             .font(.headline)
-                        Text(plant.scientificName ?? "")
+                        Text(details.scientificName)
                             .font(.subheadline)
                             .foregroundColor(.secondary)
-                        if let scannedAt = plant.scannedAt {
-                            Text(scannedAt, style: .date)
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
+                        Text(details.createdAt, style: .date)
+                            .font(.caption)
+                            .foregroundColor(.gray)
                     }
                     Spacer()
                 }

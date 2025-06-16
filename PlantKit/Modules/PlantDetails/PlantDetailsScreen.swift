@@ -705,6 +705,7 @@ private struct RangeBar: View {
 
 private let mockPlantDetails = PlantDetails(
     id: UUID(),
+    plantImageData: Data(),
     commonName: "Aloe Vera",
     scientificName: "Aloe barbadensis miller",
     plantDescription: "Aloe Vera is a succulent plant species known for its medicinal properties and thick, fleshy leaves filled with a gel-like substance.",

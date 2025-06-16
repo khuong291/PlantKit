@@ -2,6 +2,7 @@ import Foundation
 
 struct PlantDetails: Codable {
     let id: UUID
+    let plantImageData: Data
     let commonName: String
     let scientificName: String
     let plantDescription: String

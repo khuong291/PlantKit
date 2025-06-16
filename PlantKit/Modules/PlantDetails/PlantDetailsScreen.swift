@@ -6,20 +6,52 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct PlantDetailsScreen: View {
     let plantDetails: PlantDetails?
     let capturedImage: UIImage?
     let onSwitchTab: (MainTab.Tab) -> Void
     @State private var selectedTab = 0
+    @State private var showDeleteAlert = false
     private let tabs = ["Overview", "Requirements", "Culture", "FAQ", "Articles"]
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.managedObjectContext) private var viewContext
     
     var body: some View {
         ZStack {
             Color.appScreenBackgroundColor
                 .edgesIgnoringSafeArea(.all)
             content
+        }
+        .navigationBarBackButtonHidden(true)
+        .alert("Delete Plant", isPresented: $showDeleteAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                deletePlant()
+            }
+        } message: {
+            Text("Are you sure you want to delete this plant? This action cannot be undone.")
+        }
+    }
+    
+    private func deletePlant() {
+        guard let details = plantDetails else { return }
+        
+        // Find and delete the plant from Core Data
+        let fetchRequest: NSFetchRequest<Plant> = Plant.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", details.id.uuidString)
+        
+        do {
+            let results = try viewContext.fetch(fetchRequest)
+            if let plant = results.first {
+                viewContext.delete(plant)
+                try viewContext.save()
+                dismiss()
+                onSwitchTab(.myPlants)
+            }
+        } catch {
+            print("Error deleting plant: \(error)")
         }
     }
     
@@ -74,14 +106,31 @@ struct PlantDetailsScreen: View {
                     .background(Color.yellow.opacity(0.3))
                 }
             }
-            ShinyBorderButton(systemName: "leaf.fill", title: "Add to My Plants") {
-                Haptics.shared.play()
-                dismiss()
-                onSwitchTab(.myPlants)
+            if plantDetails != nil {
+                VStack(spacing: 4) {
+                    Button {
+                        showDeleteAlert = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "trash")
+                            Text("Delete Plant")
+                        }
+                        .foregroundColor(.red)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                    }
+                    .buttonStyle(.plain)
+                    
+                    ShinyBorderButton(systemName: "message.fill", title: "Ask Anything") {
+                        Haptics.shared.play()
+                        dismiss()
+                        onSwitchTab(.myPlants)
+                    }
+                    .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 40)
             }
-            .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
-            .padding(.horizontal, 24)
-            .padding(.bottom, 40)
         }
         .edgesIgnoringSafeArea(.top)
     }
@@ -116,7 +165,7 @@ struct PlantDetailsScreen: View {
                     .background(Color.white)
                     .clipShape(Circle())
                     .padding(.trailing)
-                    .padding(.top, 30)
+                    .padding(.top, 46)
             }
         }
         .frame(maxWidth: .infinity)

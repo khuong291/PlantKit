@@ -11,6 +11,7 @@ import CoreData
 struct MyPlantsScreen: View {
     @EnvironmentObject var identifierManager: IdentifierManager
     @EnvironmentObject var myPlantsRouter: Router<ContentRoute>
+    @Environment(\.managedObjectContext) private var viewContext
     @State private var refreshID = UUID()
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Plant.scannedAt, ascending: false)],
@@ -146,7 +147,7 @@ struct MyPlantsScreen: View {
     
     private var listView: some View {
         LazyVStack {
-            ForEach(plantDetailsList) { details in
+            ForEach(Array(plantDetailsList.enumerated()), id: \.element.id) { index, details in
                 Button {
                     myPlantsRouter.navigate(to: .plantDetails(details))
                 } label: {

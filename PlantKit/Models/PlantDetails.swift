@@ -13,6 +13,20 @@ struct PlantDetails: Codable, Identifiable, Equatable, Hashable {
     let createdAt: Date
     let updatedAt: Date
 
+    enum CodingKeys: String, CodingKey {
+        case id
+        case plantImageData
+        case commonName
+        case scientificName
+        case plantDescription = "description"
+        case general
+        case physical
+        case development
+        case conditions
+        case createdAt
+        case updatedAt
+    }
+
     static func == (lhs: PlantDetails, rhs: PlantDetails) -> Bool {
         lhs.id == rhs.id &&
         lhs.plantImageData == rhs.plantImageData &&
@@ -40,10 +54,6 @@ struct PlantDetails: Codable, Identifiable, Equatable, Hashable {
         self.conditions = conditions
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-    }
-
-    enum CodingKeys: String, CodingKey {
-        case id, plantImageData, commonName, scientificName, plantDescription, general, physical, development, conditions, createdAt, updatedAt
     }
 
     init(from decoder: Decoder) throws {

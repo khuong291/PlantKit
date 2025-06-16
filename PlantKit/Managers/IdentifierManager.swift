@@ -30,10 +30,25 @@ class IdentifierManager: ObservableObject {
                 self.isLoading = false
                 
                 switch result {
-                case .success(let details):
-                    self.lastPlantDetails = details
+                case .success(let detailsFromAPI):
+                    // Inject the captured image data
+                    let capturedImageData = image.jpegData(compressionQuality: 0.8) ?? Data()
+                    let plantDetails = PlantDetails(
+                        id: detailsFromAPI.id,
+                        plantImageData: capturedImageData,
+                        commonName: detailsFromAPI.commonName,
+                        scientificName: detailsFromAPI.scientificName,
+                        plantDescription: detailsFromAPI.plantDescription,
+                        general: detailsFromAPI.general,
+                        physical: detailsFromAPI.physical,
+                        development: detailsFromAPI.development,
+                        conditions: detailsFromAPI.conditions,
+                        createdAt: detailsFromAPI.createdAt,
+                        updatedAt: detailsFromAPI.updatedAt
+                    )
+                    self.lastPlantDetails = plantDetails
                     // Save to CoreData
-                    CoreDataManager.shared.savePlant(details: details)
+                    CoreDataManager.shared.savePlant(details: plantDetails)
                     self.myPlantsScreenID = UUID() // Trigger UI refresh
                     completion(.success(()))
                 case .failure(let error):

@@ -13,6 +13,40 @@ struct PlantDetails: Codable, Identifiable {
     let createdAt: Date
     let updatedAt: Date
 
+    // Explicit memberwise initializer
+    init(id: UUID, plantImageData: Data, commonName: String, scientificName: String, plantDescription: String, general: General, physical: Physical, development: Development, conditions: Conditions?, createdAt: Date, updatedAt: Date) {
+        self.id = id
+        self.plantImageData = plantImageData
+        self.commonName = commonName
+        self.scientificName = scientificName
+        self.plantDescription = plantDescription
+        self.general = general
+        self.physical = physical
+        self.development = development
+        self.conditions = conditions
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id, plantImageData, commonName, scientificName, plantDescription, general, physical, development, conditions, createdAt, updatedAt
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        self.plantImageData = (try? container.decode(Data.self, forKey: .plantImageData)) ?? Data()
+        self.commonName = try container.decode(String.self, forKey: .commonName)
+        self.scientificName = try container.decode(String.self, forKey: .scientificName)
+        self.plantDescription = try container.decodeIfPresent(String.self, forKey: .plantDescription) ?? ""
+        self.general = try container.decode(General.self, forKey: .general)
+        self.physical = try container.decode(Physical.self, forKey: .physical)
+        self.development = try container.decode(Development.self, forKey: .development)
+        self.conditions = try container.decodeIfPresent(Conditions.self, forKey: .conditions)
+        self.createdAt = (try? container.decode(Date.self, forKey: .createdAt)) ?? Date()
+        self.updatedAt = (try? container.decode(Date.self, forKey: .updatedAt)) ?? Date()
+    }
+
     struct General: Codable {
         let habitat: String
         let originCountries: [String]

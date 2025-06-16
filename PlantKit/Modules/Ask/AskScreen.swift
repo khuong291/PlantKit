@@ -53,7 +53,7 @@ struct AskScreen: View {
         VStack(spacing: 0) {
             ForEach(conversationManager.conversations) { conversation in
                 Button {
-                    askRouter.navigate(to: .conversation(conversation.id))
+                    askRouter.navigate(to: .conversation(conversation.id, nil))
                 } label: {
                     HStack {
                         Image("ic-tool-ask")
@@ -121,7 +121,7 @@ struct BeautifulHeader: View {
                 Haptics.shared.play()
                 let newConversation = conversationManager.createNewConversation()
                 conversationManager.currentConversationId = newConversation.id
-                askRouter.navigate(to: .conversation(newConversation.id))
+                askRouter.navigate(to: .conversation(newConversation.id, nil))
             }) {
                 Text("Ask New Question")
                     .font(.headline)

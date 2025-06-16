@@ -92,7 +92,15 @@ class ConversationManager: ObservableObject {
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.timeoutInterval = 60
-        let body: [String: Any] = ["message": message]
+        
+        let messageToSend: String
+        if let details = plantDetails {
+            messageToSend = "Plant: \(details.commonName) (\(details.scientificName))\n\nUser: \(message)"
+        } else {
+            messageToSend = message
+        }
+        
+        let body: [String: Any] = ["message": messageToSend]
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
         } catch {

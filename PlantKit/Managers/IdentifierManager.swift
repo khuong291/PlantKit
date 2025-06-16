@@ -7,11 +7,11 @@
 
 import SwiftUI
 import Combine
+import CoreData
 
 class IdentifierManager: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
-    @Published var recentScans: [ScannedPlant] = []
     @Published var lastPlantDetails: PlantDetails?
     @Published var myPlantsScreenID = UUID()
     private var cancellables = Set<AnyCancellable>()
@@ -20,6 +20,7 @@ class IdentifierManager: ObservableObject {
         isLoading = true
         errorMessage = nil
         lastPlantDetails = nil
+        
         PlantIdentifier.identify(image: image) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self = self else {
@@ -27,10 +28,13 @@ class IdentifierManager: ObservableObject {
                     return
                 }
                 self.isLoading = false
+                
                 switch result {
                 case .success(let details):
                     self.lastPlantDetails = details
-                    self.saveScan(name: details.commonName, image: image)
+                    // Save to CoreData
+                    CoreDataManager.shared.savePlant(details: details, image: image)
+                    self.myPlantsScreenID = UUID() // Trigger UI refresh
                     completion(.success(()))
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
@@ -38,12 +42,5 @@ class IdentifierManager: ObservableObject {
                 }
             }
         }
-    }
-
-    private func saveScan(name: String, image: UIImage) {
-        guard let data = image.jpegData(compressionQuality: 0.6) else { return }
-        let newScan = ScannedPlant(id: UUID(), name: name, scannedAt: Date(), imageData: data)
-        recentScans.insert(newScan, at: 0) // Add to top
-        myPlantsScreenID = UUID()
     }
 }

@@ -1,13 +1,16 @@
 import Foundation
 
 struct PlantDetails: Codable {
+    let id: UUID
     let commonName: String
     let scientificName: String
-    let description: String
+    let plantDescription: String
     let general: General
     let physical: Physical
     let development: Development
     let conditions: Conditions?
+    let createdAt: Date
+    let updatedAt: Date
 
     struct General: Codable {
         let habitat: String

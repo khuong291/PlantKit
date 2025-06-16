@@ -129,7 +129,7 @@ struct PlantDetailsScreen: View {
                 .font(.headline)
                 .foregroundColor(.primary)
                 .padding(.horizontal)
-            Text(details.description)
+            Text(details.plantDescription)
                 .font(.subheadline)
                 .foregroundColor(.primary)
                 .padding(.top, 2)
@@ -704,9 +704,10 @@ private struct RangeBar: View {
 }
 
 private let mockPlantDetails = PlantDetails(
+    id: UUID(),
     commonName: "Aloe Vera",
     scientificName: "Aloe barbadensis miller",
-    description: "Aloe Vera is a succulent plant species known for its medicinal properties and thick, fleshy leaves filled with a gel-like substance.",
+    plantDescription: "Aloe Vera is a succulent plant species known for its medicinal properties and thick, fleshy leaves filled with a gel-like substance.",
     general: .init(
         habitat: "Arid and semi-arid climates",
         originCountries: ["Sudan", "Arabian Peninsula"],
@@ -741,7 +742,9 @@ private let mockPlantDetails = PlantDetails(
             amount: "8 to 12 hrs/day",
             type: "Full sun"
         )
-    )
+    ),
+    createdAt: Date(),
+    updatedAt: Date()
 )
 
 private let mockImage: UIImage? = {

@@ -19,7 +19,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 @main
 struct PlantKitApp: App {
-    let persistenceController = PersistenceController.shared
+    let persistenceController = CoreDataManager.shared
     
     @StateObject var cameraManager = CameraManager()
     @StateObject var identifierManager = IdentifierManager()
@@ -28,7 +28,7 @@ struct PlantKitApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .environment(\.managedObjectContext, persistenceController.viewContext)
                 .environmentObject(cameraManager)
                 .environmentObject(identifierManager)
                 .environmentObject(conversationManager)

@@ -6,10 +6,15 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct MyPlantsScreen: View {
     @EnvironmentObject var identifierManager: IdentifierManager
     @State private var refreshID = UUID()
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \Plant.scannedAt, ascending: false)],
+        animation: .default)
+    private var plants: FetchedResults<Plant>
     
     var body: some View {
         ZStack {
@@ -23,7 +28,7 @@ struct MyPlantsScreen: View {
                             .bold()
                         Spacer()
                     }
-                    if identifierManager.recentScans.isEmpty {
+                    if plants.isEmpty {
                         Spacer()
                         emptyView
                             .frame(maxWidth: .infinity)
@@ -57,10 +62,11 @@ struct MyPlantsScreen: View {
     
     private var listView: some View {
         LazyVStack {
-            ForEach(identifierManager.recentScans) { plant in
+            ForEach(plants) { plant in
                 HStack(spacing: 16) {
-                    if let image = plant.image {
-                        Image(uiImage: image)
+                    if let imageData = plant.imageData,
+                       let uiImage = UIImage(data: imageData) {
+                        Image(uiImage: uiImage)
                             .resizable()
                             .frame(width: 80, height: 80)
                             .cornerRadius(12)
@@ -71,11 +77,16 @@ struct MyPlantsScreen: View {
                             )
                     }
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(plant.name)
+                        Text(plant.commonName ?? "")
                             .font(.headline)
-                        Text(plant.scannedAt, style: .date)
-                            .font(.caption)
-                            .foregroundColor(.gray)
+                        Text(plant.scientificName ?? "")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        if let scannedAt = plant.scannedAt {
+                            Text(scannedAt, style: .date)
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
                     }
                     Spacer()
                 }
@@ -89,5 +100,7 @@ struct MyPlantsScreen: View {
 }
 
 #Preview {
-    MyPlantsScreen().environmentObject(IdentifierManager())
+    MyPlantsScreen()
+        .environmentObject(IdentifierManager())
+        .environment(\.managedObjectContext, CoreDataManager.shared.viewContext)
 }

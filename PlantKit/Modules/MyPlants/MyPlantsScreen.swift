@@ -10,6 +10,7 @@ import CoreData
 
 struct MyPlantsScreen: View {
     @EnvironmentObject var identifierManager: IdentifierManager
+    @EnvironmentObject var myPlantsRouter: Router<ContentRoute>
     @State private var refreshID = UUID()
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Plant.scannedAt, ascending: false)],
@@ -146,34 +147,39 @@ struct MyPlantsScreen: View {
     private var listView: some View {
         LazyVStack {
             ForEach(plantDetailsList) { details in
-                HStack(spacing: 16) {
-                    if let uiImage = UIImage(data: details.plantImageData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .frame(width: 80, height: 80)
-                            .cornerRadius(12)
-                            .clipped()
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white, lineWidth: 2)
-                            )
+                Button {
+                    myPlantsRouter.navigate(to: .plantDetails(details))
+                } label: {
+                    HStack(spacing: 16) {
+                        if let uiImage = UIImage(data: details.plantImageData) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .frame(width: 80, height: 80)
+                                .cornerRadius(12)
+                                .clipped()
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.white, lineWidth: 2)
+                                )
+                        }
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(details.commonName)
+                                .font(.headline)
+                            Text(details.scientificName)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            Text(details.createdAt, style: .date)
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        Spacer()
                     }
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(details.commonName)
-                            .font(.headline)
-                        Text(details.scientificName)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        Text(details.createdAt, style: .date)
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                    Spacer()
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(16)
+                    .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
                 }
-                .padding()
-                .background(Color.white)
-                .cornerRadius(16)
-                .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+                .buttonStyle(PlainButtonStyle())
             }
         }
     }

@@ -1,6 +1,6 @@
 import Foundation
 
-struct PlantDetails: Codable, Identifiable {
+struct PlantDetails: Codable, Identifiable, Equatable, Hashable {
     let id: UUID
     let plantImageData: Data
     let commonName: String
@@ -12,6 +12,20 @@ struct PlantDetails: Codable, Identifiable {
     let conditions: Conditions?
     let createdAt: Date
     let updatedAt: Date
+
+    static func == (lhs: PlantDetails, rhs: PlantDetails) -> Bool {
+        lhs.id == rhs.id &&
+        lhs.plantImageData == rhs.plantImageData &&
+        lhs.commonName == rhs.commonName &&
+        lhs.scientificName == rhs.scientificName &&
+        lhs.plantDescription == rhs.plantDescription &&
+        lhs.general == rhs.general &&
+        lhs.physical == rhs.physical &&
+        lhs.development == rhs.development &&
+        lhs.conditions == rhs.conditions &&
+        lhs.createdAt == rhs.createdAt &&
+        lhs.updatedAt == rhs.updatedAt
+    }
 
     // Explicit memberwise initializer
     init(id: UUID, plantImageData: Data, commonName: String, scientificName: String, plantDescription: String, general: General, physical: Physical, development: Development, conditions: Conditions?, createdAt: Date, updatedAt: Date) {
@@ -47,35 +61,35 @@ struct PlantDetails: Codable, Identifiable {
         self.updatedAt = (try? container.decode(Date.self, forKey: .updatedAt)) ?? Date()
     }
 
-    struct General: Codable {
+    struct General: Codable, Equatable, Hashable {
         let habitat: String
         let originCountries: [String]
         let environmentalBenefits: [String]
     }
-    struct Physical: Codable {
+    struct Physical: Codable, Equatable, Hashable {
         let height: String
         let crownDiameter: String
         let form: String
     }
-    struct Development: Codable {
+    struct Development: Codable, Equatable, Hashable {
         let matureHeightTime: String
         let growthSpeed: Int
         let propagationMethods: [String]
         let cycle: String
     }
-    struct Conditions: Codable {
+    struct Conditions: Codable, Equatable, Hashable {
         let climatic: Climatic?
         let soil: Soil?
         let light: Light?
-        struct RangeD: Codable {
+        struct RangeD: Codable, Equatable, Hashable {
             let lower: Double
             let upper: Double
         }
-        struct RangeI: Codable {
+        struct RangeI: Codable, Equatable, Hashable {
             let lower: Int
             let upper: Int
         }
-        struct Climatic: Codable {
+        struct Climatic: Codable, Equatable, Hashable {
             let hardinessZone: [Int] // e.g. [1,2,3,4,5,6,7,8,9,10,11,12,13]
             let minTemperature: Double // e.g. -1.1
             let temperatureRange: RangeD
@@ -83,12 +97,12 @@ struct PlantDetails: Codable, Identifiable {
             let humidityRange: RangeI
             let windResistance: String? // e.g. "50km/h"
         }
-        struct Soil: Codable {
+        struct Soil: Codable, Equatable, Hashable {
             let phRange: [Double]
             let phLabel: String
             let types: [String]
         }
-        struct Light: Codable {
+        struct Light: Codable, Equatable, Hashable {
             let amount: String // e.g. "8 to 12 hrs/day"
             let type: String // e.g. "Full sun"
         }

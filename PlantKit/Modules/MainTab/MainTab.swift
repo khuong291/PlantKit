@@ -91,6 +91,11 @@ struct MainTab: View {
                     return true
                 }
                 return false
+            }) && !myPlantsRouter.stack.contains(where: { route in
+                if case .plantDetails = route {
+                    return true
+                }
+                return false
             }) {
                 VStack(spacing: 0) {
                     Spacer()

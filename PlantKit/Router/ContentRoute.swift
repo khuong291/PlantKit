@@ -11,6 +11,7 @@ enum ContentRoute: Routable {
     case home
     case ask
     case conversation(UUID)
+    case plantDetails(PlantDetails)
 
     var body: some View {
         switch self {
@@ -20,6 +21,12 @@ enum ContentRoute: Routable {
             AskScreen()
         case .conversation(let id):
             ConversationScreen(conversationId: id)
+        case .plantDetails(let details):
+            PlantDetailsScreen(
+                plantDetails: details,
+                capturedImage: UIImage(data: details.plantImageData),
+                onSwitchTab: { _ in }
+            )
         }
     }
 }

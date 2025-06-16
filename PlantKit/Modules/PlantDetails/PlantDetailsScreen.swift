@@ -70,25 +70,25 @@ struct PlantDetailsScreen: View {
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .padding(.horizontal)
-                            .padding(.bottom, 12)
-                        // Tabs
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 12) {
-                                ForEach(tabs.indices, id: \.self) { idx in
-                                    Button(action: { selectedTab = idx }) {
-                                        Text(tabs[idx])
-                                            .font(.system(size: 16, weight: .medium))
-                                            .foregroundColor(selectedTab == idx ? .white : .primary)
-                                            .padding(.vertical, 8)
-                                            .padding(.horizontal, 18)
-                                            .background(selectedTab == idx ? Color.black : Color.secondary.opacity(0.1))
-                                            .cornerRadius(16)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal)
-                            .padding(.bottom, 12)
-                        }
+                            .padding(.bottom, 20)
+//                        // Tabs
+//                        ScrollView(.horizontal, showsIndicators: false) {
+//                            HStack(spacing: 12) {
+//                                ForEach(tabs.indices, id: \.self) { idx in
+//                                    Button(action: { selectedTab = idx }) {
+//                                        Text(tabs[idx])
+//                                            .font(.system(size: 16, weight: .medium))
+//                                            .foregroundColor(selectedTab == idx ? .white : .primary)
+//                                            .padding(.vertical, 8)
+//                                            .padding(.horizontal, 18)
+//                                            .background(selectedTab == idx ? Color.black : Color.secondary.opacity(0.1))
+//                                            .cornerRadius(16)
+//                                    }
+//                                }
+//                            }
+//                            .padding(.horizontal)
+//                            .padding(.bottom, 12)
+//                        }
                         descriptionSection(details: details)
                         generalSection(details: details)
                         characteristicsSection(details: details)
@@ -160,9 +160,9 @@ struct PlantDetailsScreen: View {
                 Image(systemName: "xmark")
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(.black)
+                    .foregroundColor(.white)
                     .padding(12)
-                    .background(Color.white)
+                    .background(Color.black.opacity(0.3))
                     .clipShape(Circle())
                     .padding(.trailing)
                     .padding(.top, 46)
@@ -205,14 +205,18 @@ struct PlantDetailsScreen: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Habitat")
                             .font(.headline)
-                        Text("Natural Habitats")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        Text(details.general.habitat)
-                            .font(.subheadline)
                     }
                 }
                 .padding(.bottom, 14)
+                Divider()
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Natural Habitats")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Text(details.general.habitat)
+                        .font(.subheadline)
+                }
+                .padding(.vertical, 14)
                 Divider()
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Countries of Origin")
@@ -666,6 +670,7 @@ struct PlantDetailsScreen: View {
                 Text(light.amount)
                     .font(.subheadline)
             }
+            .padding(.vertical, 4)
             HStack {
                 Text("Type")
                     .font(.subheadline)

@@ -92,10 +92,12 @@ struct MainTab: View {
                 }
                 return false
             }) && !myPlantsRouter.stack.contains(where: { route in
-                if case .plantDetails = route {
+                switch route {
+                case .plantDetails, .conversation:
                     return true
+                default:
+                    return false
                 }
-                return false
             }) {
                 VStack(spacing: 0) {
                     Spacer()
@@ -120,9 +122,10 @@ struct MainTab: View {
         .fullScreenCover(isPresented: $showPlantDetails, onDismiss: {
             detailsImage = nil
             identifierManager.lastPlantDetails = nil
+            switchToTab(.myPlants)
         }) {
             if let details = identifierManager.lastPlantDetails, let image = detailsImage {
-                PlantDetailsScreen(plantDetails: details, capturedImage: image, onSwitchTab: switchToTab)
+                PlantDetailsScreen(plantDetails: details, capturedImage: image)
             }
         }
     }

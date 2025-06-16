@@ -11,12 +11,13 @@ import CoreData
 struct PlantDetailsScreen: View {
     let plantDetails: PlantDetails?
     let capturedImage: UIImage?
-    let onSwitchTab: (MainTab.Tab) -> Void
     @State private var selectedTab = 0
     @State private var showDeleteAlert = false
     private let tabs = ["Overview", "Requirements", "Culture", "FAQ", "Articles"]
     @Environment(\.dismiss) private var dismiss
     @Environment(\.managedObjectContext) private var viewContext
+    @EnvironmentObject private var conversationManager: ConversationManager
+    @EnvironmentObject var myPlantsRouter: Router<ContentRoute>
     
     var body: some View {
         ZStack {
@@ -48,7 +49,6 @@ struct PlantDetailsScreen: View {
                 viewContext.delete(plant)
                 try viewContext.save()
                 dismiss()
-                onSwitchTab(.myPlants)
             }
         } catch {
             print("Error deleting plant: \(error)")
@@ -123,8 +123,9 @@ struct PlantDetailsScreen: View {
                     
                     ShinyBorderButton(systemName: "message.fill", title: "Ask Anything") {
                         Haptics.shared.play()
-                        dismiss()
-                        onSwitchTab(.myPlants)
+                        let newConversation = conversationManager.createNewConversation()
+                        conversationManager.currentConversationId = newConversation.id
+                        myPlantsRouter.navigate(to: .conversation(newConversation.id))
                     }
                     .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
                 }
@@ -155,7 +156,6 @@ struct PlantDetailsScreen: View {
             }
             Button(action: {
                 dismiss()
-                onSwitchTab(.myPlants)
             }) {
                 Image(systemName: "xmark")
                     .font(.subheadline)
@@ -809,7 +809,6 @@ private let mockImage: UIImage? = {
 #Preview {
     PlantDetailsScreen(
         plantDetails: mockPlantDetails,
-        capturedImage: mockImage,
-        onSwitchTab: { _ in }
+        capturedImage: mockImage
     )
 }

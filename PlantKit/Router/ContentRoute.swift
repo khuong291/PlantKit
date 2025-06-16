@@ -24,8 +24,7 @@ enum ContentRoute: Routable {
         case .plantDetails(let details):
             PlantDetailsScreen(
                 plantDetails: details,
-                capturedImage: UIImage(data: details.plantImageData),
-                onSwitchTab: { _ in }
+                capturedImage: UIImage(data: details.plantImageData)
             )
         }
     }

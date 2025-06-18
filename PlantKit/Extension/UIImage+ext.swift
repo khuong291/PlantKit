@@ -11,14 +11,14 @@ extension UIImage {
     func croppedToCenterSquare() -> UIImage? {
         guard let cgImage = self.cgImage else { return nil }
         
-        let width = CGFloat(cgImage.width) * 0.9
-        let height = CGFloat(cgImage.height)
+        let imageWidth = CGFloat(cgImage.width)
+        let imageHeight = CGFloat(cgImage.height)
+        let side = min(imageWidth, imageHeight) * 0.9
         
-        let length = min(width, height)
-        let originX = (width - length) / 2
-        let originY = (height - length) / 2
+        let originX = (imageWidth - side) / 2
+        let originY = (imageHeight - side) / 2
         
-        let cropRect = CGRect(x: originX, y: originY, width: length, height: length)
+        let cropRect = CGRect(x: originX, y: originY, width: side, height: side)
         
         guard let croppedCGImage = cgImage.cropping(to: cropRect) else { return nil }
         

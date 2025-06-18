@@ -112,39 +112,23 @@ struct CameraView: View {
             
             VStack {
                 Spacer()
-                HStack {
-                    Spacer()
-                        .frame(width: 20)
-                    
+                HStack(alignment: .center) {
+                    Spacer().frame(width: 20)
                     photoButton
-                        .opacity(0)
-                        .disabled(true)
-                    
                     Spacer()
-                    
                     captureButton
-                    
                     Spacer()
-                    
-                    photoButton
-                    
-                    Spacer()
-                        .frame(width: 20)
+                    ZoomWedgeControl(
+                        zoomFactor: $zoomFactor,
+                        minZoom: 1.0,
+                        maxZoom: 5.0,
+                        onZoomChanged: { newValue in
+                            cameraManager.setZoomFactor(newValue)
+                        }
+                    )
+                    Spacer().frame(width: 20)
                 }
                 .padding(.bottom, 50)
-            }
-            
-            VStack {
-                Spacer()
-                ZoomWedgeControl(
-                    zoomFactor: $zoomFactor,
-                    minZoom: 1.0,
-                    maxZoom: 5.0,
-                    onZoomChanged: { newValue in
-                        cameraManager.setZoomFactor(newValue)
-                    }
-                )
-                .padding(.bottom, 100)
             }
         }
     }

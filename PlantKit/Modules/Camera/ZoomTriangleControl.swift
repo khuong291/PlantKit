@@ -6,8 +6,8 @@ struct ZoomWedgeControl: View {
     let maxZoom: CGFloat
     var onZoomChanged: ((CGFloat) -> Void)? = nil
 
-    private let controlWidth: CGFloat = 180
-    private let controlHeight: CGFloat = 40
+    private let controlWidth: CGFloat = 80
+    private let controlHeight: CGFloat = 20
 
     var body: some View {
         GeometryReader { geo in

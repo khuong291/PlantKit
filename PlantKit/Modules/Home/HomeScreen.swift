@@ -11,6 +11,7 @@ import CoreLocation
 import Combine
 
 struct HomeScreen: View {
+    @EnvironmentObject var cameraManager: CameraManager
     @EnvironmentObject var identifierManager: IdentifierManager
     
     @State private var selectedImage: UIImage?
@@ -19,8 +20,10 @@ struct HomeScreen: View {
     @State private var isLoading = false
     @State private var searchText: String = ""
     @State private var showAllTools = false
+    @State private var showHealthCheckCamera = false
     
     @StateObject private var locationManager = LocationManager()
+    @StateObject private var healthCheckManager = HealthCheckManager()
     
     private let tools: [Tool] = [
         .init(title: "Plant Identifier", imageName: "ic-tool-plant"),
@@ -67,6 +70,11 @@ struct HomeScreen: View {
         }
         .onAppear {
             locationManager.requestLocation()
+        }
+        .sheet(isPresented: $showHealthCheckCamera) {
+            HealthCheckCameraView(dismissAction: { showHealthCheckCamera = false })
+                .environmentObject(cameraManager)
+                .environmentObject(healthCheckManager)
         }
     }
     
@@ -196,7 +204,15 @@ struct HomeScreen: View {
             
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: itemsPerRow), spacing: verticalSpacing) {
                 ForEach(visibleTools) { tool in
-                    PlantToolCardView(title: tool.title, imageName: tool.imageName)
+                    Button {
+                        if tool.title == "Health Check" {
+                            showHealthCheckCamera = true
+                        }
+                        // Add other tool actions here if needed
+                    } label: {
+                        PlantToolCardView(title: tool.title, imageName: tool.imageName)
+                    }
+                    .buttonStyle(CardButtonStyle())
                 }
             }
 

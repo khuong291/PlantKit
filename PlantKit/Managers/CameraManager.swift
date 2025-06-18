@@ -8,8 +8,6 @@
 import AVFoundation
 import SwiftUI
 
-import AVFoundation
-
 class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate {
     let session = AVCaptureSession()
     private let photoOutput = AVCapturePhotoOutput()

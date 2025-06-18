@@ -29,6 +29,7 @@ struct PlantToolCardView: View {
                 .font(.subheadline)
                 .bold()
                 .multilineTextAlignment(.center)
+                .foregroundStyle(.primary)
         }
         .padding(.vertical)
         .frame(maxWidth: .infinity)

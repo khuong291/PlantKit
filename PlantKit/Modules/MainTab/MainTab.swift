@@ -119,15 +119,6 @@ struct MainTab: View {
             .environmentObject(viewModel.cameraManager)
             .environmentObject(identifierManager)
         }
-        .fullScreenCover(isPresented: $showPlantDetails, onDismiss: {
-            detailsImage = nil
-            identifierManager.lastPlantDetails = nil
-            switchToTab(.myPlants)
-        }) {
-            if let details = identifierManager.lastPlantDetails, let image = detailsImage {
-                PlantDetailsScreen(plantDetails: details, capturedImage: image)
-            }
-        }
     }
     
     private var tabContent: some View {
@@ -259,7 +250,11 @@ struct MainTab: View {
         detailsImage = image
         viewModel.isPresentingCamera = false
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            showPlantDetails = true
+            if let details = identifierManager.lastPlantDetails {
+                selectedTab = .myPlants
+                hasSelectedMyPlantsScreen = true
+                myPlantsRouter.navigate(to: .plantDetails(details))
+            }
         }
     }
 }

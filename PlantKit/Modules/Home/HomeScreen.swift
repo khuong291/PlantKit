@@ -24,7 +24,7 @@ struct HomeScreen: View {
     
     private let tools: [Tool] = [
         .init(title: "Plant Identifier", imageName: "ic-tool-plant"),
-        .init(title: "Disease Identifier", imageName: "ic-tool-disease"),
+        .init(title: "Diagnose Identifier", imageName: "ic-tool-disease"),
         .init(title: "Light Meter", imageName: "ic-tool-light"),
         .init(title: "Water Meter", imageName: "ic-tool-water"),
         .init(title: "Ask Botanist", imageName: "ic-tool-ask"),

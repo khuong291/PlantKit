@@ -52,4 +52,16 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate {
         }
         photoCaptureCompletion?(image)
     }
+
+    func setZoomFactor(_ zoomFactor: CGFloat) {
+        guard let device = AVCaptureDevice.default(for: .video) else { return }
+        do {
+            try device.lockForConfiguration()
+            let factor = min(max(zoomFactor, device.minAvailableVideoZoomFactor), device.maxAvailableVideoZoomFactor)
+            device.videoZoomFactor = factor
+            device.unlockForConfiguration()
+        } catch {
+            print("Failed to set zoom factor: \(error)")
+        }
+    }
 }

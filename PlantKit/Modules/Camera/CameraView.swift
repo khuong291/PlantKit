@@ -19,6 +19,8 @@ struct CameraView: View {
     @State private var capturingImage = false
     @State private var capturedImage: UIImage? = nil
     @State private var isIdentifying = false
+    @State private var zoomFactor: CGFloat = 1.0
+    @State private var lastZoomValue: CGFloat = 1.0
     
     var body: some View {
         ZStack {
@@ -66,6 +68,17 @@ struct CameraView: View {
                 }
             }
         }
+        .gesture(
+            MagnificationGesture()
+                .onChanged { value in
+                    let newZoom = min(max(lastZoomValue * value, 1.0), 5.0)
+                    zoomFactor = newZoom
+                    cameraManager.setZoomFactor(zoomFactor)
+                }
+                .onEnded { value in
+                    lastZoomValue = zoomFactor
+                }
+        )
     }
     
     private var content: some View {
@@ -119,6 +132,19 @@ struct CameraView: View {
                         .frame(width: 20)
                 }
                 .padding(.bottom, 50)
+            }
+            
+            VStack {
+                Spacer()
+                ZoomWedgeControl(
+                    zoomFactor: $zoomFactor,
+                    minZoom: 1.0,
+                    maxZoom: 5.0,
+                    onZoomChanged: { newValue in
+                        cameraManager.setZoomFactor(newValue)
+                    }
+                )
+                .padding(.bottom, 100)
             }
         }
     }

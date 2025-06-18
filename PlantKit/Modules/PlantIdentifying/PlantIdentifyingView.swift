@@ -47,27 +47,25 @@ struct PlantIdentifyingView: View {
                         )
                     
                     // Scanning animation
-                    if currentStep < 3 {
-                        VStack(spacing: 0) {
-                            // Horizontal scanning line
-                            Rectangle()
-                                .fill(Color.green)
-                                .frame(height: 6)
-                            
-                            // Gradient overlay
-                            Rectangle()
-                                .fill(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [.green.opacity(0.5), .clear]),
-                                        startPoint: .top,
-                                        endPoint: .bottom
-                                    )
+                    VStack(spacing: 0) {
+                        // Horizontal scanning line
+                        Rectangle()
+                            .fill(Color.green)
+                            .frame(height: 6)
+                        
+                        // Gradient overlay
+                        Rectangle()
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [.green.opacity(0.5), .clear]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
                                 )
-                                .frame(height: UIScreen.main.bounds.width * 0.6)
-                        }
-                        .offset(y: scanProgress)
-                        .animation(.linear(duration: 1.5), value: scanProgress)
+                            )
+                            .frame(height: UIScreen.main.bounds.width * 0.6)
                     }
+                    .offset(y: scanProgress)
+                    .animation(.linear(duration: 1.5), value: scanProgress)
                 }
                 .frame(width: UIScreen.main.bounds.width * 0.9, height: UIScreen.main.bounds.width * 0.9)
                 .cornerRadius(16)

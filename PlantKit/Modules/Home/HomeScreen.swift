@@ -208,6 +208,9 @@ struct HomeScreen: View {
                         if tool.title == "Health Check" {
                             showHealthCheckCamera = true
                         }
+                        if tool.title == "Plant Identifier" {
+                            ProManager.shared.showUpgradePro()
+                        }
                         // Add other tool actions here if needed
                     } label: {
                         PlantToolCardView(title: tool.title, imageName: tool.imageName)

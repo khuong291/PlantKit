@@ -8,8 +8,16 @@
 import SwiftUI
 
 struct ContentView: View {
+    @ObservedObject var proManager: ProManager = .shared
+    
     var body: some View {
         MainTab()
+            .onAppear {
+                ProManager.shared.setup()
+            }
+            .sheet(isPresented: $proManager.showsUpgradeProView) {
+                PaywallView()
+            }
     }
 }
 

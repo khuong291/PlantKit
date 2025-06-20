@@ -70,3 +70,41 @@ extension View {
         }
     }
 }
+
+struct ShimmerEffect: ViewModifier {
+    @State private var phase: CGFloat = 0
+    let isActive: Bool
+    
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                GeometryReader { geometry in
+                    if isActive {
+                        LinearGradient(
+                            gradient: Gradient(stops: [
+                                .init(color: .clear, location: phase - 0.5),
+                                .init(color: .white.opacity(0.3), location: phase),
+                                .init(color: .clear, location: phase + 0.5)
+                            ]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                        .frame(width: geometry.size.width * 2)
+                        .offset(x: -geometry.size.width)
+                        .mask(content)
+                        .onAppear {
+                            withAnimation(Animation.linear(duration: 1.5).repeatForever(autoreverses: false)) {
+                                phase = 1
+                            }
+                        }
+                    }
+                }
+            )
+    }
+}
+
+extension View {
+    func shimmer(isActive: Bool) -> some View {
+        modifier(ShimmerEffect(isActive: isActive))
+    }
+}

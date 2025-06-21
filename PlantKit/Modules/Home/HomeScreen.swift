@@ -22,6 +22,7 @@ struct HomeScreen: View {
     @State private var showAllTools = false
     @State private var showHealthCheckCamera = false
     @State private var showLightMeterCamera = false
+    @State private var showWaterMeter = false
     
     @StateObject private var locationManager = LocationManager()
     @StateObject private var healthCheckManager = HealthCheckManager()
@@ -79,6 +80,9 @@ struct HomeScreen: View {
         }
         .fullScreenCover(isPresented: $showLightMeterCamera) {
             LightMeterCameraView(dismissAction: { showLightMeterCamera = false })
+        }
+        .sheet(isPresented: $showWaterMeter) {
+            WaterMeterView(isPresented: $showWaterMeter)
         }
     }
     
@@ -215,6 +219,9 @@ struct HomeScreen: View {
                         }
                         if tool.title == "Light Meter" {
                             showLightMeterCamera = true
+                        }
+                        if tool.title == "Water Meter" {
+                            showWaterMeter = true
                         }
                         if tool.title == "Plant Identifier" {
                             ProManager.shared.showUpgradePro()

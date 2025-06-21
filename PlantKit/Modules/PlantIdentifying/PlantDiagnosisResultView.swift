@@ -44,57 +44,55 @@ struct PlantDiagnosisResultView: View {
                 }
             }
             .scrollIndicators(.hidden)
-            
-            // Close button
-            VStack {
-                HStack {
-                    Spacer()
-                    Button(action: onDismiss) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 28))
-                            .foregroundColor(.white)
-                            .background(Color.black.opacity(0.3))
-                            .clipShape(Circle())
-                    }
-                }
-                .padding(.top, 70)
-                .padding(.trailing, 20)
-                Spacer()
-            }
         }
     }
     
     private var headerSection: some View {
-        ZStack(alignment: .bottom) {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(height: 300)
-                .clipped()
-            
-            // Gradient overlay
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.clear,
-                    Color.black.opacity(0.3),
-                    Color.black.opacity(0.7)
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: 300)
-            
-            VStack(spacing: 8) {
-                Text("Plant Health Diagnosis")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
+        ZStack(alignment: .topTrailing) {
+            ZStack(alignment: .bottom) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 300)
+                    .clipped()
                 
-                Text("Analysis Complete")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.8))
+                // Gradient overlay
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color.clear,
+                        Color.black.opacity(0.3),
+                        Color.black.opacity(0.7)
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 300)
+                
+                VStack(spacing: 8) {
+                    Text("Plant Health Diagnosis")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    
+                    Text("Analysis Complete")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.8))
+                }
+                .padding(.bottom, 20)
             }
-            .padding(.bottom, 20)
+            Button(action: {
+                onDismiss()
+            }) {
+                Image(systemName: "xmark")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding(12)
+                    .background(Color.black.opacity(0.3))
+                    .clipShape(Circle())
+                    .padding(.trailing)
+                    .padding(.top, 46)
+            }
         }
     }
     

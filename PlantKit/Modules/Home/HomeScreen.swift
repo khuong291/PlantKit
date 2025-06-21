@@ -71,7 +71,7 @@ struct HomeScreen: View {
         .onAppear {
             locationManager.requestLocation()
         }
-        .sheet(isPresented: $showHealthCheckCamera) {
+        .fullScreenCover(isPresented: $showHealthCheckCamera) {
             HealthCheckCameraView(dismissAction: { showHealthCheckCamera = false })
                 .environmentObject(cameraManager)
                 .environmentObject(healthCheckManager)
@@ -237,42 +237,6 @@ struct HomeScreen: View {
             .buttonStyle(CardButtonStyle())
         }
     }
-    
-//    private var recentlyScannedView: some View {
-//        VStack(alignment: .leading, spacing: 8) {
-//            Text("Recently Scanned")
-//                .font(.title3)
-//                .bold()
-//            
-//            VStack {
-//                if identifierManager.isLoading {
-//                    shimmerRow()
-//                }
-//                ForEach(identifierManager.recentScans) { plant in
-//                    HStack(spacing: 12) {
-//                        if let image = plant.image {
-//                            Image(uiImage: image)
-//                                .resizable()
-//                                .frame(width: 80, height: 80)
-//                                .cornerRadius(8)
-//                                .clipped()
-//                        }
-//                        VStack(alignment: .leading) {
-//                            Text(plant.name)
-//                                .font(.headline)
-//                            Text(plant.scannedAt, style: .time)
-//                                .font(.caption)
-//                                .foregroundColor(.gray)
-//                        }
-//                        Spacer()
-//                    }
-//                    .padding()
-//                    .background(Color.white)
-//                    .cornerRadius(12)
-//                }
-//            }
-//        }
-//    }
     
     @ViewBuilder
     func shimmerRow() -> some View {

@@ -21,6 +21,7 @@ struct HomeScreen: View {
     @State private var searchText: String = ""
     @State private var showAllTools = false
     @State private var showHealthCheckCamera = false
+    @State private var showLightMeterCamera = false
     
     @StateObject private var locationManager = LocationManager()
     @StateObject private var healthCheckManager = HealthCheckManager()
@@ -75,6 +76,9 @@ struct HomeScreen: View {
             HealthCheckCameraView(dismissAction: { showHealthCheckCamera = false })
                 .environmentObject(cameraManager)
                 .environmentObject(healthCheckManager)
+        }
+        .fullScreenCover(isPresented: $showLightMeterCamera) {
+            LightMeterCameraView(dismissAction: { showLightMeterCamera = false })
         }
     }
     
@@ -205,8 +209,12 @@ struct HomeScreen: View {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: itemsPerRow), spacing: verticalSpacing) {
                 ForEach(visibleTools) { tool in
                     Button {
+                        Haptics.shared.play()
                         if tool.title == "Health Check" {
                             showHealthCheckCamera = true
+                        }
+                        if tool.title == "Light Meter" {
+                            showLightMeterCamera = true
                         }
                         if tool.title == "Plant Identifier" {
                             ProManager.shared.showUpgradePro()

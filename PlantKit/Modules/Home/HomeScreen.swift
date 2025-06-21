@@ -83,6 +83,7 @@ struct HomeScreen: View {
         }
         .sheet(isPresented: $showWaterMeter) {
             WaterMeterView(isPresented: $showWaterMeter)
+                .adjustSheetHeightToContent()
         }
     }
     

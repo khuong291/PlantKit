@@ -27,73 +27,99 @@ enum ResultUnit: String {
 struct WaterMeterView: View {
     @StateObject private var viewModel = WaterMeterViewModel()
     @Binding var isPresented: Bool
+    
+    private var steps: [WaterMeterViewModel.Step] = [.location, .humidity, .temperature, .potSize, .result]
+    @State private var transition: AnyTransition = .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
+
+    init(isPresented: Binding<Bool>) {
+        self._isPresented = isPresented
+    }
+    
+    private func handleSwipe(forward: Bool) {
+        if forward {
+            guard viewModel.currentStep != .result else { return }
+            transition = .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
+            withAnimation { viewModel.nextStep() }
+        } else {
+            guard viewModel.currentStep != .location else { return }
+            transition = .asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
+            withAnimation { viewModel.previousStep() }
+        }
+    }
 
     var body: some View {
-        VStack {
-            Capsule()
-                .fill(Color.secondary)
-                .frame(width: 40, height: 5)
-                .padding(.top, 8)
+        VStack(spacing: 0) {
+            // Custom Navigation Bar
+            HStack {
+                if viewModel.currentStep != .location {
+                    Button(action: {
+                        handleSwipe(forward: false)
+                    }) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .foregroundColor(.accentColor)
+                }
+                Spacer()
+                Button(action: {
+                    isPresented = false
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.gray.opacity(0.4))
+                }
+            }
+            .padding()
+            .frame(height: 50)
 
-            // Step content
+            // Step Content
             VStack {
                 switch viewModel.currentStep {
                 case .location:
-                    LocationStepView(viewModel: viewModel)
+                    LocationStepView(viewModel: viewModel, handleSwipe: handleSwipe)
                 case .humidity:
-                    HumidityStepView(viewModel: viewModel)
+                    HumidityStepView(viewModel: viewModel, handleSwipe: handleSwipe)
                 case .temperature:
-                    TemperatureStepView(viewModel: viewModel)
+                    TemperatureStepView(viewModel: viewModel, handleSwipe: handleSwipe)
                 case .potSize:
-                    PotDiameterStepView(viewModel: viewModel)
+                    PotDiameterStepView(viewModel: viewModel, handleSwipe: handleSwipe)
                 case .result:
                     ResultStepView(viewModel: viewModel)
                 }
-
-                Spacer()
-
-                // Navigation
-                HStack {
-                    if viewModel.currentStep != .location {
-                        Button("Back") {
-                            withAnimation {
-                                viewModel.previousStep()
-                            }
+            }
+            .transition(transition)
+            .id(viewModel.currentStep)
+            .gesture(
+                DragGesture(minimumDistance: 25, coordinateSpace: .local)
+                    .onEnded { value in
+                        if value.translation.width < 0 {
+                            handleSwipe(forward: true)
                         }
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.gray.opacity(0.2))
-                        .foregroundColor(.primary)
-                        .cornerRadius(12)
-                    }
 
-                    Button(viewModel.currentStep == .result ? "OK" : "Continue") {
-                        if viewModel.currentStep == .result {
-                            isPresented = false
-                        } else {
-                            withAnimation {
-                                viewModel.nextStep()
-                            }
+                        if value.translation.width > 0 {
+                            handleSwipe(forward: false)
                         }
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.accentColor)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-                    .disabled(!viewModel.isCurrentStepValid())
+            )
+
+            // Step Indicator
+            if viewModel.currentStep != .result {
+                HStack(spacing: 8) {
+                    ForEach(0..<4) { index in
+                        Circle()
+                            .fill(steps.firstIndex(of: viewModel.currentStep) == index ? Color.accentColor : Color.gray.opacity(0.3))
+                            .frame(width: 8, height: 8)
+                    }
                 }
-                .padding()
+                .padding(.vertical, 30)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(UIColor.systemGroupedBackground))
-        .presentationDetents([.medium, .large])
+        .background(Color.white)
     }
 }
 
 class WaterMeterViewModel: ObservableObject {
-    enum Step {
+    enum Step: Hashable {
         case location, humidity, temperature, potSize, result
     }
 
@@ -173,9 +199,15 @@ class WaterMeterViewModel: ObservableObject {
 
 struct LocationStepView: View {
     @ObservedObject var viewModel: WaterMeterViewModel
+    var handleSwipe: (Bool) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .center, spacing: 32) {
+            Spacer()
+            Image(systemName: "mappin.and.ellipse")
+                .font(.system(size: 48, weight: .thin))
+                .foregroundColor(.accentColor)
+            
             Text("Choose where your plant is located")
                 .font(.title2).bold()
                 .padding(.horizontal)
@@ -183,20 +215,27 @@ struct LocationStepView: View {
             LocationCard(
                 title: "Outdoor area",
                 subtitle: "Only Garden",
-                imageName: "outdoor-plant", // Use your asset
+                systemImageName: "sun.max.fill",
                 isSelected: viewModel.plantLocation == .outdoor
             ) {
                 viewModel.plantLocation = .outdoor
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    handleSwipe(true)
+                }
             }
 
             LocationCard(
                 title: "Indoor Area",
                 subtitle: "Living room, kitchen, bedroom, etc...",
-                imageName: "indoor-plant", // Use your asset
+                systemImageName: "house.fill",
                 isSelected: viewModel.plantLocation == .indoor
             ) {
                 viewModel.plantLocation = .indoor
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    handleSwipe(true)
+                }
             }
+            Spacer()
         }
         .padding()
     }
@@ -205,19 +244,17 @@ struct LocationStepView: View {
 struct LocationCard: View {
     let title: String
     let subtitle: String
-    let imageName: String
+    let systemImageName: String
     let isSelected: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             HStack {
-                Image(imageName)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
+                Image(systemName: systemImageName)
+                    .font(.title)
+                    .foregroundColor(.accentColor)
                     .frame(width: 80, height: 80)
-                    .clipped()
-                    .cornerRadius(12)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title).font(.headline)

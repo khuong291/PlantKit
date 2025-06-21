@@ -9,50 +9,70 @@ import SwiftUI
 
 struct TemperatureStepView: View {
     @ObservedObject var viewModel: WaterMeterViewModel
+    var handleSwipe: (Bool) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .center, spacing: 32) {
+            Spacer()
+            Image(systemName: "thermometer")
+                .font(.system(size: 48, weight: .thin))
+                .foregroundColor(.accentColor)
+            
             Text("Indicate temperature around the plant")
                 .font(.title2).bold()
+                .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
-            VStack(spacing: 16) {
-                if !viewModel.temperatureDontKnow {
-                    VStack {
-                        Text("\(Int(viewModel.temperature))°\(viewModel.temperatureUnit.rawValue)")
-                            .font(.system(size: 48, weight: .bold))
-                            .monospacedDigit()
-                        
-                        Slider(
-                            value: $viewModel.temperature,
-                            in: viewModel.temperatureUnit == .celsius ? 0...40 : 32...104,
-                            step: 1
-                        )
-                        .padding(.horizontal)
-                        
-                        Picker("Unit", selection: $viewModel.temperatureUnit) {
-                            Text("°C").tag(TemperatureUnit.celsius)
-                            Text("°F").tag(TemperatureUnit.fahrenheit)
-                        }
-                        .pickerStyle(SegmentedPickerStyle())
-                        .padding(.horizontal)
-                    }
+            VStack(spacing: 24) {
+                HStack(spacing: 16) {
+                    Slider(
+                        value: $viewModel.temperature,
+                        in: viewModel.temperatureUnit == .celsius ? 0...40 : 32...104,
+                        step: 1
+                    )
+                    .tint(.accentColor)
+                    .disabled(viewModel.temperatureDontKnow)
+                    
+                    Text("\(Int(viewModel.temperature))°\(viewModel.temperatureUnit.rawValue)")
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                        .frame(width: 60)
                 }
-
+                
+                Picker("Unit", selection: $viewModel.temperatureUnit) {
+                    Text("°C").tag(TemperatureUnit.celsius)
+                    Text("°F").tag(TemperatureUnit.fahrenheit)
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .disabled(viewModel.temperatureDontKnow)
+                
                 Button(action: {
                     withAnimation {
-                        viewModel.temperatureDontKnow.toggle()
+                        viewModel.temperatureDontKnow = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            handleSwipe(true)
+                        }
                     }
                 }) {
-                    HStack {
-                        Image(systemName: viewModel.temperatureDontKnow ? "checkmark.square.fill" : "square")
-                        Text("I don't know")
-                    }
-                    .foregroundColor(.primary)
+                    Text("I don't know")
+                        .font(.headline)
+                        .foregroundColor(.accentColor)
+                        .padding(.vertical)
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.accentColor.opacity(0.1))
+                        )
                 }
-                .padding(.horizontal)
             }
+            Spacer()
+            Spacer()
         }
         .padding()
+        .onChange(of: viewModel.temperature) {
+            if viewModel.temperatureDontKnow {
+                viewModel.temperatureDontKnow = false
+            }
+        }
     }
 } 

@@ -12,12 +12,14 @@ struct ResultStepView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Spacer()
-            
-            Text(viewModel.calculatedWaterAmount())
-                .font(.system(size: 72, weight: .bold))
-                .foregroundColor(.accentColor)
-                .monospacedDigit()
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(viewModel.calculatedWaterAmount())
+                    .font(.system(size: 72, weight: .bold))
+                Text(viewModel.resultUnit.rawValue)
+                    .font(.system(size: 36, weight: .bold))
+            }
+            .foregroundColor(.accentColor)
+            .monospacedDigit()
             
             Text("Your plant needs")
                 .font(.title2).bold()
@@ -36,9 +38,6 @@ struct ResultStepView: View {
             .pickerStyle(SegmentedPickerStyle())
             .frame(width: 150)
             .padding(.top)
-
-            Spacer()
-            Spacer()
         }
         .padding()
     }

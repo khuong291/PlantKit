@@ -13,7 +13,6 @@ struct TemperatureStepView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 32) {
-            Spacer()
             Image(systemName: "thermometer")
                 .font(.system(size: 48, weight: .thin))
                 .foregroundColor(.accentColor)
@@ -56,17 +55,9 @@ struct TemperatureStepView: View {
                 }) {
                     Text("I don't know")
                         .font(.headline)
-                        .foregroundColor(.accentColor)
-                        .padding(.vertical)
-                        .frame(maxWidth: .infinity)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.accentColor.opacity(0.1))
-                        )
+                        .foregroundColor(.gray)
                 }
             }
-            Spacer()
-            Spacer()
         }
         .padding()
         .onChange(of: viewModel.temperature) {

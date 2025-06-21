@@ -111,7 +111,40 @@ struct WaterMeterView: View {
                             .frame(width: 8, height: 8)
                     }
                 }
-                .padding(.vertical, 30)
+                .padding(.vertical, 20)
+                
+                Button(action: {
+                    handleSwipe(forward: true)
+                }) {
+                    Text("Continue")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(viewModel.isCurrentStepValid() ? Color.accentColor : Color.gray.opacity(0.5))
+                        )
+                }
+                .disabled(!viewModel.isCurrentStepValid())
+                .padding(.horizontal)
+                .padding(.bottom)
+            } else {
+                Button(action: {
+                    isPresented = false
+                }) {
+                    Text("OK")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.accentColor)
+                        )
+                }
+                .padding(.horizontal)
+                .padding(.bottom)
             }
         }
         .background(Color.white)
@@ -203,7 +236,6 @@ struct LocationStepView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 32) {
-            Spacer()
             Image(systemName: "mappin.and.ellipse")
                 .font(.system(size: 48, weight: .thin))
                 .foregroundColor(.accentColor)
@@ -211,6 +243,7 @@ struct LocationStepView: View {
             Text("Choose where your plant is located")
                 .font(.title2).bold()
                 .padding(.horizontal)
+                .multilineTextAlignment(.center)
 
             LocationCard(
                 title: "Outdoor area",
@@ -219,9 +252,6 @@ struct LocationStepView: View {
                 isSelected: viewModel.plantLocation == .outdoor
             ) {
                 viewModel.plantLocation = .outdoor
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    handleSwipe(true)
-                }
             }
 
             LocationCard(
@@ -231,11 +261,7 @@ struct LocationStepView: View {
                 isSelected: viewModel.plantLocation == .indoor
             ) {
                 viewModel.plantLocation = .indoor
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    handleSwipe(true)
-                }
             }
-            Spacer()
         }
         .padding()
     }
@@ -254,7 +280,7 @@ struct LocationCard: View {
                 Image(systemName: systemImageName)
                     .font(.title)
                     .foregroundColor(.accentColor)
-                    .frame(width: 80, height: 80)
+                    .frame(width: 40, height: 40)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title).font(.headline)

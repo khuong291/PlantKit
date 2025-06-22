@@ -13,6 +13,7 @@ struct CameraPreview: UIViewRepresentable {
 
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
+        view.backgroundColor = .black
 
         // Create a video preview layer using the session from CameraManager
         let previewLayer = AVCaptureVideoPreviewLayer(session: session)
@@ -21,9 +22,11 @@ struct CameraPreview: UIViewRepresentable {
 
         view.layer.addSublayer(previewLayer)
 
-        DispatchQueue.main.async {
-            // Ensure it resizes correctly once view is laid out
-            previewLayer.frame = view.bounds
+        // Ensure the session is running
+        if !session.isRunning {
+            DispatchQueue.global(qos: .userInitiated).async {
+                session.startRunning()
+            }
         }
 
         return view
@@ -31,8 +34,10 @@ struct CameraPreview: UIViewRepresentable {
 
     func updateUIView(_ uiView: UIView, context: Context) {
         if let previewLayer = uiView.layer.sublayers?.first as? AVCaptureVideoPreviewLayer {
-            // Keep it updated if the SwiftUI layout changes
-            previewLayer.frame = uiView.bounds
+            // Update frame when the view bounds change
+            DispatchQueue.main.async {
+                previewLayer.frame = uiView.bounds
+            }
         }
     }
 }

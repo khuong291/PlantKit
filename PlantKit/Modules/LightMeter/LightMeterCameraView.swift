@@ -14,24 +14,82 @@ struct LightMeterCameraView: View {
     
     var body: some View {
         ZStack {
-            if let session = lightMeterManager.getCaptureSession() {
-                CameraPreview(session: session)
-                    .edgesIgnoringSafeArea(.all)
-            } else {
-                Color.black.edgesIgnoringSafeArea(.all)
-                Text("Preparing camera...")
-                    .foregroundColor(.white)
-            }
+            Color.black.edgesIgnoringSafeArea(.all)
+            // Camera preview or loading state
+            cameraContent
             
             closeButton
             
             lightLevelIndicator
         }
         .onAppear {
-            lightMeterManager.start()
+            // Small delay to ensure view is fully loaded
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                lightMeterManager.configure()
+            }
         }
         .onDisappear {
             lightMeterManager.stop()
+        }
+    }
+    
+    @ViewBuilder
+    private var cameraContent: some View {
+        switch lightMeterManager.setupState {
+        case .notConfigured, .configuring:
+            Color.black.edgesIgnoringSafeArea(.all)
+            VStack(spacing: 16) {
+                ProgressView()
+                    .scaleEffect(1.5)
+                    .tint(.white)
+                Text("Preparing camera...")
+                    .foregroundColor(.white)
+                    .font(.headline)
+            }
+            
+        case .configured:
+            if let session = lightMeterManager.getCaptureSession() {
+                CameraPreview(session: session)
+                    .edgesIgnoringSafeArea(.all)
+                    .onAppear {
+                        lightMeterManager.start()
+                    }
+            } else {
+                Color.black.edgesIgnoringSafeArea(.all)
+                VStack(spacing: 16) {
+                    Image(systemName: "camera.slash")
+                        .font(.system(size: 48))
+                        .foregroundColor(.white)
+                    Text("Camera not available")
+                        .foregroundColor(.white)
+                        .font(.headline)
+                }
+            }
+            
+        case .failed(let error):
+            Color.black.edgesIgnoringSafeArea(.all)
+            VStack(spacing: 16) {
+                Image(systemName: "exclamationmark.triangle")
+                    .font(.system(size: 48))
+                    .foregroundColor(.orange)
+                Text("Camera Error")
+                    .foregroundColor(.white)
+                    .font(.headline)
+                Text(error)
+                    .foregroundColor(.white.opacity(0.8))
+                    .font(.subheadline)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                
+                Button("Retry") {
+                    lightMeterManager.configure()
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .background(Color.blue)
+                .cornerRadius(8)
+            }
         }
     }
     
@@ -92,6 +150,7 @@ struct LightMeterCameraView: View {
                 .padding(.bottom, 50)
         }
         .padding()
+        .opacity(lightMeterManager.setupState == .configured ? 1 : 0)
     }
 
     private var lightProgress: Double {

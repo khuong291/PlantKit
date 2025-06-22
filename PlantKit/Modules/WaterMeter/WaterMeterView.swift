@@ -244,6 +244,8 @@ struct LocationStepView: View {
                 .font(.title2).bold()
                 .padding(.horizontal)
                 .multilineTextAlignment(.center)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
 
             LocationCard(
                 title: "Outdoor area",

@@ -21,6 +21,8 @@ struct PotDiameterStepView: View {
                 .font(.title2).bold()
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
 
             VStack(spacing: 24) {
                 HStack(spacing: 16) {

@@ -18,9 +18,12 @@ struct TemperatureStepView: View {
                 .foregroundColor(.accentColor)
             
             Text("Indicate temperature around the plant")
-                .font(.title2).bold()
+                .font(.title2)
+                .bold()
                 .multilineTextAlignment(.center)
-                .padding(.horizontal)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 24)
 
             VStack(spacing: 24) {
                 HStack(spacing: 16) {

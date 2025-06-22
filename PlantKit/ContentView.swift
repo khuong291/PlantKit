@@ -15,7 +15,7 @@ struct ContentView: View {
             .onAppear {
                 ProManager.shared.setup()
             }
-            .sheet(isPresented: $proManager.showsUpgradeProView) {
+            .fullScreenCover(isPresented: $proManager.showsUpgradeProView) {
                 PaywallView()
             }
     }

@@ -90,6 +90,7 @@ struct PlantDetailsScreen: View {
 //                            .padding(.bottom, 12)
 //                        }
                         descriptionSection(details: details)
+                        toxicitySection(details: details)
                         careGuideSection(details: details)
                         generalSection(details: details)
                         characteristicsSection(details: details)
@@ -179,17 +180,56 @@ struct PlantDetailsScreen: View {
                 .font(.headline)
                 .foregroundColor(.primary)
                 .padding(.horizontal)
-            Text(details.plantDescription)
-                .font(.subheadline)
-                .foregroundColor(.primary)
-                .padding(.top, 2)
+            HStack(spacing: 0) {
+                Text(details.plantDescription)
+                    .font(.subheadline)
+                    .foregroundColor(.primary)
+                Spacer()
+            }
+            .padding(.top, 2)
+            .padding()
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+            .padding(.horizontal)
+        }
+        .padding(.bottom, 20)
+    }
+    
+    @ViewBuilder
+    private func toxicitySection(details: PlantDetails) -> some View {
+        if let toxicity = details.toxicity, !toxicity.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Toxicity")
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                    .padding(.horizontal)
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.orange)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Safety Information")
+                                .font(.headline)
+                        }
+                    }
+                    HStack(spacing: 0) {
+                        Text(toxicity)
+                            .font(.subheadline)
+                        Spacer()
+                    }
+                }
                 .padding()
                 .background(Color.white)
                 .cornerRadius(16)
                 .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
                 .padding(.horizontal)
+            }
+            .padding(.bottom, 20)
+        } else {
+            EmptyView()
         }
-        .padding(.bottom, 20)
     }
     
     private func careGuideSection(details: PlantDetails) -> some View {
@@ -199,139 +239,101 @@ struct PlantDetailsScreen: View {
                 .foregroundColor(.primary)
                 .padding(.horizontal)
             
-            VStack(alignment: .leading, spacing: 0) {
-                // Toxicity
-                if let toxicity = details.toxicity, !toxicity.isEmpty {
+            // Watering Guide
+            if let watering = details.careGuideWatering, !watering.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
                     HStack(alignment: .top, spacing: 6) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.title2)
-                            .foregroundColor(.orange)
+                        Image(systemName: "drop.fill")
+                            .foregroundColor(.blue)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Toxicity")
+                            Text("Watering")
                                 .font(.headline)
                         }
                     }
-                    .padding(.bottom, 14)
-                    Divider()
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Safety Information")
+                    HStack(spacing: 0) {
+                        Text(watering)
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        Text(toxicity)
-                            .font(.subheadline)
-                    }
-                    .padding(.vertical, 14)
-                    Divider()
-                }
-                
-                // Watering Guide
-                if let watering = details.careGuideWatering, !watering.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(alignment: .top, spacing: 6) {
-                            Image(systemName: "drop.fill")
-                                .font(.title2)
-                                .foregroundColor(.blue)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Watering")
-                                    .font(.headline)
-                            }
-                        }
-                        .padding(.bottom, 14)
-                        Divider()
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Watering Instructions")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            Text(watering)
-                                .font(.subheadline)
-                        }
-                        .padding(.vertical, 14)
-                        Divider()
+                        Spacer()
                     }
                 }
-                
-                // Fertilizing Guide
-                if let fertilizing = details.careGuideFertilizing, !fertilizing.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(alignment: .top, spacing: 6) {
-                            Image(systemName: "leaf.fill")
-                                .font(.title2)
-                                .foregroundColor(.green)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Fertilizing")
-                                    .font(.headline)
-                            }
-                        }
-                        .padding(.bottom, 14)
-                        Divider()
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Fertilizing Instructions")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            Text(fertilizing)
-                                .font(.subheadline)
-                        }
-                        .padding(.vertical, 14)
-                        Divider()
-                    }
-                }
-                
-                // Pruning Guide
-                if let pruning = details.careGuidePruning, !pruning.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(alignment: .top, spacing: 6) {
-                            Image(systemName: "scissors")
-                                .font(.title2)
-                                .foregroundColor(.purple)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Pruning")
-                                    .font(.headline)
-                            }
-                        }
-                        .padding(.bottom, 14)
-                        Divider()
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Pruning Instructions")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            Text(pruning)
-                                .font(.subheadline)
-                        }
-                        .padding(.vertical, 14)
-                        Divider()
-                    }
-                }
-                
-                // Repotting Guide
-                if let repotting = details.careGuideRepotting, !repotting.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(alignment: .top, spacing: 6) {
-                            Image(systemName: "arrow.triangle.2.circlepath")
-                                .font(.title2)
-                                .foregroundColor(.brown)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Repotting")
-                                    .font(.headline)
-                            }
-                        }
-                        .padding(.bottom, 14)
-                        Divider()
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Repotting Instructions")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            Text(repotting)
-                                .font(.subheadline)
-                        }
-                        .padding(.top, 14)
-                    }
-                }
+                .padding()
+                .background(Color.white)
+                .cornerRadius(16)
+                .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+                .padding(.horizontal)
             }
-            .padding()
-            .background(Color.white)
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
-            .padding(.horizontal)
+            
+            // Fertilizing Guide
+            if let fertilizing = details.careGuideFertilizing, !fertilizing.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "leaf.fill")
+                            .foregroundColor(.green)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Fertilizing")
+                                .font(.headline)
+                        }
+                    }
+                    HStack(spacing: 0) {
+                        Text(fertilizing)
+                            .font(.subheadline)
+                        Spacer()
+                    }
+                }
+                .padding()
+                .background(Color.white)
+                .cornerRadius(16)
+                .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+                .padding(.horizontal)
+            }
+            
+            // Pruning Guide
+            if let pruning = details.careGuidePruning, !pruning.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "scissors")
+                            .foregroundColor(.purple)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Pruning")
+                                .font(.headline)
+                        }
+                    }
+                    HStack(spacing: 0) {
+                        Text(pruning)
+                            .font(.subheadline)
+                        Spacer()
+                    }
+                }
+                .padding()
+                .background(Color.white)
+                .cornerRadius(16)
+                .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+                .padding(.horizontal)
+            }
+            
+            // Repotting Guide
+            if let repotting = details.careGuideRepotting, !repotting.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                            .foregroundColor(.brown)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Repotting")
+                                .font(.headline)
+                        }
+                    }
+                    HStack(spacing: 0) {
+                        Text(repotting)
+                            .font(.subheadline)
+                        Spacer()
+                    }
+                }
+                .padding()
+                .background(Color.white)
+                .cornerRadius(16)
+                .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+                .padding(.horizontal)
+            }
         }
         .padding(.bottom, 20)
     }
@@ -346,7 +348,7 @@ struct PlantDetailsScreen: View {
                 HStack(alignment: .top, spacing: 6) {
                     Image(systemName: "globe")
                         .font(.title2)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.blue)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Habitat")
                             .font(.headline)
@@ -410,7 +412,7 @@ struct PlantDetailsScreen: View {
             HStack(alignment: .center, spacing: 6) {
                 Image(systemName: "atom")
                     .font(.title2)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.purple)
                 Text("Physical")
                     .font(.headline)
             }
@@ -458,7 +460,7 @@ struct PlantDetailsScreen: View {
             HStack(alignment: .center, spacing: 6) {
                 Image(systemName: "leaf")
                     .font(.title2)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.green)
                 Text("Development")
                     .font(.headline)
             }
@@ -540,7 +542,7 @@ struct PlantDetailsScreen: View {
             HStack(spacing: 8) {
                 Image(systemName: "thermometer.sun")
                     .font(.title2)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.orange)
                 Text("Climatic")
                     .font(.headline)
                 Spacer()
@@ -717,7 +719,7 @@ struct PlantDetailsScreen: View {
             HStack(spacing: 8) {
                 Image(systemName: "mountain.2")
                     .font(.title2)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.brown)
                 Text("Soil")
                     .font(.headline)
                 Spacer()
@@ -801,9 +803,9 @@ struct PlantDetailsScreen: View {
     private func lightCard(_ light: PlantDetails.Conditions.Light) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                Image(systemName: "lightbulb")
+                Image(systemName: "sun.max.fill")
                     .font(.title2)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.yellow)
                 Text("Light")
                     .font(.headline)
             }

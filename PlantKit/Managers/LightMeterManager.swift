@@ -52,17 +52,63 @@ class LightMeterManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSam
     override init() {
         super.init()
         // Don't auto-configure on init, let the view trigger it
+        
+        // Add notification observers for session interruptions
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(sessionWasInterrupted),
+            name: .AVCaptureSessionWasInterrupted,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(sessionInterruptionEnded),
+            name: .AVCaptureSessionInterruptionEnded,
+            object: nil
+        )
+    }
+
+    @objc private func sessionWasInterrupted(notification: NSNotification) {
+        print("LightMeterManager: Session was interrupted")
+    }
+    
+    @objc private func sessionInterruptionEnded(notification: NSNotification) {
+        print("LightMeterManager: Session interruption ended")
     }
 
     func configure() {
-        guard setupState == .notConfigured else { return }
+        print("LightMeterManager: Configure called with current state: \(setupState)")
         
-        DispatchQueue.main.async {
-            self.setupState = .configuring
+        // If already configured and session is running, stop it first
+        if case .configured = setupState, let session = captureSession, session.isRunning {
+            print("LightMeterManager: Stopping existing session before reconfiguring")
+            sessionQueue.async {
+                session.stopRunning()
+            }
         }
         
-        sessionQueue.async {
-            self.setupCaptureSession()
+        // Allow reconfiguration if failed or not configured
+        switch setupState {
+        case .failed, .notConfigured:
+            DispatchQueue.main.async {
+                self.setupState = .configuring
+            }
+            
+            sessionQueue.async {
+                self.setupCaptureSession()
+            }
+        case .configuring:
+            print("LightMeterManager: Already configuring, ignoring")
+        case .configured:
+            print("LightMeterManager: Already configured, reconfiguring")
+            DispatchQueue.main.async {
+                self.setupState = .configuring
+            }
+            
+            sessionQueue.async {
+                self.setupCaptureSession()
+            }
         }
     }
 
@@ -94,6 +140,16 @@ class LightMeterManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSam
     
     private func createCaptureSession() {
         print("LightMeterManager: Creating capture session...")
+        
+        // Clean up existing session if any
+        if let existingSession = captureSession {
+            print("LightMeterManager: Cleaning up existing session")
+            if existingSession.isRunning {
+                existingSession.stopRunning()
+            }
+            captureSession = nil
+        }
+        
         let session = AVCaptureSession()
         
         // Set session quality
@@ -132,7 +188,7 @@ class LightMeterManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSam
             return
         }
 
-        // Add video output
+        // Add video output for light metering
         if session.canAddOutput(self.videoOutput) {
             self.videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoQueue"))
             session.addOutput(self.videoOutput)
@@ -152,6 +208,7 @@ class LightMeterManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSam
         self.isConfigured = true
         
         print("LightMeterManager: Capture session configured successfully")
+        print("LightMeterManager: Session inputs: \(session.inputs.count), outputs: \(session.outputs.count)")
         
         DispatchQueue.main.async {
             self.setupState = .configured
@@ -166,11 +223,15 @@ class LightMeterManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSam
         
         print("LightMeterManager: Starting capture session...")
         sessionQueue.async {
-            if self.captureSession?.isRunning == false {
-                self.captureSession?.startRunning()
-                print("LightMeterManager: Capture session started")
+            if let session = self.captureSession {
+                if session.isRunning {
+                    print("LightMeterManager: Capture session already running")
+                } else {
+                    session.startRunning()
+                    print("LightMeterManager: Capture session started successfully")
+                }
             } else {
-                print("LightMeterManager: Capture session already running")
+                print("LightMeterManager: Capture session not available")
             }
         }
     }
@@ -178,19 +239,28 @@ class LightMeterManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSam
     func stop() {
         print("LightMeterManager: Stopping capture session...")
         sessionQueue.async {
-            if self.captureSession?.isRunning == true {
-                self.captureSession?.stopRunning()
+            if let session = self.captureSession, session.isRunning {
+                session.stopRunning()
                 print("LightMeterManager: Capture session stopped")
             } else {
                 print("LightMeterManager: Capture session not running")
             }
         }
+        
+        // Reset state after stopping
+        DispatchQueue.main.async {
+            self.setupState = .notConfigured
+            self.isConfigured = false
+        }
     }
 
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        print("LightMeterManager: Received video frame")
+        
         guard let metadata = CMCopyDictionaryOfAttachments(allocator: nil, target: sampleBuffer, attachmentMode: kCMAttachmentMode_ShouldPropagate) as? [String: Any],
               let exifMetadata = metadata[kCGImagePropertyExifDictionary as String] as? [String: Any],
               let brightnessValue = exifMetadata[kCGImagePropertyExifBrightnessValue as String] as? Double else {
+            print("LightMeterManager: Could not extract brightness data from frame")
             return
         }
 
@@ -219,10 +289,40 @@ class LightMeterManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSam
             lightLevel = .veryBright
         }
     }
+
+    func reset() {
+        print("LightMeterManager: Resetting...")
+        sessionQueue.async {
+            if let session = self.captureSession, session.isRunning {
+                session.stopRunning()
+            }
+            self.captureSession = nil
+            self.isConfigured = false
+        }
+        
+        DispatchQueue.main.async {
+            self.setupState = .notConfigured
+            self.lightLevel = .dark
+            self.luxValue = 0.0
+        }
+    }
 }
 
 extension LightMeterManager {
     func getCaptureSession() -> AVCaptureSession? {
-        return self.captureSession
+        let session = self.captureSession
+        print("LightMeterManager: getCaptureSession called - session available: \(session != nil), isRunning: \(session?.isRunning ?? false)")
+        
+        if let session = session {
+            print("LightMeterManager: Session inputs: \(session.inputs.count), outputs: \(session.outputs.count)")
+            print("LightMeterManager: Session preset: \(session.sessionPreset.rawValue)")
+            print("LightMeterManager: Session isInterrupted: \(session.isInterrupted)")
+        }
+        
+        return session
+    }
+    
+    func isSessionReady() -> Bool {
+        return isConfigured && setupState == .configured && captureSession != nil
     }
 } 

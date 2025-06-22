@@ -10,6 +10,9 @@ import AVFoundation
 
 struct LightMeterCameraView: View {
     @StateObject private var lightMeterManager = LightMeterManager()
+    @State private var cameraPreviewAppeared = false
+    @State private var sessionStarted = false
+    @State private var cameraViewId = UUID()
     var dismissAction: () -> Void
     
     var body: some View {
@@ -23,13 +26,28 @@ struct LightMeterCameraView: View {
             lightLevelIndicator
         }
         .onAppear {
-            // Small delay to ensure view is fully loaded
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                lightMeterManager.configure()
+            // Reset state for new camera session
+            cameraPreviewAppeared = false
+            sessionStarted = false
+            cameraViewId = UUID() // Force new CameraPreview instance
+            
+            // Configure camera immediately when view appears
+            lightMeterManager.configure()
+        }
+        .onReceive(lightMeterManager.$setupState) { state in
+            print("LightMeterCameraView: Setup state changed to \(state)")
+            if case .configured = state, cameraPreviewAppeared, !sessionStarted {
+                // Ensure session is running when configured and preview is ready
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    print("LightMeterCameraView: Starting camera session from state change")
+                    lightMeterManager.start()
+                    sessionStarted = true
+                }
             }
         }
         .onDisappear {
-            lightMeterManager.stop()
+            print("LightMeterCameraView: View disappearing, cleaning up")
+            lightMeterManager.reset()
         }
     }
     
@@ -49,11 +67,27 @@ struct LightMeterCameraView: View {
             
         case .configured:
             if let session = lightMeterManager.getCaptureSession() {
-                CameraPreview(session: session)
-                    .edgesIgnoringSafeArea(.all)
-                    .onAppear {
-                        lightMeterManager.start()
-                    }
+                ZStack {
+                    // Add a colored background to see if the view is being displayed
+                    Color.black
+                        .edgesIgnoringSafeArea(.all)
+                    
+                    CameraPreview(session: session)
+                        .id(cameraViewId)
+                        .edgesIgnoringSafeArea(.all)
+                        .onAppear {
+                            cameraPreviewAppeared = true
+                            print("LightMeterCameraView: Camera preview appeared")
+                            // Ensure session is running when preview appears
+                            if !sessionStarted {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                    print("LightMeterCameraView: Starting camera session")
+                                    lightMeterManager.start()
+                                    sessionStarted = true
+                                }
+                            }
+                        }
+                }
             } else {
                 Color.black.edgesIgnoringSafeArea(.all)
                 VStack(spacing: 16) {
@@ -82,6 +116,7 @@ struct LightMeterCameraView: View {
                     .padding(.horizontal)
                 
                 Button("Retry") {
+                    lightMeterManager.reset()
                     lightMeterManager.configure()
                 }
                 .foregroundColor(.white)

@@ -61,7 +61,7 @@ final class ProManager: ObservableObject {
         showsUpgradeProView = true
     }
     
-    func purchase(package: RevenueCat.Package) {
+    func purchase(package: RevenueCat.Package, completion: @escaping () -> Void) {
         isPurchasing = true
         
         Purchases.shared.purchase(package: package) { (transaction, purchaseInfo, error, userCancelled) in
@@ -72,6 +72,7 @@ final class ProManager: ObservableObject {
                 self.isPurchasing = false
                 self.purchaseError = error
                 self.handle(purchaseInfo: purchaseInfo)
+                completion()
             }
         }
     }

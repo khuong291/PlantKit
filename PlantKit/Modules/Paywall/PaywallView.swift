@@ -45,6 +45,7 @@ struct PaywallView: View {
     @State private var showsAlert = false
     @State private var isTrialEnabled = true
     @State private var isAnimatingIcon = false
+    @State private var isPurchasing = false
     
     private let iconAnimationTimer = Timer.publish(every: 3, on: .main, in: .common).autoconnect()
         
@@ -52,90 +53,100 @@ struct PaywallView: View {
     
     var body: some View {
         ZStack {
-            VStack(spacing: 0) {
-                content
-                
-                VStack(spacing: 4) {
-                    if let selectedPackage {
-                        if selectedPackage == proManager.weeklyPackage {
-                            HStack {
-                                Image(systemName: "checkmark.shield.fill")
-                                    .foregroundColor(.green)
-                                Text("No payment now")
-                                    .font(.footnote)
-                                    .foregroundColor(.white.opacity(0.9))
-                            }
-                            .padding(.top, 10)
-                        } else if selectedPackage == proManager.yearlyPackage {
-                            HStack {
-                                Image(systemName: "checkmark.shield.fill")
-                                    .foregroundColor(.green)
-                                Text("Cancel anytime. Secured with the App Store.")
-                                    .font(.footnote)
-                                    .foregroundColor(.white.opacity(0.9))
-                            }
-                            .padding(.top, 10)
-                        }
-                    }
-                    upgradeButton
-                }
-                .padding(.bottom, 8)
-                
-                HStack {
-                    privacyButton
-                    eulaButton
-                    Spacer()
-                    restoreButton
-                }
-                .padding(.horizontal)
-                .padding(.bottom, 20)
-            }
-            
-            VStack {
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .resizable()
-                            .frame(width: 24, height: 24)
-                            .foregroundColor(.gray.opacity(0.5))
-                            .frame(width: 30, height: 30)
-                    }
-                    .padding(.trailing, 6)
-                }
-                Spacer()
-            }
-            .padding()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(
             ZStack {
-                Image("bg-paywall")
-                    .resizable()
-                    .scaledToFill()
-                    .blur(radius: 4)
-                Color.black.opacity(0.8)
+                VStack(spacing: 0) {
+                    content
+                    
+                    VStack(spacing: 4) {
+                        if let selectedPackage {
+                            if selectedPackage == proManager.weeklyPackage {
+                                HStack {
+                                    Image(systemName: "checkmark.shield.fill")
+                                        .foregroundColor(.green)
+                                    Text("No payment now")
+                                        .font(.footnote)
+                                        .foregroundColor(.white.opacity(0.9))
+                                }
+                                .padding(.top, 10)
+                            } else if selectedPackage == proManager.yearlyPackage {
+                                HStack {
+                                    Image(systemName: "checkmark.shield.fill")
+                                        .foregroundColor(.green)
+                                    Text("Cancel anytime. Secured with the App Store.")
+                                        .font(.footnote)
+                                        .foregroundColor(.white.opacity(0.9))
+                                }
+                                .padding(.top, 10)
+                            }
+                        }
+                        upgradeButton
+                    }
+                    .padding(.bottom, 8)
+                    
+                    HStack {
+                        privacyButton
+                        eulaButton
+                        Spacer()
+                        restoreButton
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 20)
+                }
+                
+                VStack {
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .resizable()
+                                .frame(width: 24, height: 24)
+                                .foregroundColor(.gray.opacity(0.5))
+                                .frame(width: 30, height: 30)
+                        }
+                        .padding(.trailing, 6)
+                    }
+                    Spacer()
+                }
+                .padding()
             }
-            .ignoresSafeArea()
-        )
-        .preferredColorScheme(.dark)
-        .onAppear {
-            selectedPackage = proManager.weeklyPackage
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(
+                ZStack {
+                    Image("bg-paywall")
+                        .resizable()
+                        .scaledToFill()
+                        .blur(radius: 4)
+                    Color.black.opacity(0.8)
+                }
+                .ignoresSafeArea()
+            )
+            .preferredColorScheme(.dark)
+            .onAppear {
+                selectedPackage = proManager.weeklyPackage
+            }
+            .onChange(of: proManager.hasPro) { hasPro in
+                if hasPro {
+                    showsAlert = true
+                }
+            }
+            .alert("Habit Tracker - HabitPal Pro Unlocked".localized, isPresented: $showsAlert, actions: {
+                Button("Let's go") {
+                    dismiss()
+                }
+            }, message: {
+                Text("Unlimited access to all features".localized)
+            })
+            .disabled(isPurchasing)
+            
+            if isPurchasing {
+                Color.black.opacity(0.5).ignoresSafeArea()
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.5)
+            }
         }
-        .onChange(of: proManager.hasPro) { hasPro in
-            if hasPro {
-                showsAlert = true
-            }
-        }
-        .alert("Habit Tracker - HabitPal Pro Unlocked".localized, isPresented: $showsAlert, actions: {
-            Button("Let's go") {
-                dismiss()
-            }
-        }, message: {
-            Text("Unlimited access to all features".localized)
-        })
     }
     
     private var content: some View {
@@ -294,10 +305,16 @@ struct PaywallView: View {
     
     private var weeklyPlanView: some View {
         Button(action: {
-            Haptics.shared.play()
-            withAnimation {
-                selectedPackage = proManager.weeklyPackage
-                isTrialEnabled = true
+            if let packageToPurchase = proManager.weeklyPackage {
+                isPurchasing = true
+                Haptics.shared.play()
+                withAnimation {
+                    selectedPackage = packageToPurchase
+                    isTrialEnabled = true
+                }
+                proManager.purchase(package: packageToPurchase) {
+                    isPurchasing = false
+                }
             }
         }) {
             planView(
@@ -314,10 +331,16 @@ struct PaywallView: View {
     private var yearlyPlanView: some View {
         VStack(spacing: 4) {
             Button(action: {
-                Haptics.shared.play()
-                withAnimation {
-                    selectedPackage = proManager.yearlyPackage
-                    isTrialEnabled = false
+                if let packageToPurchase = proManager.yearlyPackage {
+                    isPurchasing = true
+                    Haptics.shared.play()
+                    withAnimation {
+                        selectedPackage = packageToPurchase
+                        isTrialEnabled = false
+                    }
+                    proManager.purchase(package: packageToPurchase) {
+                        isPurchasing = false
+                    }
                 }
             }) {
                 HStack {
@@ -407,10 +430,7 @@ struct PaywallView: View {
     private var upgradeButton: some View {
         let title = (selectedPackage == proManager.weeklyPackage && isTrialEnabled) ? "Try for Free ($0)" : "Continue"
         ShinyBorderButton(systemName: "sparkles", title: title) {
-            if let selectedPackage {
-                Haptics.shared.play()
-                proManager.purchase(package: selectedPackage)
-            }
+            // Action is now handled by plan selection
         }
         .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
         .padding(.horizontal, 24)

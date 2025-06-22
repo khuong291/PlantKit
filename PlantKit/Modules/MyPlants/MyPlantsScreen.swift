@@ -40,6 +40,8 @@ struct MyPlantsScreen: View {
                         listView
                         Spacer()
                     }
+                    Spacer()
+                        .frame(height: 40)
                 }
                 .padding()
                 .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height - 100)

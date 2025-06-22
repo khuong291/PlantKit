@@ -140,6 +140,11 @@ struct MyPlantsScreen: View {
             physical: physical,
             development: development,
             conditions: conditions,
+            toxicity: plant.toxicity,
+            careGuideWatering: plant.careGuideWatering,
+            careGuideFertilizing: plant.careGuideFertilizing,
+            careGuidePruning: plant.careGuidePruning,
+            careGuideRepotting: plant.careGuideRepotting,
             createdAt: createdAt,
             updatedAt: updatedAt
         )

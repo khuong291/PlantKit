@@ -90,6 +90,7 @@ struct PlantDetailsScreen: View {
 //                            .padding(.bottom, 12)
 //                        }
                         descriptionSection(details: details)
+                        careGuideSection(details: details)
                         generalSection(details: details)
                         characteristicsSection(details: details)
                         conditionsSection(details: details)
@@ -187,6 +188,150 @@ struct PlantDetailsScreen: View {
                 .cornerRadius(16)
                 .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
                 .padding(.horizontal)
+        }
+        .padding(.bottom, 20)
+    }
+    
+    private func careGuideSection(details: PlantDetails) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Care Guide")
+                .font(.headline)
+                .foregroundColor(.primary)
+                .padding(.horizontal)
+            
+            VStack(alignment: .leading, spacing: 0) {
+                // Toxicity
+                if let toxicity = details.toxicity, !toxicity.isEmpty {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.title2)
+                            .foregroundColor(.orange)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Toxicity")
+                                .font(.headline)
+                        }
+                    }
+                    .padding(.bottom, 14)
+                    Divider()
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Safety Information")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Text(toxicity)
+                            .font(.subheadline)
+                    }
+                    .padding(.vertical, 14)
+                    Divider()
+                }
+                
+                // Watering Guide
+                if let watering = details.careGuideWatering, !watering.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(alignment: .top, spacing: 6) {
+                            Image(systemName: "drop.fill")
+                                .font(.title2)
+                                .foregroundColor(.blue)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Watering")
+                                    .font(.headline)
+                            }
+                        }
+                        .padding(.bottom, 14)
+                        Divider()
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Watering Instructions")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            Text(watering)
+                                .font(.subheadline)
+                        }
+                        .padding(.vertical, 14)
+                        Divider()
+                    }
+                }
+                
+                // Fertilizing Guide
+                if let fertilizing = details.careGuideFertilizing, !fertilizing.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(alignment: .top, spacing: 6) {
+                            Image(systemName: "leaf.fill")
+                                .font(.title2)
+                                .foregroundColor(.green)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Fertilizing")
+                                    .font(.headline)
+                            }
+                        }
+                        .padding(.bottom, 14)
+                        Divider()
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Fertilizing Instructions")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            Text(fertilizing)
+                                .font(.subheadline)
+                        }
+                        .padding(.vertical, 14)
+                        Divider()
+                    }
+                }
+                
+                // Pruning Guide
+                if let pruning = details.careGuidePruning, !pruning.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(alignment: .top, spacing: 6) {
+                            Image(systemName: "scissors")
+                                .font(.title2)
+                                .foregroundColor(.purple)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Pruning")
+                                    .font(.headline)
+                            }
+                        }
+                        .padding(.bottom, 14)
+                        Divider()
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Pruning Instructions")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            Text(pruning)
+                                .font(.subheadline)
+                        }
+                        .padding(.vertical, 14)
+                        Divider()
+                    }
+                }
+                
+                // Repotting Guide
+                if let repotting = details.careGuideRepotting, !repotting.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(alignment: .top, spacing: 6) {
+                            Image(systemName: "arrow.triangle.2.circlepath")
+                                .font(.title2)
+                                .foregroundColor(.brown)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Repotting")
+                                    .font(.headline)
+                            }
+                        }
+                        .padding(.bottom, 14)
+                        Divider()
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Repotting Instructions")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            Text(repotting)
+                                .font(.subheadline)
+                        }
+                        .padding(.top, 14)
+                    }
+                }
+            }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+            .padding(.horizontal)
         }
         .padding(.bottom, 20)
     }
@@ -798,6 +943,11 @@ private let mockPlantDetails = PlantDetails(
             type: "Full sun"
         )
     ),
+    toxicity: "Aloe vera gel is generally safe for topical use, but the latex (yellow substance under the skin) can be toxic if ingested. Keep away from pets and children.",
+    careGuideWatering: "Water deeply but infrequently. Allow the soil to dry out completely between waterings. In summer, water every 2-3 weeks. In winter, reduce watering to once a month.",
+    careGuideFertilizing: "Fertilize sparingly with a balanced, water-soluble fertilizer diluted to half strength. Apply during the growing season (spring and summer) every 2-3 months.",
+    careGuidePruning: "Remove dead or damaged leaves at the base. Cut off flower stalks after blooming. Prune offsets (pups) when they reach 3-4 inches tall to propagate or maintain plant size.",
+    careGuideRepotting: "Repot every 2-3 years in spring. Choose a pot 1-2 inches larger in diameter. Use well-draining cactus or succulent soil mix. Ensure the new pot has drainage holes.",
     createdAt: Date(),
     updatedAt: Date()
 )

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24A348" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Plant" representedClassName=".Plant" syncable="YES">
+        <attribute name="careGuideFertilizing" optional="YES" attributeType="String"/>
+        <attribute name="careGuidePruning" optional="YES" attributeType="String"/>
+        <attribute name="careGuideRepotting" optional="YES" attributeType="String"/>
+        <attribute name="careGuideWatering" optional="YES" attributeType="String"/>
         <attribute name="climaticHardinessZone" optional="YES" attributeType="String"/>
         <attribute name="climaticHumidityLower" optional="YES" attributeType="Integer 16" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="climaticHumidityUpper" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -33,6 +37,7 @@
         <attribute name="soilPhLabel" optional="YES" attributeType="String"/>
         <attribute name="soilPhRange" optional="YES" attributeType="String"/>
         <attribute name="soilTypes" optional="YES" attributeType="String"/>
+        <attribute name="toxicity" optional="YES" attributeType="String"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
     </entity>
 </model>

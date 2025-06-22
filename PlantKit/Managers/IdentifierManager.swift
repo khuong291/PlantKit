@@ -43,6 +43,11 @@ class IdentifierManager: ObservableObject {
                         physical: detailsFromAPI.physical,
                         development: detailsFromAPI.development,
                         conditions: detailsFromAPI.conditions,
+                        toxicity: detailsFromAPI.toxicity,
+                        careGuideWatering: detailsFromAPI.careGuideWatering,
+                        careGuideFertilizing: detailsFromAPI.careGuideFertilizing,
+                        careGuidePruning: detailsFromAPI.careGuidePruning,
+                        careGuideRepotting: detailsFromAPI.careGuideRepotting,
                         createdAt: detailsFromAPI.createdAt,
                         updatedAt: detailsFromAPI.updatedAt
                     )

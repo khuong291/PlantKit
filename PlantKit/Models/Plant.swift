@@ -35,6 +35,11 @@ public class Plant: NSManagedObject {
     @NSManaged public var soilPhLabel: String?
     @NSManaged public var soilPhRange: String?
     @NSManaged public var soilTypes: String?
+    @NSManaged public var toxicity: String?
+    @NSManaged public var careGuideWatering: String?
+    @NSManaged public var careGuideFertilizing: String?
+    @NSManaged public var careGuidePruning: String?
+    @NSManaged public var careGuideRepotting: String?
 }
 
 extension Plant {

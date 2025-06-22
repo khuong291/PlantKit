@@ -82,6 +82,12 @@ class CoreDataManager {
             plant.lightAmount = light.amount
             plant.lightType = light.type
         }
+        // Care Guide Properties
+        plant.toxicity = details.toxicity
+        plant.careGuideWatering = details.careGuideWatering
+        plant.careGuideFertilizing = details.careGuideFertilizing
+        plant.careGuidePruning = details.careGuidePruning
+        plant.careGuideRepotting = details.careGuideRepotting
         saveContext()
     }
     

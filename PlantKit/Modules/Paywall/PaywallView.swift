@@ -430,7 +430,14 @@ struct PaywallView: View {
     private var upgradeButton: some View {
         let title = (selectedPackage == proManager.weeklyPackage && isTrialEnabled) ? "Try for Free ($0)" : "Continue"
         ShinyBorderButton(systemName: "sparkles", title: title) {
-            // Action is now handled by plan selection
+            guard let selectedPackage else {
+                return
+            }
+            isPurchasing = true
+            Haptics.shared.play()
+            proManager.purchase(package: selectedPackage) {
+                isPurchasing = false
+            }
         }
         .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
         .padding(.horizontal, 24)

@@ -17,9 +17,9 @@ enum ProFeature: String, CaseIterable, Identifiable {
     
     case unlimitedPlants = "Identify unlimited plants"
     case chatAssistance = "Free chat with botanist"
-    case growthTips = "Growth and propagation tips"
-    case diseaseDetection = "Plant disease detection and guide"
-    case toxicityInfo = "Toxicity info for kids and pets"
+    case growthTips = "Growth & propagation tips"
+    case diseaseDetection = "Plant disease detection"
+    case toxicityInfo = "Toxicity info for kids & pets"
     
     var icon: String {
         switch self {
@@ -52,17 +52,6 @@ struct PaywallView: View {
     
     var body: some View {
         ZStack {
-            Color.black
-                .ignoresSafeArea()
-            Image("bg-paywall")
-                .resizable()
-                .aspectRatio(UIScreen.main.bounds.width / UIScreen.main.bounds.height, contentMode: .fill)
-                .ignoresSafeArea()
-                .blur(radius: 4)
-                .clipped()
-            Color.black.opacity(0.7)
-                .ignoresSafeArea()
-            
             VStack(spacing: 0) {
                 content
                 
@@ -74,7 +63,7 @@ struct PaywallView: View {
                                     .foregroundColor(.green)
                                 Text("No payment now")
                                     .font(.footnote)
-                                    .foregroundColor(.white.opacity(0.7))
+                                    .foregroundColor(.white.opacity(0.9))
                             }
                             .padding(.top, 10)
                         } else if selectedPackage == proManager.yearlyPackage {
@@ -83,7 +72,7 @@ struct PaywallView: View {
                                     .foregroundColor(.green)
                                 Text("Cancel anytime. Secured with the App Store.")
                                     .font(.footnote)
-                                    .foregroundColor(.white.opacity(0.7))
+                                    .foregroundColor(.white.opacity(0.9))
                             }
                             .padding(.top, 10)
                         }
@@ -119,8 +108,18 @@ struct PaywallView: View {
                 Spacer()
             }
             .padding()
-            .padding(.top)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(
+            ZStack {
+                Image("bg-paywall")
+                    .resizable()
+                    .scaledToFill()
+                    .blur(radius: 4)
+                Color.black.opacity(0.8)
+            }
+            .ignoresSafeArea()
+        )
         .preferredColorScheme(.dark)
         .onAppear {
             selectedPackage = proManager.weeklyPackage

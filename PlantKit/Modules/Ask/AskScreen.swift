@@ -169,7 +169,6 @@ struct BeautifulHeader: View {
             Button(action: {
                 Haptics.shared.play()
                 let newConversation = conversationManager.createNewConversation()
-                conversationManager.currentConversationId = newConversation.id
                 askRouter.navigate(to: .conversation(newConversation.id, nil))
             }) {
                 Text("Ask New Question")

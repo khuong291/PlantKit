@@ -83,6 +83,9 @@ struct ConversationScreen: View {
         }
         .navigationTitle(conversation?.title ?? "Conversation")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            conversationManager.currentConversationId = conversationId
+        }
     }
     
     private func scrollToBottom() {

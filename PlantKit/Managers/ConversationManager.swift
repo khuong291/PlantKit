@@ -76,7 +76,15 @@ struct ChatConversation: Identifiable {
 
 class ConversationManager: ObservableObject {
     @Published var conversations: [ChatConversation] = []
-    @Published var currentConversationId: String?
+    @Published var currentConversationId: String? {
+        didSet {
+            if let id = currentConversationId {
+                UserDefaults.standard.set(id, forKey: "currentConversationId")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "currentConversationId")
+            }
+        }
+    }
     @Published var isLoading = false
     
     private let coreDataManager = CoreDataManager.shared
@@ -86,6 +94,9 @@ class ConversationManager: ObservableObject {
     }
     
     init() {
+        // Load currentConversationId from UserDefaults
+        currentConversationId = UserDefaults.standard.string(forKey: "currentConversationId")
+        
         loadConversations()
         
         // Listen for app becoming active to refresh conversations
@@ -270,8 +281,39 @@ class ConversationManager: ObservableObject {
     }
     
     func sendMessage(_ content: String, plantDetails: PlantDetails? = nil, imageData: Data? = nil) {
-        guard let conversationId = currentConversationId,
-              let index = conversations.firstIndex(where: { $0.id == conversationId }) else {
+        guard let conversationId = currentConversationId else {
+            print("❌ No current conversation ID")
+            return
+        }
+        
+        // Check if conversation exists in local array
+        var conversationIndex = conversations.firstIndex(where: { $0.id == conversationId })
+        
+        // If conversation doesn't exist locally, try to load it from CoreData
+        if conversationIndex == nil {
+            print("🔄 Conversation not found locally, loading from CoreData: \(conversationId)")
+            let request: NSFetchRequest<Conversation> = Conversation.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", conversationId)
+            
+            do {
+                let coreDataConversations = try coreDataManager.viewContext.fetch(request)
+                if let coreDataConversation = coreDataConversations.first {
+                    let chatConversation = ChatConversation(from: coreDataConversation)
+                    conversations.insert(chatConversation, at: 0)
+                    conversationIndex = 0
+                    print("✅ Loaded conversation from CoreData: \(conversationId)")
+                } else {
+                    print("❌ Conversation not found in CoreData: \(conversationId)")
+                    return
+                }
+            } catch {
+                print("❌ Error loading conversation from CoreData: \(error)")
+                return
+            }
+        }
+        
+        guard let index = conversationIndex else {
+            print("❌ Could not find or load conversation: \(conversationId)")
             return
         }
         

@@ -315,6 +315,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PlantKit/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PlantKit;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We use the camera to identify plants by scanning them.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use your location to show local weather for your plants.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to show local weather for your plants.";
@@ -354,6 +355,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PlantKit/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PlantKit;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We use the camera to identify plants by scanning them.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use your location to show local weather for your plants.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to show local weather for your plants.";

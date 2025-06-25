@@ -56,13 +56,13 @@ final class AppActionManager {
 }
 
 private struct App {
-    static var name = "Habit Tracker - HabitPal"
-    static var id = "id6478046939"
-    static var websiteUrl = "https://indiegoodies.com/habitpal"
-    static var twitterUrl = "https://twitter.com/HabitPalApp"
-    static var macUrl = "https://indiegoodies.com/habitpal"
-    static var termsUrl = "https://indiegoodies.com/habitpal/terms"
-    static var privacyPolicyUrl = "https://indiegoodies.com/habitpal/privacy"
+    static var name = "Plant Identifier - PlantKit"
+    static var id = "id6746693209"
+    static var websiteUrl = "https://www.plantkit.app/"
+    static var twitterUrl = "https://x.com/PlantKitApp"
+    static var macUrl = "https://www.plantkit.app/"
+    static var termsUrl = "https://www.plantkit.app/terms"
+    static var privacyPolicyUrl = "https://www.plantkit.app/privacy"
     static var appIcon = "ProIcon"
 }
 

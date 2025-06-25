@@ -131,7 +131,7 @@ struct PaywallView: View {
                     showsAlert = true
                 }
             }
-            .alert("Habit Tracker - HabitPal Pro Unlocked".localized, isPresented: $showsAlert, actions: {
+            .alert("PlantKit Pro Unlocked".localized, isPresented: $showsAlert, actions: {
                 Button("Let's go") {
                     dismiss()
                 }

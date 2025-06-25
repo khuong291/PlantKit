@@ -125,7 +125,7 @@ struct PlantDetailsScreen: View {
                     
                     ShinyBorderButton(systemName: "message.fill", title: "Ask Anything") {
                         Haptics.shared.play()
-                        let newConversation = conversationManager.createNewConversation(plantName: plantDetails?.commonName)
+                        let newConversation = conversationManager.createNewConversation(plantName: plantDetails?.commonName, plantDetails: plantDetails)
                         conversationManager.currentConversationId = newConversation.id
                         myPlantsRouter.navigate(to: .conversation(newConversation.id, plantDetails))
                     }

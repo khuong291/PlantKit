@@ -110,11 +110,13 @@ class CoreDataManager {
     
     // MARK: - Conversation Operations
     
-    func createConversation(title: String, plantName: String? = nil, id: String? = nil) -> Conversation? {
+    func createConversation(title: String, plantName: String? = nil, plantCommonName: String? = nil, plantScientificName: String? = nil, id: String? = nil) -> Conversation? {
         let conversation = Conversation(context: viewContext)
         conversation.id = id ?? UUID().uuidString
         conversation.title = title
         conversation.plantName = plantName
+        conversation.plantCommonName = plantCommonName
+        conversation.plantScientificName = plantScientificName
         conversation.createdAt = Date()
         conversation.lastMessageDate = Date()
         

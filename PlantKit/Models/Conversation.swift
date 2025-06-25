@@ -21,6 +21,8 @@ extension Conversation {
     @NSManaged public var id: String
     @NSManaged public var title: String
     @NSManaged public var plantName: String?
+    @NSManaged public var plantCommonName: String?
+    @NSManaged public var plantScientificName: String?
     @NSManaged public var createdAt: Date
     @NSManaged public var lastMessageDate: Date
     @NSManaged public var messages: NSSet?

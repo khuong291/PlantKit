@@ -31,6 +31,8 @@ struct ChatConversation: Identifiable {
     let id: String
     var title: String
     var plantName: String?
+    var plantCommonName: String?
+    var plantScientificName: String?
     var messages: [ChatMessage]
     var lastMessageDate: Date
     var createdAt: Date
@@ -39,6 +41,8 @@ struct ChatConversation: Identifiable {
         self.id = coreDataConversation.id
         self.title = coreDataConversation.title
         self.plantName = coreDataConversation.plantName
+        self.plantCommonName = coreDataConversation.plantCommonName
+        self.plantScientificName = coreDataConversation.plantScientificName
         self.lastMessageDate = coreDataConversation.lastMessageDate
         self.createdAt = coreDataConversation.createdAt
         
@@ -55,19 +59,23 @@ struct ChatConversation: Identifiable {
         print("✅ Converted \(self.messages.count) messages for conversation: \(self.id)")
     }
     
-    init(title: String = "New Conversation", plantName: String? = nil, messages: [ChatMessage] = []) {
+    init(title: String = "New Conversation", plantName: String? = nil, plantCommonName: String? = nil, plantScientificName: String? = nil, messages: [ChatMessage] = []) {
         self.id = UUID().uuidString
         self.title = title
         self.plantName = plantName
+        self.plantCommonName = plantCommonName
+        self.plantScientificName = plantScientificName
         self.messages = messages
         self.lastMessageDate = messages.last?.timestamp ?? Date()
         self.createdAt = Date()
     }
     
-    init(id: String, title: String, plantName: String?, messages: [ChatMessage], lastMessageDate: Date, createdAt: Date) {
+    init(id: String, title: String, plantName: String?, plantCommonName: String?, plantScientificName: String?, messages: [ChatMessage], lastMessageDate: Date, createdAt: Date) {
         self.id = id
         self.title = title
         self.plantName = plantName
+        self.plantCommonName = plantCommonName
+        self.plantScientificName = plantScientificName
         self.messages = messages
         self.lastMessageDate = lastMessageDate
         self.createdAt = createdAt
@@ -191,6 +199,8 @@ class ConversationManager: ObservableObject {
         guard let coreDataConversation = coreDataManager.createConversation(
             title: conversation.title,
             plantName: conversation.plantName,
+            plantCommonName: conversation.plantCommonName,
+            plantScientificName: conversation.plantScientificName,
             id: conversation.id
         ) else {
             print("❌ Failed to create conversation in CoreData")
@@ -273,8 +283,13 @@ class ConversationManager: ObservableObject {
     
     // MARK: - Public Methods
     
-    func createNewConversation(plantName: String? = nil) -> ChatConversation {
-        let newConversation = ChatConversation(title: "AI Botanist", plantName: plantName)
+    func createNewConversation(plantName: String? = nil, plantDetails: PlantDetails? = nil) -> ChatConversation {
+        let newConversation = ChatConversation(
+            title: "AI Botanist", 
+            plantName: plantName,
+            plantCommonName: plantDetails?.commonName,
+            plantScientificName: plantDetails?.scientificName
+        )
         conversations.insert(newConversation, at: 0)
         currentConversationId = newConversation.id
         return newConversation
@@ -336,7 +351,7 @@ class ConversationManager: ObservableObject {
         
         // Call askBotanist API
         isLoading = true
-        askBotanist(message: content, plantDetails: plantDetails) { [weak self] result in
+        askBotanist(message: content, conversation: conversations[index]) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self = self,
                       let conversationIndex = self.conversations.firstIndex(where: { $0.id == conversationId }) else {
@@ -375,7 +390,7 @@ class ConversationManager: ObservableObject {
         }
     }
     
-    private func askBotanist(message: String, plantDetails: PlantDetails? = nil, completion: @escaping (Result<String, Error>) -> Void) {
+    private func askBotanist(message: String, conversation: ChatConversation, completion: @escaping (Result<String, Error>) -> Void) {
         guard let url = URL(string: "https://us-central1-plantkit-c6c69.cloudfunctions.net/askBotanist") else {
             completion(.failure(NSError(domain: "URL", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
             return
@@ -386,8 +401,8 @@ class ConversationManager: ObservableObject {
         request.timeoutInterval = 60
         
         let messageToSend: String
-        if let details = plantDetails {
-            messageToSend = "Plant: \(details.commonName) (\(details.scientificName))\n\nUser: \(message)"
+        if let commonName = conversation.plantCommonName, let scientificName = conversation.plantScientificName {
+            messageToSend = "Plant: \(commonName) (\(scientificName))\n\nUser: \(message)"
         } else {
             messageToSend = message
         }

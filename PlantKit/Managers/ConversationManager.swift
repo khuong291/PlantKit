@@ -43,8 +43,16 @@ struct ChatConversation: Identifiable {
         self.createdAt = coreDataConversation.createdAt
         
         // Convert CoreData messages to ChatMessage array
+        print("🔄 Fetching messages for conversation: \(coreDataConversation.id)")
         let coreDataMessages = CoreDataManager.shared.fetchMessages(for: coreDataConversation)
-        self.messages = coreDataMessages.map { ChatMessage(from: $0) }
+        print("📊 Found \(coreDataMessages.count) CoreData messages")
+        
+        self.messages = coreDataMessages.map { coreDataMessage in
+            print("📝 Converting message: \(coreDataMessage.id) - \(coreDataMessage.isUser ? "User" : "Bot") - \(coreDataMessage.content.prefix(30))...")
+            return ChatMessage(from: coreDataMessage)
+        }
+        
+        print("✅ Converted \(self.messages.count) messages for conversation: \(self.id)")
     }
     
     init(title: String = "New Conversation", plantName: String? = nil, messages: [ChatMessage] = []) {
@@ -54,6 +62,15 @@ struct ChatConversation: Identifiable {
         self.messages = messages
         self.lastMessageDate = messages.last?.timestamp ?? Date()
         self.createdAt = Date()
+    }
+    
+    init(id: String, title: String, plantName: String?, messages: [ChatMessage], lastMessageDate: Date, createdAt: Date) {
+        self.id = id
+        self.title = title
+        self.plantName = plantName
+        self.messages = messages
+        self.lastMessageDate = lastMessageDate
+        self.createdAt = createdAt
     }
 }
 
@@ -70,16 +87,43 @@ class ConversationManager: ObservableObject {
     
     init() {
         loadConversations()
+        
+        // Listen for app becoming active to refresh conversations
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.refreshConversations()
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     // MARK: - CoreData Operations
     
     private func loadConversations() {
+        print("🔄 Loading conversations from CoreData...")
         let coreDataConversations = coreDataManager.fetchConversations()
-        conversations = coreDataConversations.map { ChatConversation(from: $0) }
+        print("📊 Found \(coreDataConversations.count) conversations in CoreData")
         
-        // Clean up empty conversations
+        conversations = coreDataConversations.map { coreDataConversation in
+            print("📝 Converting conversation: \(coreDataConversation.id) - \(coreDataConversation.title)")
+            let chatConversation = ChatConversation(from: coreDataConversation)
+            print("📝 Conversation has \(chatConversation.messages.count) messages")
+            for (index, message) in chatConversation.messages.enumerated() {
+                print("📝 Message \(index + 1): \(message.isUser ? "User" : "Bot") - \(message.content.prefix(50))...")
+            }
+            return chatConversation
+        }
+        
+        print("✅ Loaded \(conversations.count) conversations with total \(conversations.reduce(0) { $0 + $1.messages.count }) messages")
+        
+        // Clean up empty conversations and duplicate messages
         cleanupEmptyConversations()
+        cleanupDuplicateMessages()
     }
     
     private func cleanupEmptyConversations() {
@@ -89,14 +133,60 @@ class ConversationManager: ObservableObject {
         }
     }
     
+    private func cleanupDuplicateMessages() {
+        print("🧹 Cleaning up duplicate messages...")
+        
+        for conversation in conversations {
+            let request: NSFetchRequest<Conversation> = Conversation.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", conversation.id)
+            
+            do {
+                let coreDataConversations = try coreDataManager.viewContext.fetch(request)
+                guard let coreDataConversation = coreDataConversations.first else { continue }
+                
+                let messages = coreDataManager.fetchMessages(for: coreDataConversation)
+                var seenContents: Set<String> = []
+                var messagesToDelete: [Message] = []
+                
+                for message in messages {
+                    let contentKey = "\(message.isUser)_\(message.content.trimmingCharacters(in: .whitespacesAndNewlines))"
+                    if seenContents.contains(contentKey) {
+                        messagesToDelete.append(message)
+                        print("🗑️ Found duplicate message: \(message.id) - \(message.content.prefix(30))...")
+                    } else {
+                        seenContents.insert(contentKey)
+                    }
+                }
+                
+                // Delete duplicate messages
+                for message in messagesToDelete {
+                    coreDataManager.viewContext.delete(message)
+                }
+                
+                if !messagesToDelete.isEmpty {
+                    coreDataManager.saveContext()
+                    print("✅ Deleted \(messagesToDelete.count) duplicate messages from conversation: \(conversation.id)")
+                }
+                
+            } catch {
+                print("❌ Error cleaning up duplicate messages: \(error)")
+            }
+        }
+    }
+    
     private func saveConversation(_ conversation: ChatConversation) -> Conversation? {
+        print("💾 Saving new conversation to CoreData: \(conversation.id)")
+        
         guard let coreDataConversation = coreDataManager.createConversation(
             title: conversation.title,
-            plantName: conversation.plantName
+            plantName: conversation.plantName,
+            id: conversation.id
         ) else {
-            print("Failed to create conversation in CoreData")
+            print("❌ Failed to create conversation in CoreData")
             return nil
         }
+        
+        print("✅ Created CoreData conversation with ID: \(coreDataConversation.id)")
         
         // Save all messages
         for message in conversation.messages {
@@ -112,23 +202,44 @@ class ConversationManager: ObservableObject {
     }
     
     private func updateConversationInCoreData(_ conversation: ChatConversation) {
+        print("🔄 Starting updateConversationInCoreData for conversation: \(conversation.id)")
+        
         // Find the CoreData conversation
         let request: NSFetchRequest<Conversation> = Conversation.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", conversation.id)
         
         do {
             let coreDataConversations = try coreDataManager.viewContext.fetch(request)
-            guard let coreDataConversation = coreDataConversations.first else { return }
+            print("🔍 Found \(coreDataConversations.count) CoreData conversations with ID: \(conversation.id)")
+            
+            guard let coreDataConversation = coreDataConversations.first else { 
+                print("❌ Could not find CoreData conversation with ID: \(conversation.id)")
+                return 
+            }
+            
+            print("✅ Found CoreData conversation: \(coreDataConversation.id)")
             
             // Update title and last message date
             coreDataConversation.title = conversation.title
             coreDataConversation.lastMessageDate = conversation.lastMessageDate
             
-            // Add new messages
-            let existingMessageIds = Set(coreDataManager.fetchMessages(for: coreDataConversation).map { $0.id })
+            // Get existing message IDs from CoreData
+            let existingMessages = coreDataManager.fetchMessages(for: coreDataConversation)
+            let existingMessageIds = Set(existingMessages.map { $0.id })
+            
+            print("📊 Existing message IDs in CoreData: \(existingMessageIds)")
+            
+            // Find new messages that don't exist in CoreData
             let newMessages = conversation.messages.filter { !existingMessageIds.contains($0.id) }
             
+            print("📝 Updating conversation: \(conversation.id)")
+            print("📝 Total messages in conversation: \(conversation.messages.count)")
+            print("📝 Existing messages in CoreData: \(existingMessages.count)")
+            print("📝 New messages to save: \(newMessages.count)")
+            
+            // Add new messages to CoreData
             for message in newMessages {
+                print("📝 Saving message: \(message.id) - \(message.isUser ? "User" : "Bot") - \(message.content.prefix(50))...")
                 coreDataManager.addMessage(
                     to: coreDataConversation,
                     content: message.content,
@@ -138,8 +249,14 @@ class ConversationManager: ObservableObject {
             }
             
             coreDataManager.saveContext()
+            print("✅ Successfully updated conversation in CoreData")
+            
+            // Verify the save worked by fetching again
+            let verifyMessages = coreDataManager.fetchMessages(for: coreDataConversation)
+            print("🔍 Verification: CoreData now has \(verifyMessages.count) messages")
+            
         } catch {
-            print("Error updating conversation in CoreData: \(error)")
+            print("❌ Error updating conversation in CoreData: \(error)")
         }
     }
     
@@ -170,10 +287,10 @@ class ConversationManager: ObservableObject {
         
         // Save to CoreData if this is the first message
         if conversations[index].messages.count == 1 {
+            print("💾 First message - saving conversation to CoreData")
             _ = saveConversation(conversations[index])
-        } else {
-            updateConversationInCoreData(conversations[index])
         }
+        // Note: We don't call updateConversationInCoreData here because the user message is already saved
         
         // Call askBotanist API
         isLoading = true
@@ -186,14 +303,21 @@ class ConversationManager: ObservableObject {
                 
                 switch result {
                 case .success(let reply):
+                    print("🤖 Bot response received: \(reply.prefix(50))...")
                     let botResponse = ChatMessage(content: reply, isUser: false)
+                    print("🤖 Created bot message with ID: \(botResponse.id)")
+                    
                     self.conversations[conversationIndex].messages.append(botResponse)
                     self.conversations[conversationIndex].lastMessageDate = botResponse.timestamp
                     
-                    // Update CoreData
+                    print("🤖 Added bot message to conversation. Total messages: \(self.conversations[conversationIndex].messages.count)")
+                    print("🤖 Conversation ID: \(self.conversations[conversationIndex].id)")
+                    
+                    // Update CoreData with the new bot response
                     self.updateConversationInCoreData(self.conversations[conversationIndex])
                     
                 case .failure(let error):
+                    print("❌ API error: \(error.localizedDescription)")
                     let errorMessage = ChatMessage(
                         content: "Sorry, something went wrong: \(error.localizedDescription)",
                         isUser: false
@@ -201,7 +325,7 @@ class ConversationManager: ObservableObject {
                     self.conversations[conversationIndex].messages.append(errorMessage)
                     self.conversations[conversationIndex].lastMessageDate = errorMessage.timestamp
                     
-                    // Update CoreData
+                    // Update CoreData with the error message
                     self.updateConversationInCoreData(self.conversations[conversationIndex])
                 }
                 self.isLoading = false
@@ -292,6 +416,7 @@ class ConversationManager: ObservableObject {
     }
     
     func refreshConversations() {
+        print("🔄 Refreshing conversations...")
         loadConversations()
     }
 } 

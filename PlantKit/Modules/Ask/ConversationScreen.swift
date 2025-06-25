@@ -9,9 +9,10 @@ struct ConversationScreen: View {
     @Environment(\.dismiss) private var dismiss
     @State private var messageText = ""
     @State private var scrollProxy: ScrollViewProxy? = nil
-    @State private var selectedImage: PhotosPickerItem?
-    @State private var selectedImageData: Data?
-    @State private var showingImagePicker = false
+    // Image functionality hidden for future use
+    // @State private var selectedImage: PhotosPickerItem?
+    // @State private var selectedImageData: Data?
+    // @State private var showingImagePicker = false
     
     private var conversation: ChatConversation? {
         conversationManager.conversations.first { $0.id == conversationId }
@@ -51,58 +52,22 @@ struct ConversationScreen: View {
                 }
                 
                 // Message input bar
-                VStack(spacing: 8) {
-                    if let selectedImageData = selectedImageData, let uiImage = UIImage(data: selectedImageData) {
-                        HStack {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 60, height: 60)
-                                .cornerRadius(8)
-                            
-                            Button("Remove") {
-                                self.selectedImageData = nil
-                                selectedImage = nil
-                            }
-                            .foregroundColor(.red)
-                            
-                            Spacer()
-                        }
-                        .padding(.horizontal)
-                    }
+                HStack(spacing: 12) {
+                    TextField("Ask about your plants...", text: $messageText)
+                        .padding(12)
+                        .background(Color.white)
+                        .cornerRadius(20)
                     
-                    HStack(spacing: 12) {
-                        PhotosPicker(selection: $selectedImage, matching: .images) {
-                            Image(systemName: "photo")
-                                .font(.system(size: 20))
-                                .foregroundColor(.green)
+                    Button {
+                        if !messageText.isEmpty {
+                            conversationManager.sendMessage(messageText, plantDetails: plantDetails)
+                            messageText = ""
+                            Haptics.shared.play()
                         }
-                        .onChange(of: selectedImage) { _, newItem in
-                            Task {
-                                if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                                    selectedImageData = data
-                                }
-                            }
-                        }
-                        
-                        TextField("Ask about your plants...", text: $messageText)
-                            .padding(12)
-                            .background(Color.white)
-                            .cornerRadius(20)
-                        
-                        Button {
-                            if !messageText.isEmpty || selectedImageData != nil {
-                                conversationManager.sendMessage(messageText, plantDetails: plantDetails, imageData: selectedImageData)
-                                messageText = ""
-                                selectedImageData = nil
-                                selectedImage = nil
-                                Haptics.shared.play()
-                            }
-                        } label: {
-                            Image(systemName: "arrow.up.circle.fill")
-                                .font(.system(size: 32))
-                                .foregroundColor(.green)
-                        }
+                    } label: {
+                        Image(systemName: "arrow.up.circle.fill")
+                            .font(.system(size: 32))
+                            .foregroundColor(.green)
                     }
                 }
                 .padding(.horizontal)
@@ -145,8 +110,7 @@ struct ConversationScreen: View {
                     ChatBubble(
                         message: message.content,
                         isUser: message.isUser,
-                        timestamp: message.timestamp,
-                        imageData: message.imageData
+                        timestamp: message.timestamp
                     )
                 }
                 
@@ -206,7 +170,8 @@ struct ChatBubble: View {
     let message: String
     let isUser: Bool
     let timestamp: Date
-    let imageData: Data?
+    // Image functionality hidden for future use
+    // let imageData: Data?
     
     var body: some View {
         HStack(alignment: .top) {
@@ -218,21 +183,20 @@ struct ChatBubble: View {
                     .clipShape(Circle())
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    if let imageData = imageData, let uiImage = UIImage(data: imageData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: 200, maxHeight: 200)
-                            .cornerRadius(12)
-                    }
+                    // Image display hidden for future use
+                    // if let imageData = imageData, let uiImage = UIImage(data: imageData) {
+                    //     Image(uiImage: uiImage)
+                    //         .resizable()
+                    //         .scaledToFit()
+                    //         .frame(maxWidth: 200, maxHeight: 200)
+                    //         .cornerRadius(12)
+                    // }
                     
-                    if !message.isEmpty {
-                        Text(message)
-                            .padding(12)
-                            .background(Color.white)
-                            .foregroundColor(.primary)
-                            .cornerRadius(16)
-                    }
+                    Text(message)
+                        .padding(12)
+                        .background(Color.white)
+                        .foregroundColor(.primary)
+                        .cornerRadius(16)
                     
                     Text(timestamp, style: .time)
                         .font(.caption2)
@@ -242,21 +206,20 @@ struct ChatBubble: View {
             } else {
                 Spacer()
                 VStack(alignment: .trailing, spacing: 4) {
-                    if let imageData = imageData, let uiImage = UIImage(data: imageData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: 200, maxHeight: 200)
-                            .cornerRadius(12)
-                    }
+                    // Image display hidden for future use
+                    // if let imageData = imageData, let uiImage = UIImage(data: imageData) {
+                    //     Image(uiImage: uiImage)
+                    //         .resizable()
+                    //         .scaledToFit()
+                    //         .frame(maxWidth: 200, maxHeight: 200)
+                    //         .cornerRadius(12)
+                    // }
                     
-                    if !message.isEmpty {
-                        Text(message)
-                            .padding(12)
-                            .background(Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(16)
-                    }
+                    Text(message)
+                        .padding(12)
+                        .background(Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(16)
                     
                     Text(timestamp, style: .time)
                         .font(.caption2)

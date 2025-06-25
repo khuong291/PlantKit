@@ -22,6 +22,7 @@ extension Message {
     @NSManaged public var content: String
     @NSManaged public var isUser: Bool
     @NSManaged public var createdAt: Date
+    @NSManaged public var imageData: Data?
     @NSManaged public var conversation: Conversation?
 }
 

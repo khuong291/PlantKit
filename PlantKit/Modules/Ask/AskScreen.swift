@@ -20,6 +20,9 @@ struct AskScreen: View {
                 .edgesIgnoringSafeArea(.all)
             content
         }
+        .onAppear {
+            conversationManager.refreshConversations()
+        }
         .alert("Delete Conversation", isPresented: $showDeleteConfirmation) {
             Button("Delete", role: .destructive) {
                 if let conversation = conversationToDelete {

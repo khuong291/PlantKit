@@ -153,12 +153,13 @@ class CoreDataManager {
         }
     }
     
-    func addMessage(to conversation: Conversation, content: String, isUser: Bool) {
+    func addMessage(to conversation: Conversation, content: String, isUser: Bool, imageData: Data? = nil) {
         let message = Message(context: viewContext)
         message.id = UUID().uuidString
         message.content = content
         message.isUser = isUser
         message.createdAt = Date()
+        message.imageData = imageData
         message.conversation = conversation
         
         conversation.addToMessages(message)

@@ -7,19 +7,22 @@ struct ChatMessage: Identifiable {
     let content: String
     let isUser: Bool
     let timestamp: Date
+    let imageData: Data?
     
     init(from coreDataMessage: Message) {
         self.id = coreDataMessage.id
         self.content = coreDataMessage.content
         self.isUser = coreDataMessage.isUser
         self.timestamp = coreDataMessage.createdAt
+        self.imageData = coreDataMessage.imageData
     }
     
-    init(content: String, isUser: Bool, timestamp: Date = Date()) {
+    init(content: String, isUser: Bool, timestamp: Date = Date(), imageData: Data? = nil) {
         self.id = UUID().uuidString
         self.content = content
         self.isUser = isUser
         self.timestamp = timestamp
+        self.imageData = imageData
     }
 }
 
@@ -76,7 +79,14 @@ class ConversationManager: ObservableObject {
         conversations = coreDataConversations.map { ChatConversation(from: $0) }
         
         // Clean up empty conversations
-        coreDataManager.deleteEmptyConversations()
+        cleanupEmptyConversations()
+    }
+    
+    private func cleanupEmptyConversations() {
+        let emptyConversations = conversations.filter { $0.messages.isEmpty }
+        for emptyConversation in emptyConversations {
+            deleteConversation(emptyConversation.id)
+        }
     }
     
     private func saveConversation(_ conversation: ChatConversation) -> Conversation? {
@@ -93,7 +103,8 @@ class ConversationManager: ObservableObject {
             coreDataManager.addMessage(
                 to: coreDataConversation,
                 content: message.content,
-                isUser: message.isUser
+                isUser: message.isUser,
+                imageData: message.imageData
             )
         }
         
@@ -121,7 +132,8 @@ class ConversationManager: ObservableObject {
                 coreDataManager.addMessage(
                     to: coreDataConversation,
                     content: message.content,
-                    isUser: message.isUser
+                    isUser: message.isUser,
+                    imageData: message.imageData
                 )
             }
             
@@ -140,14 +152,14 @@ class ConversationManager: ObservableObject {
         return newConversation
     }
     
-    func sendMessage(_ content: String, plantDetails: PlantDetails? = nil) {
+    func sendMessage(_ content: String, plantDetails: PlantDetails? = nil, imageData: Data? = nil) {
         guard let conversationId = currentConversationId,
               let index = conversations.firstIndex(where: { $0.id == conversationId }) else {
             return
         }
         
         // Add user message
-        let userMessage = ChatMessage(content: content, isUser: true)
+        let userMessage = ChatMessage(content: content, isUser: true, imageData: imageData)
         conversations[index].messages.append(userMessage)
         conversations[index].lastMessageDate = userMessage.timestamp
         

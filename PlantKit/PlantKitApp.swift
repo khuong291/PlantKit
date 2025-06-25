@@ -13,6 +13,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
         
+        // Setup ProManager
+        ProManager.shared.setup()
+        
         return true
     }
 }
@@ -24,6 +27,7 @@ struct PlantKitApp: App {
     @StateObject var cameraManager = CameraManager()
     @StateObject var identifierManager = IdentifierManager()
     @StateObject var conversationManager = ConversationManager()
+    @StateObject var proManager = ProManager.shared
 
     var body: some Scene {
         WindowGroup {
@@ -32,6 +36,7 @@ struct PlantKitApp: App {
                 .environmentObject(cameraManager)
                 .environmentObject(identifierManager)
                 .environmentObject(conversationManager)
+                .environmentObject(proManager)
         }
     }
 }

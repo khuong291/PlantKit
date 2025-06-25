@@ -107,4 +107,96 @@ class CoreDataManager {
         viewContext.delete(plant)
         saveContext()
     }
+    
+    // MARK: - Conversation Operations
+    
+    func createConversation(title: String, plantName: String? = nil) -> Conversation? {
+        let conversation = Conversation(context: viewContext)
+        conversation.id = UUID().uuidString
+        conversation.title = title
+        conversation.plantName = plantName
+        conversation.createdAt = Date()
+        conversation.lastMessageDate = Date()
+        
+        do {
+            try viewContext.save()
+            return conversation
+        } catch {
+            print("Error creating conversation: \(error)")
+            viewContext.delete(conversation)
+            return nil
+        }
+    }
+    
+    func fetchConversations() -> [Conversation] {
+        let request: NSFetchRequest<Conversation> = Conversation.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Conversation.lastMessageDate, ascending: false)]
+        
+        do {
+            return try viewContext.fetch(request)
+        } catch {
+            print("Error fetching conversations: \(error)")
+            return []
+        }
+    }
+    
+    func fetchConversations(for plantName: String) -> [Conversation] {
+        let request: NSFetchRequest<Conversation> = Conversation.fetchRequest()
+        request.predicate = NSPredicate(format: "plantName == %@", plantName)
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Conversation.lastMessageDate, ascending: false)]
+        
+        do {
+            return try viewContext.fetch(request)
+        } catch {
+            print("Error fetching conversations for plant: \(error)")
+            return []
+        }
+    }
+    
+    func addMessage(to conversation: Conversation, content: String, isUser: Bool) {
+        let message = Message(context: viewContext)
+        message.id = UUID().uuidString
+        message.content = content
+        message.isUser = isUser
+        message.createdAt = Date()
+        message.conversation = conversation
+        
+        conversation.addToMessages(message)
+        conversation.lastMessageDate = message.createdAt
+        
+        saveContext()
+    }
+    
+    func fetchMessages(for conversation: Conversation) -> [Message] {
+        let request: NSFetchRequest<Message> = Message.fetchRequest()
+        request.predicate = NSPredicate(format: "conversation == %@", conversation)
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Message.createdAt, ascending: true)]
+        
+        do {
+            return try viewContext.fetch(request)
+        } catch {
+            print("Error fetching messages: \(error)")
+            return []
+        }
+    }
+    
+    func deleteConversation(_ conversation: Conversation) {
+        viewContext.delete(conversation)
+        saveContext()
+    }
+    
+    func deleteEmptyConversations() {
+        let request: NSFetchRequest<Conversation> = Conversation.fetchRequest()
+        request.predicate = NSPredicate(format: "messages.@count == 0")
+        
+        do {
+            let emptyConversations = try viewContext.fetch(request)
+            for conversation in emptyConversations {
+                viewContext.delete(conversation)
+            }
+            saveContext()
+        } catch {
+            print("Error deleting empty conversations: \(error)")
+        }
+    }
 } 

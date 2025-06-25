@@ -1,36 +1,140 @@
 import SwiftUI
+import CoreData
 
-struct Message: Identifiable {
-    let id = UUID()
+// MARK: - Message Model
+struct ChatMessage: Identifiable {
+    let id: String
     let content: String
     let isUser: Bool
     let timestamp: Date
+    
+    init(from coreDataMessage: Message) {
+        self.id = coreDataMessage.id
+        self.content = coreDataMessage.content
+        self.isUser = coreDataMessage.isUser
+        self.timestamp = coreDataMessage.createdAt
+    }
+    
+    init(content: String, isUser: Bool, timestamp: Date = Date()) {
+        self.id = UUID().uuidString
+        self.content = content
+        self.isUser = isUser
+        self.timestamp = timestamp
+    }
 }
 
-struct Conversation: Identifiable {
-    let id = UUID()
+// MARK: - Conversation Model
+struct ChatConversation: Identifiable {
+    let id: String
     var title: String
-    var messages: [Message]
+    var plantName: String?
+    var messages: [ChatMessage]
     var lastMessageDate: Date
+    var createdAt: Date
     
-    init(title: String = "New Conversation", messages: [Message] = []) {
+    init(from coreDataConversation: Conversation) {
+        self.id = coreDataConversation.id
+        self.title = coreDataConversation.title
+        self.plantName = coreDataConversation.plantName
+        self.lastMessageDate = coreDataConversation.lastMessageDate
+        self.createdAt = coreDataConversation.createdAt
+        
+        // Convert CoreData messages to ChatMessage array
+        let coreDataMessages = CoreDataManager.shared.fetchMessages(for: coreDataConversation)
+        self.messages = coreDataMessages.map { ChatMessage(from: $0) }
+    }
+    
+    init(title: String = "New Conversation", plantName: String? = nil, messages: [ChatMessage] = []) {
+        self.id = UUID().uuidString
         self.title = title
+        self.plantName = plantName
         self.messages = messages
         self.lastMessageDate = messages.last?.timestamp ?? Date()
+        self.createdAt = Date()
     }
 }
 
 class ConversationManager: ObservableObject {
-    @Published var conversations: [Conversation] = []
-    @Published var currentConversationId: UUID?
+    @Published var conversations: [ChatConversation] = []
+    @Published var currentConversationId: String?
     @Published var isLoading = false
     
-    var currentConversation: Conversation? {
+    private let coreDataManager = CoreDataManager.shared
+    
+    var currentConversation: ChatConversation? {
         conversations.first { $0.id == currentConversationId }
     }
     
-    func createNewConversation() -> Conversation {
-        let newConversation = Conversation()
+    init() {
+        loadConversations()
+    }
+    
+    // MARK: - CoreData Operations
+    
+    private func loadConversations() {
+        let coreDataConversations = coreDataManager.fetchConversations()
+        conversations = coreDataConversations.map { ChatConversation(from: $0) }
+        
+        // Clean up empty conversations
+        coreDataManager.deleteEmptyConversations()
+    }
+    
+    private func saveConversation(_ conversation: ChatConversation) -> Conversation? {
+        guard let coreDataConversation = coreDataManager.createConversation(
+            title: conversation.title,
+            plantName: conversation.plantName
+        ) else {
+            print("Failed to create conversation in CoreData")
+            return nil
+        }
+        
+        // Save all messages
+        for message in conversation.messages {
+            coreDataManager.addMessage(
+                to: coreDataConversation,
+                content: message.content,
+                isUser: message.isUser
+            )
+        }
+        
+        return coreDataConversation
+    }
+    
+    private func updateConversationInCoreData(_ conversation: ChatConversation) {
+        // Find the CoreData conversation
+        let request: NSFetchRequest<Conversation> = Conversation.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", conversation.id)
+        
+        do {
+            let coreDataConversations = try coreDataManager.viewContext.fetch(request)
+            guard let coreDataConversation = coreDataConversations.first else { return }
+            
+            // Update title and last message date
+            coreDataConversation.title = conversation.title
+            coreDataConversation.lastMessageDate = conversation.lastMessageDate
+            
+            // Add new messages
+            let existingMessageIds = Set(coreDataManager.fetchMessages(for: coreDataConversation).map { $0.id })
+            let newMessages = conversation.messages.filter { !existingMessageIds.contains($0.id) }
+            
+            for message in newMessages {
+                coreDataManager.addMessage(
+                    to: coreDataConversation,
+                    content: message.content,
+                    isUser: message.isUser
+                )
+            }
+            
+            coreDataManager.saveContext()
+        } catch {
+            print("Error updating conversation in CoreData: \(error)")
+        }
+    }
+    
+    // MARK: - Public Methods
+    
+    func createNewConversation(plantName: String? = nil) -> ChatConversation {
+        let newConversation = ChatConversation(title: "AI Botanist", plantName: plantName)
         conversations.insert(newConversation, at: 0)
         currentConversationId = newConversation.id
         return newConversation
@@ -43,13 +147,20 @@ class ConversationManager: ObservableObject {
         }
         
         // Add user message
-        let userMessage = Message(content: content, isUser: true, timestamp: Date())
+        let userMessage = ChatMessage(content: content, isUser: true)
         conversations[index].messages.append(userMessage)
         conversations[index].lastMessageDate = userMessage.timestamp
         
-        // Update conversation title if it's the first message
+        // Set conversation title to "AI Botanist" if it's the first message
         if conversations[index].messages.count == 1 {
-            conversations[index].title = content
+            conversations[index].title = "AI Botanist"
+        }
+        
+        // Save to CoreData if this is the first message
+        if conversations[index].messages.count == 1 {
+            _ = saveConversation(conversations[index])
+        } else {
+            updateConversationInCoreData(conversations[index])
         }
         
         // Call askBotanist API
@@ -60,23 +171,26 @@ class ConversationManager: ObservableObject {
                       let conversationIndex = self.conversations.firstIndex(where: { $0.id == conversationId }) else {
                     return
                 }
+                
                 switch result {
                 case .success(let reply):
-                    let botResponse = Message(
-                        content: reply,
-                        isUser: false,
-                        timestamp: Date()
-                    )
+                    let botResponse = ChatMessage(content: reply, isUser: false)
                     self.conversations[conversationIndex].messages.append(botResponse)
                     self.conversations[conversationIndex].lastMessageDate = botResponse.timestamp
+                    
+                    // Update CoreData
+                    self.updateConversationInCoreData(self.conversations[conversationIndex])
+                    
                 case .failure(let error):
-                    let errorMessage = Message(
+                    let errorMessage = ChatMessage(
                         content: "Sorry, something went wrong: \(error.localizedDescription)",
-                        isUser: false,
-                        timestamp: Date()
+                        isUser: false
                     )
                     self.conversations[conversationIndex].messages.append(errorMessage)
                     self.conversations[conversationIndex].lastMessageDate = errorMessage.timestamp
+                    
+                    // Update CoreData
+                    self.updateConversationInCoreData(self.conversations[conversationIndex])
                 }
                 self.isLoading = false
             }
@@ -135,14 +249,37 @@ class ConversationManager: ObservableObject {
         task.resume()
     }
     
-    func switchConversation(to id: UUID) {
+    func switchConversation(to id: String) {
         currentConversationId = id
     }
     
-    func deleteConversation(_ id: UUID) {
+    func deleteConversation(_ id: String) {
+        // Remove from CoreData
+        let request: NSFetchRequest<Conversation> = Conversation.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id)
+        
+        do {
+            let coreDataConversations = try coreDataManager.viewContext.fetch(request)
+            if let conversationToDelete = coreDataConversations.first {
+                coreDataManager.deleteConversation(conversationToDelete)
+            }
+        } catch {
+            print("Error deleting conversation from CoreData: \(error)")
+        }
+        
+        // Remove from local array
         conversations.removeAll { $0.id == id }
         if currentConversationId == id {
             currentConversationId = conversations.first?.id
         }
+    }
+    
+    func loadConversationsForPlant(_ plantName: String) {
+        let coreDataConversations = coreDataManager.fetchConversations(for: plantName)
+        conversations = coreDataConversations.map { ChatConversation(from: $0) }
+    }
+    
+    func refreshConversations() {
+        loadConversations()
     }
 } 

@@ -10,7 +10,7 @@ import SwiftUI
 enum ContentRoute: Routable {
     case home
     case ask
-    case conversation(UUID, PlantDetails?)
+    case conversation(String, PlantDetails?)
     case plantDetails(PlantDetails)
 
     var body: some View {

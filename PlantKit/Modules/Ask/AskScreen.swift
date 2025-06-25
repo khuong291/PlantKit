@@ -11,12 +11,27 @@ struct AskScreen: View {
     @EnvironmentObject var conversationManager: ConversationManager
     @EnvironmentObject var askRouter: Router<ContentRoute>
     @State private var showInbox = false
+    @State private var conversationToDelete: ChatConversation?
+    @State private var showDeleteConfirmation = false
 
     var body: some View {
         ZStack {
             Color.appScreenBackgroundColor
                 .edgesIgnoringSafeArea(.all)
             content
+        }
+        .alert("Delete Conversation", isPresented: $showDeleteConfirmation) {
+            Button("Delete", role: .destructive) {
+                if let conversation = conversationToDelete {
+                    conversationManager.deleteConversation(conversation.id)
+                }
+                conversationToDelete = nil
+            }
+            Button("Cancel", role: .cancel) {
+                conversationToDelete = nil
+            }
+        } message: {
+            Text("Are you sure you want to delete this conversation? This action cannot be undone.")
         }
     }
     
@@ -55,16 +70,18 @@ struct AskScreen: View {
                 Button {
                     askRouter.navigate(to: .conversation(conversation.id, nil))
                 } label: {
-                    HStack {
+                    HStack(alignment: .top) {
                         Image("ic-tool-ask")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 46, height: 46)
                             .clipShape(Circle())
+                        
                         VStack(alignment: .leading, spacing: 4) {
                             Text(conversation.title)
                                 .font(.headline)
                                 .foregroundColor(.primary)
+                                .lineLimit(1)
 
                             if let lastMessage = conversation.messages.last {
                                 Text(lastMessage.content)
@@ -76,7 +93,7 @@ struct AskScreen: View {
 
                         Spacer()
 
-                        Text(conversation.lastMessageDate, style: .time)
+                        Text(formatRelativeDate(conversation.lastMessageDate))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -85,12 +102,41 @@ struct AskScreen: View {
                     .cornerRadius(12)
                 }
                 .buttonStyle(PlainButtonStyle())
+                .contextMenu {
+                    Button(role: .destructive) {
+                        conversationToDelete = conversation
+                        showDeleteConfirmation = true
+                    } label: {
+                        Label("Delete Conversation", systemImage: "trash")
+                    }
+                }
 
                 if conversation.id != conversationManager.conversations.last?.id {
                     Divider()
                         .padding(.leading)
                 }
             }
+        }
+    }
+    
+    private func formatRelativeDate(_ date: Date) -> String {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        if calendar.isDate(date, inSameDayAs: now) {
+            // Today - show time
+            let formatter = DateFormatter()
+            formatter.timeStyle = .short
+            return formatter.string(from: date)
+        } else if calendar.isDate(date, inSameDayAs: calendar.date(byAdding: .day, value: -1, to: now) ?? now) {
+            // Yesterday
+            return "Yesterday"
+        } else {
+            // Other days - show full date
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .none
+            return formatter.string(from: date)
         }
     }
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ConversationScreen: View {
-    let conversationId: UUID
+    let conversationId: String
     let plantDetails: PlantDetails?
     
     @EnvironmentObject var conversationManager: ConversationManager
@@ -9,7 +9,7 @@ struct ConversationScreen: View {
     @State private var messageText = ""
     @State private var scrollProxy: ScrollViewProxy? = nil
     
-    private var conversation: Conversation? {
+    private var conversation: ChatConversation? {
         conversationManager.conversations.first { $0.id == conversationId }
     }
     
@@ -207,7 +207,7 @@ struct ChatBubble: View {
 
 #Preview {
     NavigationView {
-        ConversationScreen(conversationId: UUID(), plantDetails: nil)
+        ConversationScreen(conversationId: UUID().uuidString, plantDetails: nil)
             .environmentObject(ConversationManager())
     }
 } 

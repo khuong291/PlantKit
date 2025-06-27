@@ -1,0 +1,53 @@
+//
+//  OnboardingScreenModel.swift
+//  PlantKit
+//
+//  Created by Khuong Pham on 27/6/25.
+//
+
+import SwiftUI
+
+enum OnboardingStep: CaseIterable {
+    case welcome
+    case experience
+    case identifyTime
+    case cameraPermission
+    case plantDetails
+    case chat
+    // Add more steps as needed
+    
+    static var allCases: [OnboardingStep] {
+        return [.welcome, .experience, .identifyTime, .cameraPermission, .plantDetails, .chat] // Add more steps here as you add them
+    }
+}
+
+class OnboardingScreenModel: ObservableObject {
+    @Published var currentStep: OnboardingStep = .welcome
+    @Published var userExperienceLevel: ExperienceLevel? = nil
+    @Published var userIdentifyTime: IdentifyTimeOption? = nil
+    
+    var continueDisabled: Bool {
+        switch currentStep {
+        default:
+            return false
+        }
+    }
+    
+    func goToNextStep() {
+        switch currentStep {
+        case .welcome:
+            currentStep = .experience
+        case .experience:
+            currentStep = .identifyTime
+        case .identifyTime:
+            currentStep = .cameraPermission
+        case .cameraPermission:
+            currentStep = .plantDetails
+        case .plantDetails:
+            currentStep = .chat
+        case .chat:
+            // Add logic for next step or finish onboarding
+            break
+        }
+    }
+}

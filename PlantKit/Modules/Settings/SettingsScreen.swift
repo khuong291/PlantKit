@@ -54,25 +54,25 @@ struct SettingsScreen: View {
     
     private var headerSection: some View {
         VStack(spacing: 16) {
-            // Profile Header
+            // App Header
             VStack(spacing: 12) {
                 ZStack {
                     Circle()
                         .fill(Color.green.opacity(0.2))
                         .frame(width: 80, height: 80)
                     
-                    Image(systemName: "person.crop.circle.fill")
+                    Image(systemName: "leaf.fill")
                         .font(.system(size: 40))
                         .foregroundColor(.green)
                 }
                 
                 VStack(spacing: 4) {
-                    Text("PlantKit User")
+                    Text("PlantKit")
                         .font(.title2)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
                     
-                    Text(proManager.hasPro ? "Pro Member" : "Free User")
+                    Text(proManager.hasPro ? "Pro Plan" : "Free Plan")
                         .font(.subheadline)
                         .foregroundColor(proManager.hasPro ? .green : .secondary)
                         .padding(.horizontal, 12)

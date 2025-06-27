@@ -46,6 +46,8 @@ struct OnboardingScreen: View {
                     OnboardingPlantDetailsStepView()
                 case .chat:
                     OnboardingChatStepView()
+                case .locationPermission:
+                    OnboardingLocationPermissionStepView()
                 case .loading:
                     OnboardingLoadingStepView() {
                         viewModel.goToNextStep()
@@ -58,7 +60,7 @@ struct OnboardingScreen: View {
             .animation(.easeInOut, value: viewModel.currentStep)
             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             
-            if viewModel.currentStep == .welcome {
+            if viewModel.currentStep != .loading {
                 ShinyBorderButton(systemName: "sparkles", title: "Get Started") {
                     Haptics.shared.play()
                     withAnimation {
@@ -66,13 +68,12 @@ struct OnboardingScreen: View {
                     }
                 }
                 .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
+                .disabled(viewModel.continueDisabled)
+                .buttonStyle(CardButtonStyle())
                 .padding(.horizontal)
                 .padding(.horizontal, 8)
                 .padding(.bottom, 20)
-            } else if viewModel.currentStep != .loading {
-                continueButton
-                    .padding(.horizontal)
-                    .padding(.bottom, 20)
+                .grayscale(viewModel.continueDisabled ? 1 : 0)
             }
         }
         .background(

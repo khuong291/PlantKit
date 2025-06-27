@@ -14,12 +14,13 @@ enum OnboardingStep: CaseIterable {
     case cameraPermission
     case plantDetails
     case chat
+    case locationPermission
     case loading
     case rating
     // Add more steps as needed
     
     static var allCases: [OnboardingStep] {
-        return [.welcome, .experience, .identifyTime, .cameraPermission, .plantDetails, .chat, .loading, .rating] // Add more steps here as you add them
+        return [.welcome, .experience, .identifyTime, .cameraPermission, .plantDetails, .chat, .locationPermission, .loading, .rating] // Add more steps here as you add them
     }
 }
 
@@ -55,6 +56,8 @@ class OnboardingScreenModel: ObservableObject {
         case .plantDetails:
             currentStep = .chat
         case .chat:
+            currentStep = .locationPermission
+        case .locationPermission:
             currentStep = .loading
         case .loading:
             currentStep = .rating

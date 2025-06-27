@@ -49,6 +49,8 @@ struct OnboardingScreen: View {
                     OnboardingLoadingStepView() {
                         viewModel.goToNextStep()
                     }
+                case .rating:
+                    OnboardingGiveRatingStepView(requested: $viewModel.ratingRequested)
                 }
             }
             .padding(.horizontal)

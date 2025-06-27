@@ -15,10 +15,11 @@ enum OnboardingStep: CaseIterable {
     case plantDetails
     case chat
     case loading
+    case rating
     // Add more steps as needed
     
     static var allCases: [OnboardingStep] {
-        return [.welcome, .experience, .identifyTime, .cameraPermission, .plantDetails, .chat] // Add more steps here as you add them
+        return [.welcome, .experience, .identifyTime, .cameraPermission, .plantDetails, .chat, .loading, .rating] // Add more steps here as you add them
     }
 }
 
@@ -26,6 +27,7 @@ class OnboardingScreenModel: ObservableObject {
     @Published var currentStep: OnboardingStep = .welcome
     @Published var userExperienceLevel: ExperienceLevel? = nil
     @Published var userIdentifyTime: IdentifyTimeOption? = nil
+    @Published var ratingRequested: Bool = false
     
     var continueDisabled: Bool {
         switch currentStep {
@@ -52,8 +54,10 @@ class OnboardingScreenModel: ObservableObject {
             currentStep = .chat
         case .chat:
             currentStep = .loading
-            // Add logic for next step or finish onboarding
-        default:
+        case .loading:
+            currentStep = .rating
+        case .rating:
+            // Finish onboarding - you can add logic here to complete onboarding
             break
         }
     }

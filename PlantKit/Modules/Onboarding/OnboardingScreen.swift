@@ -11,6 +11,7 @@ import SFSafeSymbols
 struct OnboardingScreen: View {
     @StateObject private var viewModel = OnboardingScreenModel()
     @State private var harmfulFactStep = 0
+    @ObservedObject var proManager: ProManager = .shared
         
     private var showProgressBar: Bool {
         guard let idx = OnboardingStep.allCases.firstIndex(of: viewModel.currentStep) else { return false }

@@ -57,7 +57,8 @@ class OnboardingScreenModel: ObservableObject {
         case .loading:
             currentStep = .rating
         case .rating:
-            // Finish onboarding - you can add logic here to complete onboarding
+            // Show paywall after rating step
+            ProManager.shared.showUpgradePro()
             break
         }
     }

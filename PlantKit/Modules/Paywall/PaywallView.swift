@@ -400,9 +400,8 @@ struct PaywallView: View {
     
     private var privacyButton: some View {
         Button {
-            if let url = Config.app.privacyPolicyUrl {
-                AppActionManager.shared.open(url: url)
-            }
+            Haptics.shared.play()
+            openPrivacyPolicy()
         } label: {
             Text("Privacy Policy")
                 .font(.footnote)
@@ -414,11 +413,10 @@ struct PaywallView: View {
     
     private var eulaButton: some View {
         Button {
-            if let url = Config.app.termsUrl {
-                AppActionManager.shared.open(url: url)
-            }
+            Haptics.shared.play()
+            openTermsOfService()
         } label: {
-            Text("EULA")
+            Text("Terms of Use")
                 .font(.footnote)
                 .foregroundColor(.white.opacity(0.7))
                 .underline()
@@ -442,6 +440,18 @@ struct PaywallView: View {
         .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
         .padding(.horizontal, 24)
         .padding(.bottom, 8)
+    }
+    
+    private func openPrivacyPolicy() {
+        if let url = URL(string: "https://www.plantkit.app/privacy") {
+            UIApplication.shared.open(url)
+        }
+    }
+    
+    private func openTermsOfService() {
+        if let url = URL(string: "https://www.plantkit.app/terms") {
+            UIApplication.shared.open(url)
+        }
     }
 }
 

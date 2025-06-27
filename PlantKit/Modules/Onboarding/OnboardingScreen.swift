@@ -25,7 +25,7 @@ struct OnboardingScreen: View {
     
     var body: some View {
         VStack {
-            if showProgressBar {
+            if showProgressBar && viewModel.currentStep != .loading {
                 ProgressView(value: progressValue)
                     .progressViewStyle(LinearProgressViewStyle(tint: Color.green))
                     .frame(height: 4)
@@ -58,10 +58,21 @@ struct OnboardingScreen: View {
             .animation(.easeInOut, value: viewModel.currentStep)
             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             
-            if viewModel.currentStep != .loading {
+            if viewModel.currentStep == .welcome {
+                ShinyBorderButton(systemName: "sparkles", title: "Get Started") {
+                    Haptics.shared.play()
+                    withAnimation {
+                        viewModel.goToNextStep()
+                    }
+                }
+                .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
+                .padding(.horizontal)
+                .padding(.horizontal, 8)
+                .padding(.bottom, 20)
+            } else if viewModel.currentStep != .loading {
                 continueButton
                     .padding(.horizontal)
-                    .padding(.bottom, 60)
+                    .padding(.bottom, 20)
             }
         }
         .background(

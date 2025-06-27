@@ -29,6 +29,8 @@ class OnboardingScreenModel: ObservableObject {
     @Published var userIdentifyTime: IdentifyTimeOption? = nil
     @Published var ratingRequested: Bool = false
     
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
+    
     var continueDisabled: Bool {
         switch currentStep {
         case .experience:
@@ -57,8 +59,8 @@ class OnboardingScreenModel: ObservableObject {
         case .loading:
             currentStep = .rating
         case .rating:
-            // Show paywall after rating step
-            ProManager.shared.showUpgradePro()
+            // Mark onboarding as completed
+            hasCompletedOnboarding = true
             break
         }
     }

@@ -9,11 +9,15 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var proManager: ProManager = .shared
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
     
     var body: some View {
-        VStack {
-            //        MainTab()        
-            OnboardingScreen()
+        Group {
+            if hasCompletedOnboarding {
+                MainTab()
+            } else {
+                OnboardingScreen()
+            }
         }
         .fullScreenCover(isPresented: $proManager.showsUpgradeProView) {
             PaywallView()

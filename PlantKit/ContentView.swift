@@ -11,14 +11,16 @@ struct ContentView: View {
     @ObservedObject var proManager: ProManager = .shared
     
     var body: some View {
-//        MainTab()
-//            .onAppear {
-//                ProManager.shared.setup()
-//            }
-//            .fullScreenCover(isPresented: $proManager.showsUpgradeProView) {
-//                PaywallView()
-//            }
-        OnboardingScreen()
+        VStack {
+            //        MainTab()        
+            OnboardingScreen()
+        }
+        .fullScreenCover(isPresented: $proManager.showsUpgradeProView) {
+            PaywallView()
+        }
+        .onAppear {
+            ProManager.shared.setup()
+        }
     }
 }
 

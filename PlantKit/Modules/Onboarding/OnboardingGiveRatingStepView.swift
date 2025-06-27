@@ -14,10 +14,14 @@ struct OnboardingGiveRatingStepView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text("Rate PlantKit")
-                    .font(.largeTitle).bold()
-                    .padding(.top, 20)
-                    .multilineTextAlignment(.center)
+                HStack {
+                    Spacer()
+                    Text("Rate PlantKit")
+                        .font(.largeTitle).bold()
+                        .padding(.top, 20)
+                        .multilineTextAlignment(.center)
+                    Spacer()
+                }
                 HStack {
                     ForEach(0 ..< 5) { _ in
                         Text("⭐")

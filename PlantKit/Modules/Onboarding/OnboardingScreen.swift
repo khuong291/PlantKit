@@ -20,7 +20,7 @@ struct OnboardingScreen: View {
 
     private var progressValue: Double {
         guard let idx = OnboardingStep.allCases.firstIndex(of: viewModel.currentStep), OnboardingStep.allCases.count > 1 else { return 0 }
-        return Double(idx - 1) / Double(OnboardingStep.allCases.count - 1)
+        return Double(idx) / Double(OnboardingStep.allCases.count - 1)
     }
     
     var body: some View {

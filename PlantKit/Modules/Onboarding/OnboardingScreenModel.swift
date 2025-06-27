@@ -14,6 +14,7 @@ enum OnboardingStep: CaseIterable {
     case cameraPermission
     case plantDetails
     case chat
+    case loading
     // Add more steps as needed
     
     static var allCases: [OnboardingStep] {
@@ -50,7 +51,9 @@ class OnboardingScreenModel: ObservableObject {
         case .plantDetails:
             currentStep = .chat
         case .chat:
+            currentStep = .loading
             // Add logic for next step or finish onboarding
+        default:
             break
         }
     }

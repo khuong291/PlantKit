@@ -45,15 +45,21 @@ struct OnboardingScreen: View {
                     OnboardingPlantDetailsStepView()
                 case .chat:
                     OnboardingChatStepView()
+                case .loading:
+                    OnboardingLoadingStepView() {
+                        viewModel.goToNextStep()
+                    }
                 }
             }
             .padding(.horizontal)
             .animation(.easeInOut, value: viewModel.currentStep)
             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             
-            continueButton
-                .padding(.horizontal)
-                .padding(.bottom, 60)
+            if viewModel.currentStep != .loading {
+                continueButton
+                    .padding(.horizontal)
+                    .padding(.bottom, 60)
+            }
         }
         .background(
             ZStack {

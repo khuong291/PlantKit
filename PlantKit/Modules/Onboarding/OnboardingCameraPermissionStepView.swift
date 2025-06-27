@@ -21,17 +21,22 @@ struct OnboardingCameraPermissionStepView: View {
                 
                 Spacer()
                 
-                // Phone mockup with sample image
-                ZStack {
-                    RoundedRectangle(cornerRadius: 36, style: .continuous)
-                        .fill(Color(.systemBackground))
-                        .shadow(radius: 8)
-                        .frame(width: 260, height: 520)
+                ZStack(alignment: .topLeading) {
                     Image("photo-taken-img")
                         .resizable()
-                        .scaledToFill()
-                        .frame(width: 240, height: 500)
+                        .scaledToFit()
+                        .frame(height: 500)
                         .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                    Image("ic-camera")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30, height: 30)
+                        .foregroundStyle(.white)
+                        .frame(width: 60, height: 60)
+                        .background(Color.green)
+                        .clipShape(.circle)
+                        .rotationEffect(.degrees(-15))
+                        .offset(x: 10)
                 }
                 .padding(.bottom, 32)
                 
@@ -80,4 +85,5 @@ struct OnboardingCameraPermissionStepView: View {
 
 #Preview {
     OnboardingCameraPermissionStepView()
-} 
+        .preferredColorScheme(.dark)
+}

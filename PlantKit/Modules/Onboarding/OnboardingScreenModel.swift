@@ -28,6 +28,10 @@ class OnboardingScreenModel: ObservableObject {
     
     var continueDisabled: Bool {
         switch currentStep {
+        case .experience:
+            return userExperienceLevel == nil
+        case .identifyTime:
+            return userIdentifyTime == nil
         default:
             return false
         }

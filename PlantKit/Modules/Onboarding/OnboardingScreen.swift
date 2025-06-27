@@ -80,10 +80,10 @@ struct OnboardingScreen: View {
             Text("Continue")
                 .font(.system(size: 20))
                 .bold()
-                .foregroundColor(viewModel.continueDisabled ? .primary : .black)
+                .foregroundColor(viewModel.continueDisabled ? .white.opacity(0.5) : .black)
                 .frame(maxWidth: .infinity)
                 .frame(height: 60)
-                .background(viewModel.continueDisabled ? Color.secondary.opacity(0.5) : Color.white)
+                .background(viewModel.continueDisabled ? Color.white.opacity(0.2) : Color.white)
                 .clipShape(Capsule())
                 .padding(.horizontal)
         }

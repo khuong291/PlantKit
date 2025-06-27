@@ -13,6 +13,7 @@ struct OnboardingCameraPermissionStepView: View {
                     Text("Just take a photo")
                         .font(.largeTitle).bold()
                         .padding(.top, 20)
+                        .multilineTextAlignment(.center)
                     Text("Or upload one from your gallery")
                         .font(.body)
                         .foregroundColor(.secondary)

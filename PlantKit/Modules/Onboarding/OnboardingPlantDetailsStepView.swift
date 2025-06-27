@@ -8,6 +8,7 @@ struct OnboardingPlantDetailsStepView: View {
                     Text("Identify your Plant")
                         .font(.largeTitle).bold()
                         .padding(.top, 20)
+                        .multilineTextAlignment(.center)
                     Text("Get all the details you need in seconds")
                         .font(.body)
                         .foregroundColor(.secondary)

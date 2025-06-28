@@ -149,6 +149,7 @@ struct AskScreen: View {
 struct BeautifulHeader: View {
     @EnvironmentObject var conversationManager: ConversationManager
     @EnvironmentObject var askRouter: Router<ContentRoute>
+    @ObservedObject var proManager: ProManager = .shared
     
     var body: some View {
         VStack(spacing: 16) {
@@ -168,8 +169,12 @@ struct BeautifulHeader: View {
             }
             Button(action: {
                 Haptics.shared.play()
-                let newConversation = conversationManager.createNewConversation()
-                askRouter.navigate(to: .conversation(newConversation.id, nil))
+                if proManager.hasPro {
+                    let newConversation = conversationManager.createNewConversation()
+                    askRouter.navigate(to: .conversation(newConversation.id, nil))
+                } else {
+                    proManager.showUpgradeProIfNeeded()
+                }
             }) {
                 Text("Ask New Question")
                     .font(.headline)

@@ -289,7 +289,11 @@ struct HomeScreen: View {
                     Button {
                         Haptics.shared.play()
                         if tool.title == "Health Check" {
-                            showHealthCheckCamera = true
+                            if proManager.hasPro {
+                                showHealthCheckCamera = true
+                            } else {
+                                proManager.showUpgradeProIfNeeded()
+                            }
                         }
                         if tool.title == "Light Meter" {
                             showLightMeterCamera = true
@@ -298,7 +302,11 @@ struct HomeScreen: View {
                             showWaterMeter = true
                         }
                         if tool.title == "Plant Identifier" {
-                            onOpenCamera?()
+                            if proManager.hasPro {
+                                onOpenCamera?()
+                            } else {
+                                proManager.showUpgradeProIfNeeded()
+                            }
                         }
                         // Add other tool actions here if needed
                     } label: {

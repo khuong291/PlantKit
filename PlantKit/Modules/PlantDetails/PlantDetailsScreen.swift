@@ -19,6 +19,7 @@ struct PlantDetailsScreen: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var conversationManager: ConversationManager
     @EnvironmentObject var myPlantsRouter: Router<ContentRoute>
+    @ObservedObject var proManager: ProManager = .shared
     
     var body: some View {
         ZStack {
@@ -129,9 +130,13 @@ struct PlantDetailsScreen: View {
                     
                     ShinyBorderButton(systemName: "message.fill", title: "Ask Anything") {
                         Haptics.shared.play()
-                        let newConversation = conversationManager.createNewConversation(plantName: plantDetails?.commonName, plantDetails: plantDetails)
-                        conversationManager.currentConversationId = newConversation.id
-                        myPlantsRouter.navigate(to: .conversation(newConversation.id, plantDetails))
+                        if proManager.hasPro {
+                            let newConversation = conversationManager.createNewConversation(plantName: plantDetails?.commonName, plantDetails: plantDetails)
+                            conversationManager.currentConversationId = newConversation.id
+                            myPlantsRouter.navigate(to: .conversation(newConversation.id, plantDetails))
+                        } else {
+                            proManager.showUpgradeProIfNeeded()
+                        }
                     }
                     .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
                 }

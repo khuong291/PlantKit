@@ -126,9 +126,14 @@ struct PaywallView: View {
             .onAppear {
                 selectedPackage = proManager.weeklyPackage
             }
-            .onChange(of: proManager.hasPro) { hasPro in
-                if hasPro {
+            .onChange(of: proManager.hasPro) { oldValue, newValue in
+                if newValue {
                     showsAlert = true
+                }
+            }
+            .onChange(of: proManager.weeklyPackage) { oldValue, newValue in
+                if let newValue {
+                    selectedPackage = newValue
                 }
             }
             .alert("PlantKit Pro Unlocked".localized, isPresented: $showsAlert, actions: {

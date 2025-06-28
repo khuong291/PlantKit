@@ -118,7 +118,9 @@ struct MainTab: View {
         .onAppear {
             hasSelectedHomeScreen = true
             selectedTab = .home
-            ProManager.shared.showUpgradeProIfNeeded()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                ProManager.shared.showUpgradeProIfNeeded()
+            }
         }
         .fullScreenCover(isPresented: $viewModel.isPresentingCamera) {
             CameraView(

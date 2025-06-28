@@ -15,7 +15,7 @@ struct HomeScreen: View {
     @EnvironmentObject var identifierManager: IdentifierManager
     @EnvironmentObject var locationManager: LocationManager
     @EnvironmentObject var homeRouter: Router<ContentRoute>
-    @EnvironmentObject var proManager: ProManager
+    @ObservedObject var proManager: ProManager = .shared
     
     @State private var selectedImage: UIImage?
     @State private var showImagePicker = false

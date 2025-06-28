@@ -20,6 +20,7 @@ enum ProFeature: String, CaseIterable, Identifiable {
     case growthTips = "Growth & propagation tips"
     case diseaseDetection = "Plant disease detection"
     case toxicityInfo = "Toxicity info for kids & pets"
+    case removeAnnoyingPaywalls = "Remove annoying paywalls"
     
     var icon: String {
         switch self {
@@ -33,6 +34,8 @@ enum ProFeature: String, CaseIterable, Identifiable {
             return SFSymbol.pills.rawValue
         case .toxicityInfo:
             return SFSymbol.pawprint.rawValue
+        case .removeAnnoyingPaywalls:
+            return SFSymbol.lockIphone.rawValue
         }
     }
 }

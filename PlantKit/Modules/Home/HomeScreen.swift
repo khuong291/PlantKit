@@ -27,6 +27,9 @@ struct HomeScreen: View {
     @StateObject private var locationManager = LocationManager()
     @StateObject private var healthCheckManager = HealthCheckManager()
     
+    // Callback to open camera from MainTab
+    var onOpenCamera: (() -> Void)?
+    
     private let tools: [Tool] = [
         .init(title: "Plant Identifier", imageName: "ic-tool-plant"),
         .init(title: "Health Check", imageName: "ic-tool-health-check"),
@@ -225,7 +228,7 @@ struct HomeScreen: View {
                             showWaterMeter = true
                         }
                         if tool.title == "Plant Identifier" {
-                            
+                            onOpenCamera?()
                         }
                         // Add other tool actions here if needed
                     } label: {

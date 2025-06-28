@@ -59,6 +59,9 @@ struct HealthCheckCameraView: View {
                 cameraManager.configure()
             }
         }
+        .onDisappear {
+            cameraManager.stopSession()
+        }
         .sheet(isPresented: $isShowingPhotoPicker) {
             PhotoPicker { image in
                 if let selectedImage = image?.croppedToCenterSquare() {
@@ -83,12 +86,30 @@ struct HealthCheckCameraView: View {
 
     private var content: some View {
         ZStack {
-            CameraPreview(session: cameraManager.session)
-                .ignoresSafeArea()
+            if cameraManager.isSessionReady {
+                CameraPreview(session: cameraManager.captureSession)
+                    .ignoresSafeArea()
+            } else {
+                // Loading state while camera is initializing
+                Color.black
+                    .ignoresSafeArea()
+                
+                VStack(spacing: 16) {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .tint(.white)
+                    Text("Preparing camera...")
+                        .foregroundColor(.white)
+                        .font(.headline)
+                }
+            }
+            
             Color.black.opacity(0.6)
                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height + 16)
                 .mask { ScanFocusMask() }
                 .compositingGroup()
+                .opacity(cameraManager.isSessionReady ? 1 : 0)
+                
             GeometryReader { geo in
                 let width: CGFloat = UIScreen.main.bounds.width * 0.9
                 let centerX = geo.size.width / 2
@@ -98,6 +119,8 @@ struct HealthCheckCameraView: View {
                     .frame(width: width, height: width)
                     .position(x: centerX, y: centerY)
             }
+            .opacity(cameraManager.isSessionReady ? 1 : 0)
+            
             closeButton
             VStack {
                 Spacer()
@@ -119,6 +142,7 @@ struct HealthCheckCameraView: View {
                 }
                 .padding(.bottom, 50)
             }
+            .opacity(cameraManager.isSessionReady ? 1 : 0)
         }
     }
 

@@ -70,7 +70,9 @@ struct MainTab: View {
     @State private var showPlantDetails = false
     @State private var detailsImage: UIImage? = nil
     
-    private let homeScreen = HomeScreen()
+    private var homeScreen: HomeScreen {
+        HomeScreen(onOpenCamera: openCamera)
+    }
     private let askScreen = AskScreen()
     private let myPlantsScreen = MyPlantsScreen()
     private let settingsScreen = SettingsScreen()
@@ -257,5 +259,10 @@ struct MainTab: View {
                 myPlantsRouter.navigate(to: .plantDetails(details))
             }
         }
+    }
+    
+    // Callback function to open camera from other screens
+    func openCamera() {
+        viewModel.openCamera()
     }
 }

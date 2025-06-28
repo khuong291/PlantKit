@@ -59,6 +59,9 @@ struct CameraView: View {
                 cameraManager.configure()
             }
         }
+        .onDisappear {
+            cameraManager.stopSession()
+        }
         .sheet(isPresented: $isShowingPhotoPicker) {
             PhotoPicker { image in
                 if let selectedImage = image?.croppedToCenterSquare() {
@@ -84,8 +87,23 @@ struct CameraView: View {
     private var content: some View {
         ZStack {
             // Live camera preview
-            CameraPreview(session: cameraManager.session)
-                .ignoresSafeArea()
+            if cameraManager.isSessionReady {
+                CameraPreview(session: cameraManager.captureSession)
+                    .ignoresSafeArea()
+            } else {
+                // Loading state while camera is initializing
+                Color.black
+                    .ignoresSafeArea()
+                
+                VStack(spacing: 16) {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .tint(.white)
+                    Text("Preparing camera...")
+                        .foregroundColor(.white)
+                        .font(.headline)
+                }
+            }
 
             // Dark overlay with transparent cutout
             Color.black.opacity(0.6)
@@ -94,6 +112,7 @@ struct CameraView: View {
                     ScanFocusMask()
                 }
                 .compositingGroup()
+                .opacity(cameraManager.isSessionReady ? 1 : 0)
 
             // White border around the cutout
             GeometryReader { geo in
@@ -107,6 +126,7 @@ struct CameraView: View {
                     .frame(width: width, height: height)
                     .position(x: centerX, y: centerY)
             }
+            .opacity(cameraManager.isSessionReady ? 1 : 0)
 
             closeButton
             
@@ -130,6 +150,7 @@ struct CameraView: View {
                 }
                 .padding(.bottom, 50)
             }
+            .opacity(cameraManager.isSessionReady ? 1 : 0)
         }
     }
     

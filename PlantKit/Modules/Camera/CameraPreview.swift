@@ -38,21 +38,21 @@ class CameraPreviewView: UIView {
     func setSession(_ session: AVCaptureSession) {
         print("CameraPreviewView: Setting session, running: \(session.isRunning)")
         
-        // Remove existing preview layer if it exists
-        if let existingLayer = previewLayer {
-            existingLayer.removeFromSuperlayer()
-            previewLayer = nil
+        // Create preview layer if it doesn't exist
+        if previewLayer == nil {
+            let newPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
+            newPreviewLayer.videoGravity = .resizeAspectFill
+            newPreviewLayer.frame = bounds
+            
+            layer.addSublayer(newPreviewLayer)
+            previewLayer = newPreviewLayer
+            
+            print("CameraPreviewView: Created new preview layer with frame: \(bounds)")
+        } else {
+            // Update existing preview layer's session
+            previewLayer?.session = session
+            print("CameraPreviewView: Updated existing preview layer session")
         }
-        
-        // Create new preview layer
-        let newPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
-        newPreviewLayer.videoGravity = .resizeAspectFill
-        newPreviewLayer.frame = bounds
-        
-        layer.addSublayer(newPreviewLayer)
-        previewLayer = newPreviewLayer
-        
-        print("CameraPreviewView: Created new preview layer with frame: \(bounds)")
         
         // Ensure frame is set correctly
         DispatchQueue.main.async {

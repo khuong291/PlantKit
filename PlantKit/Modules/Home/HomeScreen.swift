@@ -210,23 +210,43 @@ struct HomeScreen: View {
                 HStack(spacing: 16) {
                     PopularPlantCard(
                         name: "Hydrangea",
-                        imageName: "hydrangea"
+                        imageName: "hydrangea",
+                        onTap: {
+                            Haptics.shared.play()
+                            homeRouter.navigate(to: .samplePlantDetails(SamplePlantData.hydrangea, UIImage(named: "hydrangea")!))
+                        }
                     )
                     PopularPlantCard(
                         name: "Japanese Maple",
-                        imageName: "japanese-maple"
+                        imageName: "japanese-maple",
+                        onTap: {
+                            Haptics.shared.play()
+                            homeRouter.navigate(to: .samplePlantDetails(SamplePlantData.japaneseMaple, UIImage(named: "japanese-maple")!))
+                        }
                     )
                     PopularPlantCard(
                         name: "Lavender",
-                        imageName: "lavender"
+                        imageName: "lavender",
+                        onTap: {
+                            Haptics.shared.play()
+                            homeRouter.navigate(to: .samplePlantDetails(SamplePlantData.lavender, UIImage(named: "lavender")!))
+                        }
                     )
                     PopularPlantCard(
                         name: "Rose Bush",
-                        imageName: "rose-bush"
+                        imageName: "rose-bush",
+                        onTap: {
+                            Haptics.shared.play()
+                            homeRouter.navigate(to: .samplePlantDetails(SamplePlantData.roseBush, UIImage(named: "rose-bush")!))
+                        }
                     )
                     PopularPlantCard(
                         name: "Boxwood",
-                        imageName: "boxwood"
+                        imageName: "boxwood",
+                        onTap: {
+                            Haptics.shared.play()
+                            homeRouter.navigate(to: .samplePlantDetails(SamplePlantData.boxwood, UIImage(named: "boxwood")!))
+                        }
                     )
                 }
                 .padding(.horizontal, 4)

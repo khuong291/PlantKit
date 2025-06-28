@@ -46,8 +46,11 @@ struct PaywallView: View {
     @State private var isTrialEnabled = true
     @State private var isAnimatingIcon = false
     @State private var isPurchasing = false
+    @State private var showCloseButton = false
+    @State private var progressValue: Double = 0.0
     
     private let iconAnimationTimer = Timer.publish(every: 3, on: .main, in: .common).autoconnect()
+    private let closeButtonDelay: TimeInterval = 8.0
         
     private let features = ProFeature.allCases
     
@@ -93,23 +96,7 @@ struct PaywallView: View {
                     .padding(.bottom, 20)
                 }
                 
-                VStack {
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            dismiss()
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .resizable()
-                                .frame(width: 24, height: 24)
-                                .foregroundColor(.gray.opacity(0.5))
-                                .frame(width: 30, height: 30)
-                        }
-                        .padding(.trailing, 6)
-                    }
-                    Spacer()
-                }
-                .padding()
+                closeButton
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
@@ -125,6 +112,7 @@ struct PaywallView: View {
             .preferredColorScheme(.dark)
             .onAppear {
                 selectedPackage = proManager.weeklyPackage
+                startCloseButtonTimer()
             }
             .onChange(of: proManager.hasPro) { oldValue, newValue in
                 if newValue {
@@ -162,6 +150,33 @@ struct PaywallView: View {
             plansView
         }
         .padding()
+    }
+    
+    private var closeButton: some View {
+        Group {
+            VStack {
+                HStack {
+                    Spacer()
+                    if showCloseButton {
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .resizable()
+                                .frame(width: 24, height: 24)
+                                .foregroundColor(.gray.opacity(0.5))
+                                .frame(width: 30, height: 30)
+                        }
+                    } else {
+                        // Circular progress view
+                        CircularProgressView(progress: progressValue)
+                    }
+                }
+                .padding(.trailing, 6)
+                Spacer()
+            }
+            .padding()
+        }
     }
     
     private var headerView: some View {
@@ -456,6 +471,44 @@ struct PaywallView: View {
     private func openTermsOfService() {
         if let url = URL(string: "https://www.plantkit.app/terms") {
             UIApplication.shared.open(url)
+        }
+    }
+    
+    private func startCloseButtonTimer() {
+        // Reset states
+        showCloseButton = false
+        progressValue = 0.0
+        
+        // Animate progress from 0 to 1 over 8 seconds
+        withAnimation(.linear(duration: closeButtonDelay)) {
+            progressValue = 1.0
+        }
+        
+        // Show close button after 8 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + closeButtonDelay) {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                showCloseButton = true
+            }
+        }
+    }
+}
+
+// MARK: - Circular Progress View
+
+struct CircularProgressView: View {
+    let progress: Double
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color.gray.opacity(0.3), lineWidth: 4)
+                .frame(width: 24, height: 24)
+            
+            Circle()
+                .trim(from: 0, to: progress)
+                .stroke(Color.gray.opacity(0.5), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                .frame(width: 24, height: 24)
+                .rotationEffect(.degrees(-90))
         }
     }
 }

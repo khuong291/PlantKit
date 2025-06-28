@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SFSafeSymbols
+import ConfettiSwiftUI
 
 struct OnboardingLoadingStepView: View {
     private let stageText = [
@@ -19,6 +20,7 @@ struct OnboardingLoadingStepView: View {
     @State private var loadingStage = 0
     @State private var progress: CGFloat = 0.0
     @State private var isComplete = false
+    @State private var trigger: Int = 0
 
     let onFinish: () -> ()
     
@@ -43,6 +45,9 @@ struct OnboardingLoadingStepView: View {
                         .font(.largeTitle)
                         .bold()
                         .multilineTextAlignment(.center)
+                        .onAppear {
+                            trigger += 1
+                        }
                 }
 
                 Spacer()
@@ -90,6 +95,7 @@ struct OnboardingLoadingStepView: View {
         }
         .padding()
         .frame(maxWidth: 300)
+        .confettiCannon(trigger: $trigger, num: 50, confettiSize: 20)
         .onAppear {
             Task {
                 let totalSteps = 100
@@ -115,7 +121,7 @@ struct OnboardingLoadingStepView: View {
                     self.progress = 100
                     self.isComplete = true
                     Haptics.shared.play()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                         onFinish()
                     }
                 }

@@ -317,8 +317,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = PlantKit;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We use the camera to identify plants by scanning them.";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use your location to show local weather for your plants.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to show local weather for your plants.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Location helps us provide better plant care recommendations based on your climate and growing conditions.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location helps us provide better plant care recommendations based on your climate and growing conditions.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -357,8 +357,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = PlantKit;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We use the camera to identify plants by scanning them.";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use your location to show local weather for your plants.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to show local weather for your plants.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Location helps us provide better plant care recommendations based on your climate and growing conditions.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location helps us provide better plant care recommendations based on your climate and growing conditions.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

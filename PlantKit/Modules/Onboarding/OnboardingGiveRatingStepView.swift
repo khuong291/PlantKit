@@ -134,8 +134,7 @@ extension OnboardingGiveRatingStepView {
                 }
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical)
-            .padding(.horizontal, 25)
+            .padding()
             .background(.secondary.opacity(0.2))
             .cornerRadius(20)
         }

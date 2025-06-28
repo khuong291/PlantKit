@@ -164,19 +164,35 @@ struct HomeScreen: View {
                     )
                     PopularPlantCard(
                         name: "Snake Plant",
-                        imageName: "snake-plant"
+                        imageName: "snake-plant",
+                        onTap: {
+                            Haptics.shared.play()
+                            homeRouter.navigate(to: .samplePlantDetails(SamplePlantData.snakePlant, UIImage(named: "snake-plant")!))
+                        }
                     )
                     PopularPlantCard(
                         name: "Fiddle Leaf Fig",
-                        imageName: "fiddle-leaf"
+                        imageName: "fiddle-leaf",
+                        onTap: {
+                            Haptics.shared.play()
+                            homeRouter.navigate(to: .samplePlantDetails(SamplePlantData.fiddleLeafFig, UIImage(named: "fiddle-leaf")!))
+                        }
                     )
                     PopularPlantCard(
                         name: "Peace Lily",
-                        imageName: "peace-lily"
+                        imageName: "peace-lily",
+                        onTap: {
+                            Haptics.shared.play()
+                            homeRouter.navigate(to: .samplePlantDetails(SamplePlantData.peaceLily, UIImage(named: "peace-lily")!))
+                        }
                     )
                     PopularPlantCard(
                         name: "ZZ Plant",
-                        imageName: "zz-plant"
+                        imageName: "zz-plant",
+                        onTap: {
+                            Haptics.shared.play()
+                            homeRouter.navigate(to: .samplePlantDetails(SamplePlantData.zzPlant, UIImage(named: "zz-plant")!))
+                        }
                     )
                 }
                 .padding(.horizontal, 4)

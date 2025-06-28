@@ -15,6 +15,7 @@ struct HomeScreen: View {
     @EnvironmentObject var identifierManager: IdentifierManager
     @EnvironmentObject var locationManager: LocationManager
     @EnvironmentObject var homeRouter: Router<ContentRoute>
+    @EnvironmentObject var proManager: ProManager
     
     @State private var selectedImage: UIImage?
     @State private var showImagePicker = false
@@ -58,8 +59,10 @@ struct HomeScreen: View {
                 VStack(alignment: .leading, spacing: 0) {
                     topBar
                         .padding(.top, 6)
-//                    searchView
-//                        .padding(.top, 16)
+                    if !proManager.hasPro {
+                        freeTrialClaimSection
+                            .padding(.top, 16)
+                    }
                     plantToolsView
                         .padding(.top, 16)
                     popularIndoorPlantsView
@@ -131,19 +134,40 @@ struct HomeScreen: View {
         }
     }
     
-    private var searchView: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "magnifyingglass")
-                .font(.subheadline)
-                .foregroundColor(.gray)
-            
-            TextField("Search plants, flowers, trees...", text: $searchText)
-                .font(.subheadline)
-                .foregroundColor(.primary)
+    private var freeTrialClaimSection: some View {
+        Button {
+            Haptics.shared.play()
+            proManager.showUpgradeProIfNeeded()
+        } label: {
+            HStack(spacing: 12) {
+                ZStack(alignment: .topTrailing) {
+                    Image(systemName: "envelope.fill")
+                        .font(.title2)
+                        .foregroundColor(.blue)
+                    
+                    // Unread indicator
+                    Circle()
+                        .fill(Color.red)
+                        .frame(width: 8, height: 8)
+                }
+                
+                Text("Your free trial has not yet been claimed. Tap to claim.")
+                    .font(.subheadline)
+                    .foregroundColor(.primary)
+                    .multilineTextAlignment(.leading)
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
         }
-        .padding(10)
-        .background(Color.white)
-        .cornerRadius(8)
+        .buttonStyle(CardButtonStyle())
     }
     
     private var popularIndoorPlantsView: some View {

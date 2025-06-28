@@ -31,11 +31,11 @@ struct HomeScreen: View {
         .init(title: "Plant Identifier", imageName: "ic-tool-plant"),
         .init(title: "Health Check", imageName: "ic-tool-health-check"),
         .init(title: "Light Meter", imageName: "ic-tool-light"),
-        .init(title: "Water Meter", imageName: "ic-tool-water"),
-        .init(title: "Ask Botanist", imageName: "ic-tool-ask"),
-        .init(title: "Mushroom Identifier", imageName: "ic-tool-mushroom"),
-        .init(title: "Insect Identifier", imageName: "ic-tool-insect"),
-        .init(title: "Bird Identifier", imageName: "ic-tool-bird")
+        .init(title: "Water Meter", imageName: "ic-tool-water")
+//        .init(title: "Ask Botanist", imageName: "ic-tool-ask"),
+//        .init(title: "Mushroom Identifier", imageName: "ic-tool-mushroom"),
+//        .init(title: "Insect Identifier", imageName: "ic-tool-insect"),
+//        .init(title: "Bird Identifier", imageName: "ic-tool-bird")
     ]
     
     private let itemsPerRow = 2
@@ -54,10 +54,10 @@ struct HomeScreen: View {
                 VStack(alignment: .leading, spacing: 0) {
                     topBar
                         .padding(.top, 6)
-                    searchView
-                        .padding(.top, 16)
+//                    searchView
+//                        .padding(.top, 16)
                     plantToolsView
-                        .padding(.top, 32)
+                        .padding(.top, 16)
                     popularIndoorPlantsView
                         .padding(.top, 32)
                     popularOutdoorPlantsView
@@ -225,7 +225,7 @@ struct HomeScreen: View {
                             showWaterMeter = true
                         }
                         if tool.title == "Plant Identifier" {
-                            ProManager.shared.showUpgradePro()
+                            
                         }
                         // Add other tool actions here if needed
                     } label: {
@@ -235,22 +235,22 @@ struct HomeScreen: View {
                 }
             }
 
-            Button(action: {
-                Haptics.shared.play()
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    showAllTools.toggle()
-                }
-            }) {
-                Text(showAllTools ? "Show Less" : "Show More")
-                    .font(.subheadline)
-                    .bold()
-                    .foregroundStyle(.primary)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 52)
-                    .background(Color.white)
-                    .cornerRadius(12)
-            }
-            .buttonStyle(CardButtonStyle())
+//            Button(action: {
+//                Haptics.shared.play()
+//                withAnimation(.easeInOut(duration: 0.3)) {
+//                    showAllTools.toggle()
+//                }
+//            }) {
+//                Text(showAllTools ? "Show Less" : "Show More")
+//                    .font(.subheadline)
+//                    .bold()
+//                    .foregroundStyle(.primary)
+//                    .frame(maxWidth: .infinity)
+//                    .frame(height: 52)
+//                    .background(Color.white)
+//                    .cornerRadius(12)
+//            }
+//            .buttonStyle(CardButtonStyle())
         }
     }
     

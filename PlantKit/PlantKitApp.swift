@@ -28,6 +28,7 @@ struct PlantKitApp: App {
     @StateObject var identifierManager = IdentifierManager()
     @StateObject var conversationManager = ConversationManager()
     @StateObject var proManager = ProManager.shared
+    @StateObject var locationManager = LocationManager()
 
     var body: some Scene {
         WindowGroup {
@@ -37,6 +38,7 @@ struct PlantKitApp: App {
                 .environmentObject(identifierManager)
                 .environmentObject(conversationManager)
                 .environmentObject(proManager)
+                .environmentObject(locationManager)
         }
     }
 }

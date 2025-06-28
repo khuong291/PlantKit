@@ -13,6 +13,7 @@ import Combine
 struct HomeScreen: View {
     @EnvironmentObject var cameraManager: CameraManager
     @EnvironmentObject var identifierManager: IdentifierManager
+    @EnvironmentObject var locationManager: LocationManager
     
     @State private var selectedImage: UIImage?
     @State private var showImagePicker = false
@@ -24,7 +25,6 @@ struct HomeScreen: View {
     @State private var showLightMeterCamera = false
     @State private var showWaterMeter = false
     
-    @StateObject private var locationManager = LocationManager()
     @StateObject private var healthCheckManager = HealthCheckManager()
     
     // Callback to open camera from MainTab
@@ -73,9 +73,6 @@ struct HomeScreen: View {
             }
             .scrollIndicators(.never)
         }
-        .onAppear {
-            locationManager.requestLocation()
-        }
         .fullScreenCover(isPresented: $showHealthCheckCamera) {
             HealthCheckCameraView(dismissAction: { showHealthCheckCamera = false })
                 .environmentObject(cameraManager)
@@ -113,11 +110,19 @@ struct HomeScreen: View {
                         .monospacedDigit()
                 }
                 .transition(.opacity)
-            } else {
+            } else if locationManager.isLoadingWeather {
                 HStack(spacing: 4) {
                     ProgressView()
                         .scaleEffect(0.6)
-                    Text("Fetching weather…")
+                    Text("Loading weather…")
+                        .foregroundColor(.gray)
+                        .font(.subheadline)
+                }
+            } else {
+                HStack(spacing: 4) {
+                    Image(systemName: "cloud")
+                        .foregroundColor(.gray)
+                    Text("Weather unavailable")
                         .foregroundColor(.gray)
                         .font(.subheadline)
                 }

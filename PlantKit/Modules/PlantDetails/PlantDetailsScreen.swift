@@ -11,6 +11,7 @@ import CoreData
 struct PlantDetailsScreen: View {
     let plantDetails: PlantDetails?
     let capturedImage: UIImage?
+    let isSamplePlant: Bool
     @State private var selectedTab = 0
     @State private var showDeleteAlert = false
     private let tabs = ["Overview", "Requirements", "Culture", "FAQ", "Articles"]
@@ -110,18 +111,21 @@ struct PlantDetailsScreen: View {
             }
             if plantDetails != nil {
                 VStack(spacing: 4) {
-                    Button {
-                        showDeleteAlert = true
-                    } label: {
-                        HStack {
-                            Image(systemName: "trash")
-                            Text("Delete Plant")
+                    // Only show delete button for non-sample plants
+                    if !isSamplePlant {
+                        Button {
+                            showDeleteAlert = true
+                        } label: {
+                            HStack {
+                                Image(systemName: "trash")
+                                Text("Delete Plant")
+                            }
+                            .foregroundColor(.red)
+                            .frame(maxWidth: .infinity)
+                            .padding()
                         }
-                        .foregroundColor(.red)
-                        .frame(maxWidth: .infinity)
-                        .padding()
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                     
                     ShinyBorderButton(systemName: "message.fill", title: "Ask Anything") {
                         Haptics.shared.play()
@@ -961,6 +965,7 @@ private let mockImage: UIImage? = {
 #Preview {
     PlantDetailsScreen(
         plantDetails: mockPlantDetails,
-        capturedImage: mockImage
+        capturedImage: mockImage,
+        isSamplePlant: false
     )
 }

@@ -100,6 +100,13 @@ struct MainTab: View {
                 default:
                     return false
                 }
+            }) && !homeRouter.stack.contains(where: { route in
+                switch route {
+                case .plantDetails, .samplePlantDetails:
+                    return true
+                default:
+                    return false
+                }
             }) {
                 VStack(spacing: 0) {
                     Spacer()

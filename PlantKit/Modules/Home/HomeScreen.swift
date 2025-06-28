@@ -14,6 +14,7 @@ struct HomeScreen: View {
     @EnvironmentObject var cameraManager: CameraManager
     @EnvironmentObject var identifierManager: IdentifierManager
     @EnvironmentObject var locationManager: LocationManager
+    @EnvironmentObject var homeRouter: Router<ContentRoute>
     
     @State private var selectedImage: UIImage?
     @State private var showImagePicker = false
@@ -155,7 +156,11 @@ struct HomeScreen: View {
                 HStack(spacing: 16) {
                     PopularPlantCard(
                         name: "Monstera Deliciosa",
-                        imageName: "monstera"
+                        imageName: "monstera",
+                        onTap: {
+                            Haptics.shared.play()
+                            homeRouter.navigate(to: .samplePlantDetails(SamplePlantData.monsteraDeliciosa, UIImage(named: "monstera")!))
+                        }
                     )
                     PopularPlantCard(
                         name: "Snake Plant",
@@ -318,35 +323,48 @@ struct HomeScreen: View {
 struct PopularPlantCard: View {
     let name: String
     let imageName: String
+    let onTap: (() -> Void)?
+    
+    init(name: String, imageName: String, onTap: (() -> Void)? = nil) {
+        self.name = name
+        self.imageName = imageName
+        self.onTap = onTap
+    }
     
     var body: some View {
-        VStack(alignment: .leading) {
-            ZStack(alignment: .bottomLeading) {
-                Image(imageName)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 200, height: 250)
-                    .clipped()
+        Button(action: {
+            Haptics.shared.play()
+            onTap?()
+        }) {
+            VStack(alignment: .leading) {
+                ZStack(alignment: .bottomLeading) {
+                    Image(imageName)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 200, height: 250)
+                        .clipped()
+                        .cornerRadius(16)
+                    
+                    LinearGradient(
+                        gradient: Gradient(colors: [.black.opacity(0.7), .clear]),
+                        startPoint: .bottom,
+                        endPoint: .top
+                    )
+                    .frame(height: 100)
                     .cornerRadius(16)
-                
-                LinearGradient(
-                    gradient: Gradient(colors: [.black.opacity(0.7), .clear]),
-                    startPoint: .bottom,
-                    endPoint: .top
-                )
-                .frame(height: 100)
-                .cornerRadius(16)
-                
-                Text(name)
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding(16)
+                    
+                    Text(name)
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(16)
+                }
             }
+            .frame(width: 200, height: 250)
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
         }
-        .frame(width: 200, height: 250)
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

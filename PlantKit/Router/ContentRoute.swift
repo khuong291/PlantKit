@@ -12,6 +12,7 @@ enum ContentRoute: Routable {
     case ask
     case conversation(String, PlantDetails?)
     case plantDetails(PlantDetails)
+    case samplePlantDetails(PlantDetails, UIImage)
 
     var body: some View {
         switch self {
@@ -24,7 +25,14 @@ enum ContentRoute: Routable {
         case .plantDetails(let details):
             PlantDetailsScreen(
                 plantDetails: details,
-                capturedImage: UIImage(data: details.plantImageData)
+                capturedImage: UIImage(data: details.plantImageData),
+                isSamplePlant: false
+            )
+        case .samplePlantDetails(let details, let image):
+            PlantDetailsScreen(
+                plantDetails: details,
+                capturedImage: image,
+                isSamplePlant: true
             )
         }
     }

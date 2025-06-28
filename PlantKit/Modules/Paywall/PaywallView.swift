@@ -157,7 +157,7 @@ struct PaywallView: View {
             VStack {
                 HStack {
                     Spacer()
-                    if showCloseButton {
+                    if showCloseButton || proManager.hasPro {
                         Button(action: {
                             dismiss()
                         }) {

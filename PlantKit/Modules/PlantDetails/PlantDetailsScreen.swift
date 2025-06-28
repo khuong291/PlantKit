@@ -26,6 +26,28 @@ struct PlantDetailsScreen: View {
             Color.appScreenBackgroundColor
                 .edgesIgnoringSafeArea(.all)
             content
+            
+            // Fixed close button on top
+            VStack {
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            .padding(12)
+                            .background(Color.black.opacity(0.3))
+                            .clipShape(Circle())
+                    }
+                }
+                .padding(.trailing, 8)
+                .padding(.top, 14) // Account for safe area
+                Spacer()
+            }
+            .padding(.horizontal)
         }
         .navigationBarBackButtonHidden(true)
         .alert("Delete Plant", isPresented: $showDeleteAlert) {
@@ -164,19 +186,6 @@ struct PlantDetailsScreen: View {
                 }
                 .frame(height: UIScreen.main.bounds.width - 100)
                 .clipped()
-            }
-            Button(action: {
-                dismiss()
-            }) {
-                Image(systemName: "xmark")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(12)
-                    .background(Color.black.opacity(0.3))
-                    .clipShape(Circle())
-                    .padding(.trailing)
-                    .padding(.top, 46)
             }
         }
         .frame(maxWidth: .infinity)

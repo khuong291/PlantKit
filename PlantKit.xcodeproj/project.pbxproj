@@ -17,9 +17,11 @@
 		1BAD976F2DEF439A00F7E04B /* PopupView in Frameworks */ = {isa = PBXBuildFile; productRef = 1BAD976E2DEF439A00F7E04B /* PopupView */; };
 		1BAD97722DEF43AD00F7E04B /* SwiftySound in Frameworks */ = {isa = PBXBuildFile; productRef = 1BAD97712DEF43AD00F7E04B /* SwiftySound */; };
 		1BAD97752DEF43EE00F7E04B /* ReuseAcross in Frameworks */ = {isa = PBXBuildFile; productRef = 1BAD97742DEF43EE00F7E04B /* ReuseAcross */; };
+		1BB737AE2E1275C200EA3F6B /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1BB737AD2E1275C200EA3F6B /* StoreKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1BB737AD2E1275C200EA3F6B /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		1BD2FC532DE96D5C0019C364 /* PlantKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlantKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -59,16 +61,26 @@
 				1BAD97722DEF43AD00F7E04B /* SwiftySound in Frameworks */,
 				1BAD976C2DEF438C00F7E04B /* Mixpanel in Frameworks */,
 				1BAD97692DEF437F00F7E04B /* Device in Frameworks */,
+				1BB737AE2E1275C200EA3F6B /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1BB737AC2E1275C200EA3F6B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1BB737AD2E1275C200EA3F6B /* StoreKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		1BD2FC4A2DE96D5C0019C364 = {
 			isa = PBXGroup;
 			children = (
 				1BD2FC552DE96D5C0019C364 /* PlantKit */,
+				1BB737AC2E1275C200EA3F6B /* Frameworks */,
 				1BD2FC542DE96D5C0019C364 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -308,14 +320,14 @@
 				CODE_SIGN_ENTITLEMENTS = PlantKit/PlantKit.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_ASSET_PATHS = "\"PlantKit/Preview Content\"";
 				DEVELOPMENT_TEAM = SKNJUSC35K;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PlantKit/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PlantKit;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We use the camera to identify plants by scanning them.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Location helps us provide better plant care recommendations based on your climate and growing conditions.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location helps us provide better plant care recommendations based on your climate and growing conditions.";
@@ -334,9 +346,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.plantkit.PlantKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -348,14 +364,14 @@
 				CODE_SIGN_ENTITLEMENTS = PlantKit/PlantKit.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_ASSET_PATHS = "\"PlantKit/Preview Content\"";
 				DEVELOPMENT_TEAM = SKNJUSC35K;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PlantKit/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PlantKit;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We use the camera to identify plants by scanning them.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Location helps us provide better plant care recommendations based on your climate and growing conditions.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location helps us provide better plant care recommendations based on your climate and growing conditions.";
@@ -374,9 +390,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.plantkit.PlantKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

@@ -6,11 +6,11 @@ struct OnboardingChatStepView: View {
             VStack(spacing: 0) {
                 VStack(alignment: .center, spacing: 8) {
                     Text("Answer all your questions")
-                        .font(.largeTitle).bold()
+                        .font(.system(size: 34)).bold()
                         .padding(.top, 20)
                         .multilineTextAlignment(.center)
                     Text("Chat with your trained AI expert")
-                        .font(.body)
+                        .font(.system(size: 17))
                         .foregroundColor(.secondary)
                 }
                 .padding(.bottom, 24)

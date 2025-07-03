@@ -18,7 +18,7 @@ struct HumidityStepView: View {
                 .foregroundColor(.accentColor)
             
             Text("Indicate humidity level around the plant")
-                .font(.title2).bold()
+                .font(.system(size: 22)).bold()
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
                 .lineLimit(nil)
@@ -31,7 +31,7 @@ struct HumidityStepView: View {
                         .disabled(viewModel.humidityDontKnow)
                     
                     Text("\(Int(viewModel.humidity))%")
-                        .font(.headline)
+                        .font(.system(size: 17))
                         .foregroundColor(.secondary)
                         .frame(width: 50)
                 }
@@ -45,13 +45,13 @@ struct HumidityStepView: View {
                     }
                 }) {
                     Text("I don't know")
-                        .font(.headline)
+                        .font(.system(size: 17))
                         .foregroundColor(.gray)
                 }
             }
         }
         .padding()
-        .onChange(of: viewModel.humidity) {
+        .onChange(of: viewModel.humidity) { newValue in
             if viewModel.humidityDontKnow {
                 viewModel.humidityDontKnow = false
             }

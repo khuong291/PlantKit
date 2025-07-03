@@ -17,11 +17,11 @@ struct OnboardingLocationPermissionStepView: View {
             VStack(spacing: 0) {
                 VStack(alignment: .center, spacing: 8) {
                     Text("Help us personalize your experience")
-                        .font(.largeTitle).bold()
+                        .font(.system(size: 34)).bold()
                         .padding(.top, 20)
                         .multilineTextAlignment(.center)
                     Text("Location helps us provide better plant care recommendations based on your climate and growing conditions.")
-                        .font(.body)
+                        .font(.system(size: 17))
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                 }
@@ -79,17 +79,17 @@ struct OnboardingLocationPermissionStepView: View {
     private func locationBenefitRow(icon: String, title: String, description: String) -> some View {
         HStack(spacing: 16) {
             Image(systemName: icon)
-                .font(.title2)
+                .font(.system(size: 22))
                 .foregroundColor(.green)
                 .frame(width: 30)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.headline)
+                    .font(.system(size: 17))
                     .foregroundColor(.primary)
                 
                 Text(description)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
             }
             

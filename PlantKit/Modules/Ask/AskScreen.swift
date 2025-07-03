@@ -47,7 +47,7 @@ struct AskScreen: View {
                 // Inbox Section
                 VStack(alignment: .leading, spacing: 0) {
                     Text("My Inbox")
-                        .font(.title2).bold()
+                        .font(.system(size: 22)).bold()
                         .padding(.bottom)
                     Divider()
                     if conversationManager.conversations.isEmpty {
@@ -82,13 +82,13 @@ struct AskScreen: View {
                         
                         VStack(alignment: .leading, spacing: 4) {
                             Text(conversation.title)
-                                .font(.headline)
+                                .font(.system(size: 17).weight(.semibold))
                                 .foregroundColor(.primary)
                                 .lineLimit(1)
 
                             if let lastMessage = conversation.messages.last {
                                 Text(lastMessage.content)
-                                    .font(.subheadline)
+                                    .font(.system(size: 15))
                                     .foregroundColor(.secondary)
                                     .lineLimit(1)
                             }
@@ -97,7 +97,7 @@ struct AskScreen: View {
                         Spacer()
 
                         Text(formatRelativeDate(conversation.lastMessageDate))
-                            .font(.caption)
+                            .font(.system(size: 12))
                             .foregroundColor(.secondary)
                     }
                     .padding()
@@ -160,9 +160,9 @@ struct BeautifulHeader: View {
                 .cornerRadius(16)
             VStack(spacing: 4) {
                 Text("Ask Botanist")
-                    .font(.largeTitle).bold()
+                    .font(.system(size: 34)).bold()
                 Text("Get expert plant advice instantly, powered by AI, trusted by botanists.")
-                    .font(.body)
+                    .font(.system(size: 17))
                     .multilineTextAlignment(.center)
                     .foregroundColor(.secondary)
                     .padding(.horizontal)
@@ -177,7 +177,7 @@ struct BeautifulHeader: View {
                 }
             }) {
                 Text("Ask New Question")
-                    .font(.headline)
+                    .font(.system(size: 17).weight(.semibold))
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.green)
@@ -203,9 +203,9 @@ struct EmptyInboxView: View {
                 .frame(width: 40, height: 40)
                 .foregroundColor(.secondary.opacity(0.3))
             Text("No Chats")
-                .font(.title3).bold()
+                .font(.system(size: 20)).bold()
             Text("As you talk with AI, your conversations will appear here.")
-                .font(.body)
+                .font(.system(size: 17))
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
             Spacer()

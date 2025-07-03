@@ -68,12 +68,12 @@ struct SettingsScreen: View {
                 
                 VStack(spacing: 4) {
                     Text("PlantKit")
-                        .font(.title2)
+                        .font(.system(size: 22))
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
                     
                     Text(proManager.hasPro ? "Pro Plan" : "Free Plan")
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundColor(proManager.hasPro ? .green : .secondary)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 4)
@@ -205,17 +205,17 @@ struct SettingsScreen: View {
         }) {
             HStack(spacing: 16) {
                 Image(systemName: icon)
-                    .font(.title2)
+                    .font(.system(size: 22))
                     .foregroundColor(iconColor)
                     .frame(width: 24)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.headline)
+                        .font(.system(size: 17))
                         .foregroundColor(.primary)
                     
                     Text(subtitle)
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundColor(.secondary)
                 }
                 
@@ -223,7 +223,7 @@ struct SettingsScreen: View {
                 
                 if showChevron {
                     Image(systemName: "chevron.right")
-                        .font(.caption)
+                        .font(.system(size: 12))
                         .foregroundColor(.secondary)
                 }
             }

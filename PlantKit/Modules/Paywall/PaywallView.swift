@@ -70,7 +70,7 @@ struct PaywallView: View {
                                     Image(systemName: "checkmark.shield.fill")
                                         .foregroundColor(.green)
                                     Text("No payment now")
-                                        .font(.footnote)
+                                        .font(.system(size: 13))
                                         .foregroundColor(.white.opacity(0.9))
                                 }
                                 .padding(.top, 10)
@@ -79,7 +79,7 @@ struct PaywallView: View {
                                     Image(systemName: "checkmark.shield.fill")
                                         .foregroundColor(.green)
                                     Text("Cancel anytime. Secured with the App Store.")
-                                        .font(.footnote)
+                                        .font(.system(size: 13))
                                         .foregroundColor(.white.opacity(0.9))
                                 }
                                 .padding(.top, 10)
@@ -117,12 +117,12 @@ struct PaywallView: View {
                 selectedPackage = proManager.weeklyPackage
                 startCloseButtonTimer()
             }
-            .onChange(of: proManager.hasPro) { oldValue, newValue in
+            .onChange(of: proManager.hasPro) { newValue in
                 if newValue {
                     showsAlert = true
                 }
             }
-            .onChange(of: proManager.weeklyPackage) { oldValue, newValue in
+            .onChange(of: proManager.weeklyPackage) { newValue in
                 if let newValue {
                     selectedPackage = newValue
                 }
@@ -209,7 +209,7 @@ struct PaywallView: View {
             }
             
             Text("Identify Plants in Seconds")
-                .font(.title2).bold()
+                .font(.system(size: 22)).bold()
                 .multilineTextAlignment(.center)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
@@ -222,11 +222,10 @@ struct PaywallView: View {
                 ForEach(features) { feature in
                     HStack(spacing: 16) {
                         Image(systemName: feature.icon)
-                            .font(.title2)
+                            .font(.system(size: 30))
                             .foregroundColor(.green)
-                            .frame(width: 30)
                         Text(feature.rawValue)
-                            .font(.headline)
+                            .font(.system(size: 17))
                             .foregroundStyle(Color.white.opacity(0.9))
                     }
                 }
@@ -250,7 +249,7 @@ struct PaywallView: View {
     private var freeTrialToggleView: some View {
         HStack {
             Text("Free Trial Enabled")
-                .font(.headline)
+                .font(.system(size: 17)).bold()
             Spacer()
             Toggle("", isOn: $isTrialEnabled)
                 .labelsHidden()
@@ -289,14 +288,14 @@ struct PaywallView: View {
         HStack {
             VStack(alignment: .leading) {
                 Text(title)
-                    .font(.headline).bold()
+                    .font(.system(size: 17)).bold()
                 if let subtext = subtext {
                     Text(subtext)
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundColor(.white.opacity(0.8))
                 } else {
                     Text(price)
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .strikethrough(true, color: .white.opacity(0.5))
                 }
             }
@@ -305,7 +304,7 @@ struct PaywallView: View {
             
             if let badge = badge {
                 Text(badge.text)
-                    .font(.caption).bold()
+                    .font(.system(size: 12)).bold()
                     .foregroundColor(.white)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
@@ -314,7 +313,7 @@ struct PaywallView: View {
             }
             
             Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                .font(.title2)
+                .font(.system(size: 22))
                 .foregroundColor(isSelected ? .green : .gray)
         }
         .padding()
@@ -369,15 +368,15 @@ struct PaywallView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Yearly Plan")
-                            .font(.headline.bold())
+                            .font(.system(size: 17)).bold()
                         
                         HStack(spacing: 8) {
                             Text("$260.19")
-                                .font(.subheadline)
+                                .font(.system(size: 15))
                                 .foregroundColor(.white.opacity(0.6))
                                 .strikethrough()
                             Text("\(proManager.yearlyPriceString) per year")
-                                .font(.subheadline)
+                                .font(.system(size: 15))
                                 .foregroundColor(.white.opacity(0.9))
                         }
                     }
@@ -385,7 +384,7 @@ struct PaywallView: View {
                     Spacer()
                     
                     Text("SAVE 90%")
-                        .font(.caption).bold()
+                        .font(.system(size: 12)).bold()
                         .foregroundColor(.white)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
@@ -393,7 +392,7 @@ struct PaywallView: View {
                         .cornerRadius(12)
                     
                     Image(systemName: selectedPackage == proManager.yearlyPackage ? "circle.inset.filled" : "circle")
-                        .font(.title2)
+                        .font(.system(size: 22))
                         .foregroundColor(selectedPackage == proManager.yearlyPackage ? .green : .gray)
                 }
                 .padding()
@@ -414,7 +413,7 @@ struct PaywallView: View {
             proManager.restorePurchase()
         } label: {
             Text("Restore purchases")
-                .font(.footnote)
+                .font(.system(size: 13))
                 .foregroundColor(.white.opacity(0.7))
                 .underline()
         }
@@ -427,7 +426,7 @@ struct PaywallView: View {
             openPrivacyPolicy()
         } label: {
             Text("Privacy Policy")
-                .font(.footnote)
+                .font(.system(size: 13))
                 .foregroundColor(.white.opacity(0.7))
                 .underline()
         }
@@ -440,7 +439,7 @@ struct PaywallView: View {
             openTermsOfService()
         } label: {
             Text("Terms of Use")
-                .font(.footnote)
+                .font(.system(size: 13))
                 .foregroundColor(.white.opacity(0.7))
                 .underline()
         }

@@ -22,11 +22,11 @@ struct ResultStepView: View {
             .monospacedDigit()
             
             Text("Your plant needs")
-                .font(.title2).bold()
+                .font(.system(size: 22)).bold()
                 .offset(y: -10)
             
             Text("P.S. Plant requirements depend on pt, soil, light, season, and location")
-                .font(.caption)
+                .font(.system(size: 12))
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)

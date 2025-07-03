@@ -65,7 +65,7 @@ struct WaterMeterView: View {
                     isPresented = false
                 }) {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.title2)
+                        .font(.system(size: 22))
                         .foregroundColor(.gray.opacity(0.4))
                 }
             }
@@ -117,7 +117,7 @@ struct WaterMeterView: View {
                     handleSwipe(forward: true)
                 }) {
                     Text("Continue")
-                        .font(.headline)
+                        .font(.system(size: 17))
                         .foregroundColor(.white)
                         .padding()
                         .frame(maxWidth: .infinity)
@@ -134,7 +134,7 @@ struct WaterMeterView: View {
                     isPresented = false
                 }) {
                     Text("OK")
-                        .font(.headline)
+                        .font(.system(size: 17))
                         .foregroundColor(.white)
                         .padding()
                         .frame(maxWidth: .infinity)
@@ -147,6 +147,7 @@ struct WaterMeterView: View {
                 .padding(.bottom)
             }
         }
+        .padding(.vertical)
         .background(Color.white)
     }
 }
@@ -241,7 +242,7 @@ struct LocationStepView: View {
                 .foregroundColor(.accentColor)
             
             Text("Choose where your plant is located")
-                .font(.title2).bold()
+                .font(.system(size: 22)).bold()
                 .padding(.horizontal)
                 .multilineTextAlignment(.center)
                 .lineLimit(nil)
@@ -280,13 +281,13 @@ struct LocationCard: View {
         Button(action: action) {
             HStack {
                 Image(systemName: systemImageName)
-                    .font(.title)
+                    .font(.system(size: 40))
                     .foregroundColor(.accentColor)
                     .frame(width: 40, height: 40)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title).font(.headline)
-                    Text(subtitle).font(.subheadline).foregroundColor(.secondary)
+                    Text(title).font(.system(size: 17))
+                    Text(subtitle).font(.system(size: 15)).foregroundColor(.secondary)
                 }
                 .foregroundColor(.primary)
 
@@ -295,7 +296,7 @@ struct LocationCard: View {
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.accentColor)
-                        .font(.title2)
+                        .font(.system(size: 22))
                 }
             }
             .padding()

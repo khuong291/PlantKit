@@ -6,11 +6,11 @@ struct OnboardingPlantDetailsStepView: View {
             VStack(spacing: 0) {
                 VStack(alignment: .center, spacing: 8) {
                     Text("Identify your Plant")
-                        .font(.largeTitle).bold()
+                        .font(.system(size: 34)).bold()
                         .padding(.top, 20)
                         .multilineTextAlignment(.center)
                     Text("Get all the details you need in seconds")
-                        .font(.body)
+                        .font(.system(size: 17))
                         .foregroundColor(.secondary)
                 }
                 .padding(.bottom, 24)

@@ -62,7 +62,7 @@ struct LightMeterCameraView: View {
                     .tint(.white)
                 Text("Preparing camera...")
                     .foregroundColor(.white)
-                    .font(.headline)
+                    .font(.system(size: 17))
             }
             
         case .configured:
@@ -96,7 +96,7 @@ struct LightMeterCameraView: View {
                         .foregroundColor(.white)
                     Text("Camera not available")
                         .foregroundColor(.white)
-                        .font(.headline)
+                        .font(.system(size: 17))
                 }
             }
             
@@ -108,10 +108,10 @@ struct LightMeterCameraView: View {
                     .foregroundColor(.orange)
                 Text("Camera Error")
                     .foregroundColor(.white)
-                    .font(.headline)
+                    .font(.system(size: 17))
                 Text(error)
                     .foregroundColor(.white.opacity(0.8))
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                 
@@ -159,14 +159,14 @@ struct LightMeterCameraView: View {
                 
                 HStack(spacing: 12) {
                     Image(systemName: "sun.max.fill")
-                        .font(.title)
+                        .font(.system(size: 28))
                         .foregroundColor(.yellow)
                     
                     VStack(alignment: .leading) {
                         Text(lightMeterManager.lightLevel.rawValue)
                             .bold()
                         Text("Current Level")
-                            .font(.subheadline)
+                            .font(.system(size: 12))
                             .foregroundColor(.secondary)
                     }
                     
@@ -178,7 +178,7 @@ struct LightMeterCameraView: View {
             .cornerRadius(16)
             
             Text("Light: Use the light meter from 10 AM to 7 PM for the most accurate results.")
-                .font(.caption)
+                .font(.system(size: 15))
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)

@@ -23,7 +23,7 @@ struct OnboardingWelcomeStepView: View {
                     .multilineTextAlignment(.center)
                 
                 Text("Identify Plants. Get Care Tips. Grow Together.")
-                    .font(.title)
+                    .font(.system(size: 28))
                     .foregroundStyle(.white.opacity(0.8))
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 300)

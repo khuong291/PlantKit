@@ -18,7 +18,7 @@ struct ShinyBorderButton: View {
                 Image(systemName: systemName)
                 Text(title)
             }
-            .font(.title3)
+            .font(.system(size: 20))
             .fontWeight(.semibold)
             .foregroundColor(.white)
 

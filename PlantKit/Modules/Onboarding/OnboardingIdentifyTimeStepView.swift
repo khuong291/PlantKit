@@ -9,10 +9,10 @@ struct OnboardingIdentifyTimeStepView: View {
                 // Question
                 VStack(alignment: .leading, spacing: 8) {
                     Text("How long does it take you to identify a plant?")
-                        .font(.largeTitle).bold()
+                        .font(.system(size: 34)).bold()
                         .padding(.top, 20)
                     Text("We aim to get you results in seconds with just a photo")
-                        .font(.body)
+                        .font(.system(size: 17))
                         .foregroundColor(.secondary)
                 }
                 .padding(.bottom, 24)
@@ -84,15 +84,15 @@ struct IdentifyTimeOptionView: View {
     var body: some View {
         HStack(spacing: 16) {
             Image(systemName: option.icon)
-                .font(.title2)
+                .font(.system(size: 22))
                 .foregroundColor(isSelected ? .green : .primary)
                 .frame(width: 32, height: 32)
             VStack(alignment: .leading, spacing: 2) {
                 Text(option.title)
-                    .font(.headline)
+                    .font(.system(size: 17))
                     .foregroundColor(.primary)
                 Text(option.subtitle)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
             }
             Spacer()

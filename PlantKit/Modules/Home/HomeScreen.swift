@@ -87,7 +87,7 @@ struct HomeScreen: View {
         }
         .sheet(isPresented: $showWaterMeter) {
             WaterMeterView(isPresented: $showWaterMeter)
-                .adjustSheetHeightToContent()
+                .safeAreaSheet()
         }
     }
     
@@ -95,10 +95,10 @@ struct HomeScreen: View {
         HStack {
             if let city = locationManager.city {
                 Label(city, systemImage: "location.fill")
-                    .font(.headline)
+                    .font(.system(size: 17))
             } else {
                 Label("Locating...", systemImage: "location.fill")
-                    .font(.headline)
+                    .font(.system(size: 17))
                     .foregroundColor(.gray)
             }
             
@@ -110,7 +110,7 @@ struct HomeScreen: View {
                     Image(systemName: locationManager.weatherIcon)
                         .foregroundColor(.orange)
                     Text("\(Int(temp))°C")
-                        .font(.headline)
+                        .font(.system(size: 17))
                         .monospacedDigit()
                 }
                 .transition(.opacity)
@@ -120,7 +120,7 @@ struct HomeScreen: View {
                         .scaleEffect(0.6)
                     Text("Loading weather…")
                         .foregroundColor(.gray)
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                 }
             } else {
                 HStack(spacing: 4) {
@@ -128,7 +128,7 @@ struct HomeScreen: View {
                         .foregroundColor(.gray)
                     Text("Weather unavailable")
                         .foregroundColor(.gray)
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                 }
             }
         }
@@ -142,7 +142,7 @@ struct HomeScreen: View {
             HStack(spacing: 12) {
                 ZStack(alignment: .topTrailing) {
                     Image(systemName: "envelope.fill")
-                        .font(.title2)
+                        .font(.system(size: 22))
                         .foregroundColor(.blue)
                     
                     // Unread indicator
@@ -152,14 +152,14 @@ struct HomeScreen: View {
                 }
                 
                 Text("Your free trial has not yet been claimed. Tap to claim.")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.primary)
                     .multilineTextAlignment(.leading)
                 
                 Spacer()
                 
                 Image(systemName: "chevron.right")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.gray)
             }
             .padding()
@@ -173,7 +173,7 @@ struct HomeScreen: View {
     private var popularIndoorPlantsView: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Popular Indoor Plants")
-                .font(.title3)
+                .font(.system(size: 20))
                 .bold()
             
             ScrollView(.horizontal, showsIndicators: false) {
@@ -227,7 +227,7 @@ struct HomeScreen: View {
     private var popularOutdoorPlantsView: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Popular Outdoor Plants")
-                .font(.title3)
+                .font(.system(size: 20))
                 .bold()
             
             ScrollView(.horizontal, showsIndicators: false) {
@@ -281,7 +281,7 @@ struct HomeScreen: View {
     private var plantToolsView: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Plant Tools")
-                .font(.title3)
+                .font(.system(size: 22))
                 .bold()
             
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: itemsPerRow), spacing: verticalSpacing) {
@@ -376,7 +376,7 @@ struct HomeScreen: View {
                 
                 if let name = plantName {
                     Text("🌿 This is likely: **\(name)**")
-                        .font(.title2)
+                        .font(.system(size: 20))
                 }
                 
                 Spacer()
@@ -422,7 +422,7 @@ struct PopularPlantCard: View {
                     .cornerRadius(16)
                     
                     Text(name)
-                        .font(.headline)
+                        .font(.system(size: 17))
                         .foregroundColor(.white)
                         .padding(16)
                 }

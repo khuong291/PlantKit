@@ -46,7 +46,7 @@ struct ConversationScreen: View {
                         scrollProxy = proxy
                         scrollToBottom()
                     }
-                    .onChange(of: conversation?.messages.count) { _, _ in
+                    .onChange(of: conversation?.messages.count) { _ in
                         scrollToBottom()
                     }
                 }
@@ -54,6 +54,7 @@ struct ConversationScreen: View {
                 // Message input bar
                 HStack(spacing: 12) {
                     TextField("Ask about your plants...", text: $messageText)
+                        .font(.system(size: 17))
                         .padding(12)
                         .background(Color.white)
                         .cornerRadius(20)
@@ -97,9 +98,10 @@ struct ConversationScreen: View {
     private var emptyView: some View {
         VStack(spacing: 10) {
             Image(systemSymbol: .bubbleLeftAndBubbleRightFill)
-                .font(.title)
+                .font(.system(size: 28))
                 .foregroundStyle(.green)
             Text("No messages yet. Ask anything about your plants!")
+                .font(.system(size: 17))
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
@@ -202,7 +204,7 @@ struct ChatBubble: View {
                         .cornerRadius(16)
                     
                     Text(timestamp, style: .time)
-                        .font(.caption2)
+                        .font(.system(size: 11))
                         .foregroundColor(.gray)
                 }
                 Spacer()
@@ -225,7 +227,7 @@ struct ChatBubble: View {
                         .cornerRadius(16)
                     
                     Text(timestamp, style: .time)
-                        .font(.caption2)
+                        .font(.system(size: 11))
                         .foregroundColor(.gray)
                 }
             }

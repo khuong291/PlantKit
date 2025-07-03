@@ -92,7 +92,7 @@ struct PlantIdentifyingView: View {
                             }
                             
                             Text(steps[index])
-                                .font(.title3)
+                                .font(.system(size: 20))
                                 .fontWeight(.semibold)
                                 .foregroundColor(index <= currentStep ? .white : .gray.opacity(0.5))
                         }
@@ -238,13 +238,17 @@ struct PlantIdentifyingView: View {
     private func animateScanning() {
         guard isAnimating, !hasError else { return }
         
-        withAnimation(.linear(duration: 1.5)) {
+        let animationDuration = 1.5
+
+        withAnimation(.linear(duration: animationDuration)) {
             if isReversing {
                 scanProgress = 0
             } else {
-                scanProgress = UIScreen.main.bounds.width * 0.9 - 6 // Total height minus line height
+                scanProgress = UIScreen.main.bounds.width * 0.9 - 6
             }
-        } completion: {
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
             if isAnimating {
                 isReversing.toggle()
                 animateScanning()

@@ -27,7 +27,7 @@ struct MyPlantsScreen: View {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
                         Text("My Plants")
-                            .font(.largeTitle)
+                            .font(.system(size: 34))
                             .bold()
                         Spacer()
                     }
@@ -62,9 +62,10 @@ struct MyPlantsScreen: View {
     private var emptyView: some View {
         VStack(spacing: 10) {
             Image(systemSymbol: .leafFill)
-                .font(.title)
+                .font(.system(size: 28))
                 .foregroundStyle(.green)
             Text("No plants yet. Scan a plant to add it here!")
+                .font(.system(size: 17))
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
         }
@@ -172,12 +173,12 @@ struct MyPlantsScreen: View {
                         }
                         VStack(alignment: .leading, spacing: 6) {
                             Text(details.commonName)
-                                .font(.headline)
+                                .font(.system(size: 17).weight(.semibold))
                             Text(details.scientificName)
-                                .font(.subheadline)
+                                .font(.system(size: 15))
                                 .foregroundColor(.secondary)
                             Text(details.createdAt, style: .date)
-                                .font(.caption)
+                                .font(.system(size: 12))
                                 .foregroundColor(.gray)
                         }
                         Spacer()

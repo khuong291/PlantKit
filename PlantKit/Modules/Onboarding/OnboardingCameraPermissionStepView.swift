@@ -11,11 +11,11 @@ struct OnboardingCameraPermissionStepView: View {
             VStack(spacing: 0) {
                 VStack(alignment: .center, spacing: 8) {
                     Text("Just take a photo")
-                        .font(.largeTitle).bold()
+                        .font(.system(size: 34)).bold()
                         .padding(.top, 20)
                         .multilineTextAlignment(.center)
                     Text("Or upload one from your gallery")
-                        .font(.body)
+                        .font(.system(size: 17))
                         .foregroundColor(.secondary)
                 }
                 .padding(.bottom, 24)

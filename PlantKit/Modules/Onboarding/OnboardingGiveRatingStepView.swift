@@ -17,7 +17,7 @@ struct OnboardingGiveRatingStepView: View {
                 HStack {
                     Spacer()
                     Text("Rate PlantKit")
-                        .font(.largeTitle).bold()
+                        .font(.system(size: 34)).bold()
                         .padding(.top, 20)
                         .multilineTextAlignment(.center)
                     Spacer()
@@ -25,7 +25,7 @@ struct OnboardingGiveRatingStepView: View {
                 HStack {
                     ForEach(0 ..< 5) { _ in
                         Text("⭐")
-                            .font(.largeTitle)
+                            .font(.system(size: 34))
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -35,7 +35,7 @@ struct OnboardingGiveRatingStepView: View {
                     Spacer()
                     VStack(spacing: 30) {
                         Text("PlantKit was made for plant lovers like you")
-                            .font(.title.bold())
+                            .font(.system(size: 28).bold())
                             .lineLimit(2)
                             .multilineTextAlignment(.center)
                         VStack {
@@ -73,7 +73,7 @@ struct OnboardingGiveRatingStepView: View {
                                     .offset(x: -40)
                             }
                             .offset(x: 30)
-                            Text("+50k PlantKit users").font(.footnote).fontWeight(.medium)
+                            Text("+50k PlantKit users").font(.system(size: 13)).fontWeight(.medium)
                         }
                     }
                     Spacer()
@@ -119,15 +119,15 @@ extension OnboardingGiveRatingStepView {
                             Circle()
                                 .stroke(Color.white, lineWidth: 2)
                         )
-                    Text(name).font(.body.bold())
-                    Text("⭐⭐⭐⭐⭐").font(.body)
+                    Text(name).font(.system(size: 17).bold())
+                    Text("⭐⭐⭐⭐⭐").font(.system(size: 17))
                         .lineLimit(1)
                         .fixedSize(horizontal: true, vertical: false)
                     Spacer()
                 }
                 
                 HStack {
-                    Text(review).font(.body)
+                    Text(review).font(.system(size: 17))
                         .opacity(0.8)
                         .multilineTextAlignment(.leading)
                     Spacer()

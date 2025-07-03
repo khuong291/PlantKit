@@ -26,7 +26,7 @@ struct PlantToolCardView: View {
                 .foregroundColor(.green)
 
             Text(title)
-                .font(.subheadline)
+                .font(.system(size: 15))
                 .bold()
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.primary)

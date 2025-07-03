@@ -35,7 +35,7 @@ struct PlantDetailsScreen: View {
                         dismiss()
                     }) {
                         Image(systemName: "xmark")
-                            .font(.subheadline)
+                            .font(.system(size: 15))
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
                             .padding(12)
@@ -87,11 +87,11 @@ struct PlantDetailsScreen: View {
                     VStack(alignment: .leading, spacing: 0) {
                         // Title & Subtitle
                         Text(details.commonName)
-                            .font(.system(size: 32, weight: .bold))
+                            .font(.system(size: 28))
                             .padding(.top, 14)
                             .padding(.horizontal)
                         Text(details.scientificName)
-                            .font(.subheadline)
+                            .font(.system(size: 17))
                             .foregroundColor(.secondary)
                             .padding(.horizontal)
                             .padding(.bottom, 20)
@@ -124,7 +124,7 @@ struct PlantDetailsScreen: View {
                     VStack {
                         Text("No plant details available")
                             .foregroundColor(.red)
-                            .font(.title)
+                            .font(.system(size: 28))
                         Text("plantDetails is nil: \(plantDetails == nil)")
                         Text("capturedImage is nil: \(capturedImage == nil)")
                     }
@@ -195,12 +195,12 @@ struct PlantDetailsScreen: View {
     private func descriptionSection(details: PlantDetails) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Description")
-                .font(.headline)
+                .font(.system(size: 15))
                 .foregroundColor(.primary)
                 .padding(.horizontal)
             HStack(spacing: 0) {
                 Text(details.plantDescription)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.primary)
                 Spacer()
             }
@@ -219,7 +219,7 @@ struct PlantDetailsScreen: View {
         if let toxicity = details.toxicity, !toxicity.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Toxicity")
-                    .font(.headline)
+                    .font(.system(size: 15))
                     .foregroundColor(.primary)
                     .padding(.horizontal)
                 
@@ -229,12 +229,12 @@ struct PlantDetailsScreen: View {
                             .foregroundColor(.orange)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Safety Information")
-                                .font(.headline)
+                                .font(.system(size: 15))
                         }
                     }
                     HStack(spacing: 0) {
                         Text(toxicity)
-                            .font(.subheadline)
+                            .font(.system(size: 15))
                         Spacer()
                     }
                 }
@@ -253,7 +253,7 @@ struct PlantDetailsScreen: View {
     private func careGuideSection(details: PlantDetails) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Care Guide")
-                .font(.headline)
+                .font(.system(size: 15))
                 .foregroundColor(.primary)
                 .padding(.horizontal)
             
@@ -265,12 +265,12 @@ struct PlantDetailsScreen: View {
                             .foregroundColor(.blue)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Watering")
-                                .font(.headline)
+                                .font(.system(size: 15))
                         }
                     }
                     HStack(spacing: 0) {
                         Text(watering)
-                            .font(.subheadline)
+                            .font(.system(size: 15))
                         Spacer()
                     }
                 }
@@ -289,12 +289,12 @@ struct PlantDetailsScreen: View {
                             .foregroundColor(.green)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Fertilizing")
-                                .font(.headline)
+                                .font(.system(size: 15))
                         }
                     }
                     HStack(spacing: 0) {
                         Text(fertilizing)
-                            .font(.subheadline)
+                            .font(.system(size: 15))
                         Spacer()
                     }
                 }
@@ -313,12 +313,12 @@ struct PlantDetailsScreen: View {
                             .foregroundColor(.purple)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Pruning")
-                                .font(.headline)
+                                .font(.system(size: 15))
                         }
                     }
                     HStack(spacing: 0) {
                         Text(pruning)
-                            .font(.subheadline)
+                            .font(.system(size: 15))
                         Spacer()
                     }
                 }
@@ -337,12 +337,12 @@ struct PlantDetailsScreen: View {
                             .foregroundColor(.brown)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Repotting")
-                                .font(.headline)
+                                .font(.system(size: 15))
                         }
                     }
                     HStack(spacing: 0) {
                         Text(repotting)
-                            .font(.subheadline)
+                            .font(.system(size: 15))
                         Spacer()
                     }
                 }
@@ -359,33 +359,33 @@ struct PlantDetailsScreen: View {
     private func generalSection(details: PlantDetails) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("General")
-                .font(.headline)
+                .font(.system(size: 15))
                 .foregroundColor(.primary)
                 .padding(.horizontal)
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .top, spacing: 6) {
                     Image(systemName: "globe")
-                        .font(.title2)
+                        .font(.system(size: 17))
                         .foregroundColor(.blue)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Habitat")
-                            .font(.headline)
+                            .font(.system(size: 15))
                     }
                 }
                 .padding(.bottom, 14)
                 Divider()
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Natural Habitats")
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundColor(.secondary)
                     Text(details.general.habitat)
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                 }
                 .padding(.vertical, 14)
                 Divider()
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Countries of Origin")
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundColor(.secondary)
                     HStack(spacing: 8) {
                         ForEach(details.general.originCountries, id: \.self) { country in
@@ -397,10 +397,10 @@ struct PlantDetailsScreen: View {
                 Divider()
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Environmental Benefits")
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundColor(.secondary)
                     Text(details.general.environmentalBenefits.joined(separator: ", "))
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                 }
                 .padding(.top, 14)
             }
@@ -416,7 +416,7 @@ struct PlantDetailsScreen: View {
     private func characteristicsSection(details: PlantDetails) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Characteristics")
-                .font(.headline)
+                .font(.system(size: 15))
                 .foregroundColor(.primary)
                 .padding(.horizontal)
             physicalCard(details: details)
@@ -429,40 +429,40 @@ struct PlantDetailsScreen: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center, spacing: 6) {
                 Image(systemName: "atom")
-                    .font(.title2)
+                    .font(.system(size: 17))
                     .foregroundColor(.purple)
                 Text("Physical")
-                    .font(.headline)
+                    .font(.system(size: 15))
             }
             .padding(.bottom, 14)
             Divider()
             HStack {
                 Text("Height")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
                 Spacer()
                 Text(details.physical.height)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
             }
             .padding(.vertical, 14)
             Divider()
             HStack {
                 Text("Crown Diameter")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
                 Spacer()
                 Text(details.physical.crownDiameter)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
             }
             .padding(.vertical, 14)
             Divider()
             HStack {
                 Text("Form")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
                 Spacer()
                 Text(details.physical.form)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
             }
             .padding(.top, 14)
         }
@@ -477,31 +477,31 @@ struct PlantDetailsScreen: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center, spacing: 6) {
                 Image(systemName: "leaf")
-                    .font(.title2)
+                    .font(.system(size: 17))
                     .foregroundColor(.green)
                 Text("Development")
-                    .font(.headline)
+                    .font(.system(size: 15))
             }
             .padding(.bottom, 14)
             Divider()
             HStack {
                 Text("Mature Height Time")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
                 Spacer()
                 Text(details.development.matureHeightTime)
-                .font(.subheadline)
+                .font(.system(size: 15))
             }
             .padding(.vertical, 14)
             Divider()
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text("Growth Speed")
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundColor(.secondary)
                     Spacer()
                     Text("\(details.development.growthSpeed)")
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                 }
                 GrowthBar(value: details.development.growthSpeed, max: 10)
             }
@@ -509,20 +509,20 @@ struct PlantDetailsScreen: View {
             Divider()
             VStack(alignment: .leading, spacing: 6) {
                 Text("Propagation Methods")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
                 Text(details.development.propagationMethods.joined(separator: ", "))
-                    .font(.subheadline)
+                    .font(.system(size: 15))
             }
             .padding(.vertical, 14)
             Divider()
             HStack {
                 Text("Cycle")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
                 Spacer()
                 Text(details.development.cycle)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
             }
             .padding(.top, 14)
         }
@@ -538,7 +538,7 @@ struct PlantDetailsScreen: View {
         return AnyView(
             VStack(alignment: .leading, spacing: 16) {
                 Text("CONDITIONS")
-                    .font(.headline)
+                    .font(.system(size: 15))
                     .foregroundColor(.primary)
                     .padding(.horizontal)
                 if let climatic = conditions.climatic {
@@ -559,24 +559,24 @@ struct PlantDetailsScreen: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
                 Image(systemName: "thermometer.sun")
-                    .font(.title2)
+                    .font(.system(size: 17))
                     .foregroundColor(.orange)
                 Text("Climatic")
-                    .font(.headline)
+                    .font(.system(size: 15))
                 Spacer()
                 HStack(spacing: 4) {
                     Text("Min:")
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundColor(.secondary)
                     Text(String(format: "%.1f°C", climatic.minTemperature))
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundColor(.secondary)
                 }
             }
             // Hardiness Zone
             VStack(alignment: .leading) {
                 Text("Hardiness Zone")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
                 GeometryReader { geometry in
                     let spacing: CGFloat = 4
@@ -606,7 +606,7 @@ struct PlantDetailsScreen: View {
                                 .frame(width: barWidth, height: 28)
                                 .overlay(
                                     Text("\(zone)")
-                                        .font(.caption2.bold())
+                                        .font(.system(size: 11).bold())
                                         .foregroundColor(.white)
                                 )
                                 .opacity(isActive ? 1 : 0.2)
@@ -617,7 +617,7 @@ struct PlantDetailsScreen: View {
             // Temperature
             VStack(alignment: .leading) {
                 Text("Temperature")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
                 VStack(spacing: 0) {
                     RangeBar(
@@ -635,26 +635,26 @@ struct PlantDetailsScreen: View {
                         ZStack(alignment: .topLeading) {
                             HStack {
                                 Text("0")
-                                    .font(.caption2)
+                                    .font(.system(size: 11))
                                     .foregroundColor(.secondary)
                                 Spacer()
                                 Text("50")
-                                    .font(.caption2)
+                                    .font(.system(size: 11))
                                     .foregroundColor(.secondary)
                             }
                             // Tolerated range labels
                             Text("\(Int(climatic.temperatureRange.lower))")
-                                .font(.caption2)
+                                .font(.system(size: 11))
                                 .offset(x: tStart - 0)
                             Text("\(Int(climatic.temperatureRange.upper))")
-                                .font(.caption2)
+                                .font(.system(size: 11))
                                 .offset(x: tEnd - 10)
                             // Ideal range labels
                             Text("\(Int(climatic.idealTemperatureRange.lower))")
-                                .font(.caption2)
+                                .font(.system(size: 11))
                                 .offset(x: iStart - 0)
                             Text("\(Int(climatic.idealTemperatureRange.upper))")
-                                .font(.caption2)
+                                .font(.system(size: 11))
                                 .offset(x: iEnd - 10)
                         }
                     }
@@ -665,11 +665,11 @@ struct PlantDetailsScreen: View {
                     Spacer()
                     HStack(spacing: 4) {
                         Circle().fill(Color.green.opacity(0.4)).frame(width: 10, height: 10)
-                        Text("Tolerated").font(.caption2)
+                        Text("Tolerated").font(.system(size: 11))
                     }
                     HStack(spacing: 4) {
                         Circle().fill(Color.green).frame(width: 10, height: 10)
-                        Text("Ideal").font(.caption2)
+                        Text("Ideal").font(.system(size: 11))
                     }
                     Spacer()
                 }
@@ -678,7 +678,7 @@ struct PlantDetailsScreen: View {
             // Humidity
             VStack(alignment: .leading) {
                 Text("Humidity")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
                 VStack(spacing: 0) {
                     RangeBar(
@@ -695,18 +695,18 @@ struct PlantDetailsScreen: View {
                         ZStack(alignment: .topLeading) {
                             HStack {
                                 Text("0%")
-                                    .font(.caption2)
+                                    .font(.system(size: 11))
                                     .foregroundColor(.secondary)
                                 Spacer()
                                 Text("100%")
-                                    .font(.caption2)
+                                    .font(.system(size: 11))
                                     .foregroundColor(.secondary)
                             }
                             Text("\(climatic.humidityRange.lower)")
-                                .font(.caption2)
+                                .font(.system(size: 11))
                                 .offset(x: hStart - 0)
                             Text("\(climatic.humidityRange.upper)")
-                                .font(.caption2)
+                                .font(.system(size: 11))
                                 .offset(x: hEnd - 10)
                         }
                     }
@@ -717,11 +717,11 @@ struct PlantDetailsScreen: View {
             if let wind = climatic.windResistance {
                 HStack {
                     Text("Wind Resistance")
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundColor(.secondary)
                     Spacer()
                     Text(wind)
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                 }
             }
         }
@@ -736,19 +736,19 @@ struct PlantDetailsScreen: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
                 Image(systemName: "mountain.2")
-                    .font(.title2)
+                    .font(.system(size: 17))
                     .foregroundColor(.brown)
                 Text("Soil")
-                    .font(.headline)
+                    .font(.system(size: 15))
                 Spacer()
                 Text(soil.phLabel)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
             }
             VStack(alignment: .leading) {
                 // pH
                 Text("Potential of Hydrogen (pH)")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundStyle(.secondary)
                 GeometryReader { geometry in
                     let spacing: CGFloat = 4
@@ -785,7 +785,7 @@ struct PlantDetailsScreen: View {
                                 .frame(width: barWidth, height: 22)
                                 .overlay(
                                     Text("\(ph)")
-                                        .font(.caption2)
+                                        .font(.system(size: 11))
                                         .foregroundColor(.white)
                                 )
                                 .opacity(isActive ? 1 : 0.2)
@@ -795,7 +795,7 @@ struct PlantDetailsScreen: View {
                 .frame(height: 22)
                 // Add pH range text below the visualization
                 Text("pH Range: \(String(format: "%.1f", soil.phRange[0])) - \(String(format: "%.1f", soil.phRange[1]))")
-                    .font(.caption)
+                    .font(.system(size: 12))
                     .foregroundColor(.secondary)
                     .padding(.top, 4)
             }
@@ -803,10 +803,10 @@ struct PlantDetailsScreen: View {
             // Types
             VStack(alignment: .leading, spacing: 2) {
                 Text("Types")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
                 Text(soil.types.joined(separator: ", "))
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.primary)
             }
             .padding(.top, 14)
@@ -822,27 +822,27 @@ struct PlantDetailsScreen: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
                 Image(systemName: "sun.max.fill")
-                    .font(.title2)
+                    .font(.system(size: 17))
                     .foregroundColor(.yellow)
                 Text("Light")
-                    .font(.headline)
+                    .font(.system(size: 15))
             }
             HStack {
                 Text("Amount")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
                 Spacer()
                 Text(light.amount)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
             }
             .padding(.vertical, 4)
             HStack {
                 Text("Type")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
                 Spacer()
                 Text(light.type)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
             }
         }
         .padding()
@@ -858,7 +858,7 @@ struct FlagChip: View {
     var body: some View {
         HStack(spacing: 4) {
             Text(label)
-                .font(.subheadline)
+                .font(.system(size: 15))
                 .foregroundColor(.primary)
         }
         .padding(.vertical, 4)

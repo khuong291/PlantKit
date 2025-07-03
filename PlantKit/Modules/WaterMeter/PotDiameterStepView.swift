@@ -18,7 +18,7 @@ struct PotDiameterStepView: View {
                 .foregroundColor(.accentColor)
             
             Text("Indicate the pot's diameter")
-                .font(.title2).bold()
+                .font(.system(size: 22)).bold()
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
                 .lineLimit(nil)
@@ -35,7 +35,7 @@ struct PotDiameterStepView: View {
                     .disabled(viewModel.potDiameterDontKnow)
                     
                     Text("\(Int(viewModel.potDiameter)) \(viewModel.potDiameterUnit.rawValue)")
-                        .font(.headline)
+                        .font(.system(size: 17))
                         .foregroundColor(.secondary)
                         .frame(width: 80)
                 }
@@ -56,13 +56,13 @@ struct PotDiameterStepView: View {
                     }
                 }) {
                     Text("I don't know")
-                        .font(.headline)
+                        .font(.system(size: 17))
                         .foregroundColor(.gray)
                 }
             }
         }
         .padding()
-        .onChange(of: viewModel.potDiameter) {
+        .onChange(of: viewModel.potDiameter) { newValue in
             if viewModel.potDiameterDontKnow {
                 viewModel.potDiameterDontKnow = false
             }

@@ -101,7 +101,7 @@ struct CameraView: View {
                         .tint(.white)
                     Text("Preparing camera...")
                         .foregroundColor(.white)
-                        .font(.headline)
+                        .font(.system(size: 17).weight(.semibold))
                 }
             }
 

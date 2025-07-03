@@ -70,12 +70,12 @@ struct PlantDiagnosisResultView: View {
                 
                 VStack(spacing: 8) {
                     Text("Plant Health Diagnosis")
-                        .font(.title2)
+                        .font(.system(size: 22))
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                     
                     Text("Analysis Complete")
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundColor(.white.opacity(0.8))
                 }
                 .padding(.bottom, 20)
@@ -84,7 +84,7 @@ struct PlantDiagnosisResultView: View {
                 onDismiss()
             }) {
                 Image(systemName: "xmark")
-                    .font(.subheadline)
+                    .font(.system(size: 12))
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                     .padding(12)
@@ -102,7 +102,7 @@ struct PlantDiagnosisResultView: View {
                 Image(systemName: "heart.fill")
                     .foregroundColor(.red)
                 Text("Health Score")
-                    .font(.headline)
+                    .font(.system(size: 17))
                     .fontWeight(.semibold)
                 Spacer()
             }
@@ -121,22 +121,22 @@ struct PlantDiagnosisResultView: View {
                     
                     VStack(spacing: 2) {
                         Text("\(diagnosis.healthScore)")
-                            .font(.title2)
+                            .font(.system(size: 22))
                             .fontWeight(.bold)
                             .foregroundColor(healthScoreColor)
                         Text("%")
-                            .font(.caption)
+                            .font(.system(size: 12))
                             .foregroundColor(.gray)
                     }
                 }
                 
                 VStack(alignment: .leading, spacing: 8) {
                     Text(healthScoreDescription)
-                        .font(.headline)
+                        .font(.system(size: 17))
                         .foregroundColor(healthScoreColor)
                     
                     Text(healthScoreDetail)
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.leading)
                 }
@@ -156,13 +156,13 @@ struct PlantDiagnosisResultView: View {
                 Image(systemName: "leaf.fill")
                     .foregroundColor(.green)
                 Text("Overall Condition")
-                    .font(.headline)
+                    .font(.system(size: 17))
                     .fontWeight(.semibold)
                 Spacer()
             }
             
             Text(diagnosis.overallCondition)
-                .font(.body)
+                .font(.system(size: 15))
                 .foregroundColor(.primary)
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -181,13 +181,13 @@ struct PlantDiagnosisResultView: View {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundColor(diseaseRiskColor)
                 Text("Disease Risk")
-                    .font(.headline)
+                    .font(.system(size: 17))
                     .fontWeight(.semibold)
                 Spacer()
             }
             
             Text(diagnosis.diseaseRisk)
-                .font(.body)
+                .font(.system(size: 15))
                 .foregroundColor(.primary)
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -206,7 +206,7 @@ struct PlantDiagnosisResultView: View {
                 Image(systemName: "stethoscope")
                     .foregroundColor(.orange)
                 Text("Health Issues")
-                    .font(.headline)
+                    .font(.system(size: 17))
                     .fontWeight(.semibold)
                 Spacer()
             }
@@ -220,7 +220,7 @@ struct PlantDiagnosisResultView: View {
                             .padding(.top, 8)
                         
                         Text(issue)
-                            .font(.body)
+                            .font(.system(size: 15))
                             .foregroundColor(.primary)
                             .multilineTextAlignment(.leading)
                         
@@ -244,7 +244,7 @@ struct PlantDiagnosisResultView: View {
                 Image(systemName: "lightbulb.fill")
                     .foregroundColor(.blue)
                 Text("Recommendations")
-                    .font(.headline)
+                    .font(.system(size: 17))
                     .fontWeight(.semibold)
                 Spacer()
             }
@@ -258,7 +258,7 @@ struct PlantDiagnosisResultView: View {
                             .padding(.top, 2)
                         
                         Text(recommendation)
-                            .font(.body)
+                            .font(.system(size: 15))
                             .foregroundColor(.primary)
                             .multilineTextAlignment(.leading)
                         

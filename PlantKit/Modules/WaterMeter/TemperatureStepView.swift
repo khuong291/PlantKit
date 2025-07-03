@@ -36,7 +36,7 @@ struct TemperatureStepView: View {
                     .disabled(viewModel.temperatureDontKnow)
                     
                     Text("\(Int(viewModel.temperature))°\(viewModel.temperatureUnit.rawValue)")
-                        .font(.headline)
+                        .font(.system(size: 17).weight(.semibold))
                         .foregroundColor(.secondary)
                         .frame(width: 60)
                 }
@@ -57,13 +57,13 @@ struct TemperatureStepView: View {
                     }
                 }) {
                     Text("I don't know")
-                        .font(.headline)
+                        .font(.system(size: 17).weight(.semibold))
                         .foregroundColor(.gray)
                 }
             }
         }
         .padding()
-        .onChange(of: viewModel.temperature) {
+        .onChange(of: viewModel.temperature) { newValue in
             if viewModel.temperatureDontKnow {
                 viewModel.temperatureDontKnow = false
             }

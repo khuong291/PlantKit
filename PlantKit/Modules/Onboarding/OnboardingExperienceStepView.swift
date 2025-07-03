@@ -9,10 +9,10 @@ struct OnboardingExperienceStepView: View {
                 // Question
                 VStack(alignment: .leading, spacing: 8) {
                     Text("How experienced are you with plants?")
-                        .font(.largeTitle).bold()
+                        .font(.system(size: 34)).bold()
                         .padding(.top, 20)
                     Text("From curious beginner to seasoned grower, we'd love to know where you stand.")
-                        .font(.body)
+                        .font(.system(size: 17))
                         .foregroundColor(.secondary)
                 }
                 .padding(.bottom, 24)
@@ -84,15 +84,15 @@ struct ExperienceOptionView: View {
     var body: some View {
         HStack(spacing: 16) {
             Image(systemName: level.icon)
-                .font(.title2)
+                .font(.system(size: 22))
                 .foregroundColor(isSelected ? .green : .primary)
                 .frame(width: 32, height: 32)
             VStack(alignment: .leading, spacing: 2) {
                 Text(level.title)
-                    .font(.headline)
+                    .font(.system(size: 17))
                     .foregroundColor(.primary)
                 Text(level.subtitle)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundColor(.secondary)
             }
             Spacer()

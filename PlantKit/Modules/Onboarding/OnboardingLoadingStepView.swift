@@ -42,7 +42,7 @@ struct OnboardingLoadingStepView: View {
                     }
 
                     Text("Ready!")
-                        .font(.largeTitle)
+                        .font(.system(size: 34))
                         .bold()
                         .multilineTextAlignment(.center)
                         .onAppear {
@@ -80,14 +80,14 @@ struct OnboardingLoadingStepView: View {
                 
                 Text("We're personalizing your experience")
                     .multilineTextAlignment(.center)
-                    .font(.title)
+                    .font(.system(size: 28))
                     .bold()
                 
                 Spacer().frame(height: 16)
                 
                 Text(stageText[safe: loadingStage] ?? "")
                     .multilineTextAlignment(.center)
-                    .font(.headline)
+                    .font(.system(size: 17))
                     .foregroundColor(.secondary)
                 
                 Spacer()

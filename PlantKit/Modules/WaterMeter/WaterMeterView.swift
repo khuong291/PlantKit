@@ -35,6 +35,16 @@ struct WaterMeterView: View {
         self._isPresented = isPresented
     }
     
+    private var currentStepId: String {
+        switch viewModel.currentStep {
+        case .location: return "location"
+        case .humidity: return "humidity"
+        case .temperature: return "temperature"
+        case .potSize: return "potSize"
+        case .result: return "result"
+        }
+    }
+    
     private func handleSwipe(forward: Bool) {
         if forward {
             guard viewModel.currentStep != .result else { return }
@@ -88,7 +98,7 @@ struct WaterMeterView: View {
                 }
             }
             .transition(transition)
-            .id(viewModel.currentStep)
+            .id(currentStepId)
             .gesture(
                 DragGesture(minimumDistance: 25, coordinateSpace: .local)
                     .onEnded { value in
@@ -112,7 +122,7 @@ struct WaterMeterView: View {
                     }
                 }
                 .padding(.vertical, 20)
-                
+                Spacer()
                 Button(action: {
                     handleSwipe(forward: true)
                 }) {
@@ -130,6 +140,7 @@ struct WaterMeterView: View {
                 .padding(.horizontal)
                 .padding(.bottom)
             } else {
+                Spacer()
                 Button(action: {
                     isPresented = false
                 }) {

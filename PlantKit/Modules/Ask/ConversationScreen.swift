@@ -198,6 +198,7 @@ struct ChatBubble: View {
                     // }
                     
                     Text(message)
+                        .font(.system(size: 17))
                         .padding(12)
                         .background(Color.white)
                         .foregroundColor(.primary)
@@ -221,6 +222,7 @@ struct ChatBubble: View {
                     // }
                     
                     Text(message)
+                        .font(.system(size: 17))
                         .padding(12)
                         .background(Color.green)
                         .foregroundColor(.white)

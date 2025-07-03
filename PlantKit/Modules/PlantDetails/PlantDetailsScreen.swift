@@ -143,6 +143,7 @@ struct PlantDetailsScreen: View {
                                 Image(systemName: "trash")
                                 Text("Delete Plant")
                             }
+                            .font(.system(size: 17))
                             .foregroundColor(.red)
                             .frame(maxWidth: .infinity)
                             .padding()

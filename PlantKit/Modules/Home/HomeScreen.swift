@@ -86,8 +86,10 @@ struct HomeScreen: View {
             LightMeterCameraView(dismissAction: { showLightMeterCamera = false })
         }
         .sheet(isPresented: $showWaterMeter) {
-            WaterMeterView(isPresented: $showWaterMeter)
-                .safeAreaSheet()
+//            DynamicHeightSheet(isPresented: $showWaterMeter) {
+                WaterMeterView(isPresented: $showWaterMeter)
+                    .presentationDetents([.height(540)])
+//            }
         }
     }
     

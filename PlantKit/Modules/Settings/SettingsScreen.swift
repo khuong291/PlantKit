@@ -133,7 +133,7 @@ struct SettingsScreen: View {
                 title: "Contact Us",
                 subtitle: "Get help and support",
                 showChevron: true,
-                action: { showMailView = true }
+                action: { contactUs() }
             )
         }
         .background(
@@ -254,6 +254,17 @@ struct SettingsScreen: View {
     private func openAboutWebsite() {
         if let url = URL(string: "https://www.plantkit.app") {
             UIApplication.shared.open(url)
+        }
+    }
+    
+    private func contactUs() {
+        if MFMailComposeViewController.canSendMail() {
+            showMailView = true
+        } else {
+            // If Mail app is not available, open the website
+            if let url = URL(string: "https://www.plantkit.app") {
+                UIApplication.shared.open(url)
+            }
         }
     }
 }

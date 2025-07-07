@@ -195,7 +195,11 @@ struct MainTab: View {
     private var cameraButton: some View {
         Button {
             Haptics.shared.play()
-            viewModel.openCamera()
+            if ProManager.shared.hasPro {
+                viewModel.openCamera()
+            } else {
+                ProManager.shared.showUpgradePro()
+            }
         } label: {
             ZStack {
                 Circle()

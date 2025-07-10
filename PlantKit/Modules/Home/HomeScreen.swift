@@ -347,33 +347,18 @@ struct HomeScreen: View {
                 .bold()
                 .padding(.bottom, 4)
             VStack(spacing: 16) {
-                ArticleSuggestionCard(
-                    category: "Companion Planting",
-                    title: "8 Plants to Avoid Growing Next to Tomatoes for a Healthy Harvest",
-                    imageName: "article1", // Use a plant image as placeholder
-                    readingMinutes: 5,
-                    onTap: {
-                        // TODO: Handle navigation to article
-                    }
-                )
-                ArticleSuggestionCard(
-                    category: "Garden Hacks",
-                    title: "Transform Your Garden with Old Cardboard Boxes: Here’s How",
-                    imageName: "article2", // Use a plant image as placeholder
-                    readingMinutes: 3,
-                    onTap: {
-                        // TODO: Handle navigation to article
-                    }
-                )
-                ArticleSuggestionCard(
-                    category: "Natural Remedies",
-                    title: "Baking Soda in the Garden: When It Works and When to Avoid It",
-                    imageName: "article3", // Use a plant image as placeholder
-                    readingMinutes: 4,
-                    onTap: {
-                        // TODO: Handle navigation to article
-                    }
-                )
+                ForEach(ArticleDetails.sampleArticles) { article in
+                    ArticleSuggestionCard(
+                        category: article.category,
+                        title: article.title,
+                        imageName: article.imageName,
+                        readingMinutes: article.readingMinutes,
+                        onTap: {
+                            Haptics.shared.play()
+                            homeRouter.navigate(to: .articleDetails(article))
+                        }
+                    )
+                }
             }
         }
     }
@@ -492,31 +477,36 @@ struct ArticleSuggestionCard: View {
     let onTap: (() -> Void)?
 
     var body: some View {
-        HStack(alignment: .center, spacing: 16) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(category)
-                    .font(.system(size: 14))
-                    .foregroundColor(.secondary)
-                Text(title)
-                    .font(.system(size: 17))
-                    .bold()
-                    .foregroundColor(.primary)
-                Spacer(minLength: 0)
-                Text("\(readingMinutes) min read")
-                    .font(.system(size: 12))
-                    .foregroundColor(.secondary)
+        Button(action: {
+            onTap?()
+        }) {
+            HStack(alignment: .center, spacing: 16) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(category)
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                    Text(title)
+                        .font(.system(size: 17))
+                        .bold()
+                        .foregroundColor(.primary)
+                    Spacer(minLength: 0)
+                    Text("\(readingMinutes) min read")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                Image(imageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 80, height: 80)
+                    .clipped()
+                    .cornerRadius(12)
             }
-            Spacer()
-            Image(imageName)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 80, height: 80)
-                .clipped()
-                .cornerRadius(12)
+            .padding()
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
         }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .buttonStyle(CardButtonStyle())
     }
 }

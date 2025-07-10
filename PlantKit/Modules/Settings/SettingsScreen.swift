@@ -10,6 +10,7 @@ import StoreKit
 import MessageUI
 
 struct SettingsScreen: View {
+    @Environment(\.requestReview) var requestReview
     @EnvironmentObject private var proManager: ProManager
     @State private var showMailView = false
     @State private var showRateAlert = false
@@ -234,9 +235,7 @@ struct SettingsScreen: View {
     }
     
     private func rateApp() {
-        if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
-            SKStoreReviewController.requestReview(in: scene)
-        }
+        requestReview()
     }
     
     private func openPrivacyPolicy() {

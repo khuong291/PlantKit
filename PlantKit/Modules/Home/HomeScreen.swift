@@ -69,6 +69,8 @@ struct HomeScreen: View {
                         .padding(.top, 32)
                     popularOutdoorPlantsView
                         .padding(.top, 32)
+                        .padding(.bottom, 32)
+                    articleSuggestionsView
                         .padding(.bottom, 70)
 //                    recentlyScannedView
 //                        .padding(.top, 32)
@@ -337,6 +339,45 @@ struct HomeScreen: View {
         }
     }
     
+    // MARK: - Article Suggestions Section
+    private var articleSuggestionsView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Suggestions")
+                .font(.system(size: 22))
+                .bold()
+                .padding(.bottom, 4)
+            VStack(spacing: 16) {
+                ArticleSuggestionCard(
+                    category: "Companion Planting",
+                    title: "8 Plants to Avoid Growing Next to Tomatoes for a Healthy Harvest",
+                    imageName: "article1", // Use a plant image as placeholder
+                    readingMinutes: 5,
+                    onTap: {
+                        // TODO: Handle navigation to article
+                    }
+                )
+                ArticleSuggestionCard(
+                    category: "Garden Hacks",
+                    title: "Transform Your Garden with Old Cardboard Boxes: Here’s How",
+                    imageName: "article2", // Use a plant image as placeholder
+                    readingMinutes: 3,
+                    onTap: {
+                        // TODO: Handle navigation to article
+                    }
+                )
+                ArticleSuggestionCard(
+                    category: "Natural Remedies",
+                    title: "Baking Soda in the Garden: When It Works and When to Avoid It",
+                    imageName: "article3", // Use a plant image as placeholder
+                    readingMinutes: 4,
+                    onTap: {
+                        // TODO: Handle navigation to article
+                    }
+                )
+            }
+        }
+    }
+    
     @ViewBuilder
     func shimmerRow() -> some View {
         HStack(spacing: 12) {
@@ -440,4 +481,42 @@ struct PopularPlantCard: View {
 
 #Preview {
     HomeScreen()
+}
+
+// Add ArticleSuggestionCard view
+struct ArticleSuggestionCard: View {
+    let category: String
+    let title: String
+    let imageName: String
+    let readingMinutes: Int
+    let onTap: (() -> Void)?
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 16) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(category)
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                Text(title)
+                    .font(.system(size: 17))
+                    .bold()
+                    .foregroundColor(.primary)
+                Spacer(minLength: 0)
+                Text("\(readingMinutes) min read")
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+            }
+            Spacer()
+            Image(imageName)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 80, height: 80)
+                .clipped()
+                .cornerRadius(12)
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+    }
 }

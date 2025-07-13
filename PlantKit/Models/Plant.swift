@@ -40,6 +40,7 @@ public class Plant: NSManagedObject {
     @NSManaged public var careGuideFertilizing: String?
     @NSManaged public var careGuidePruning: String?
     @NSManaged public var careGuideRepotting: String?
+    @NSManaged public var careReminders: NSSet?
 }
 
 extension Plant {
@@ -48,4 +49,16 @@ extension Plant {
     }
 }
 
-extension Plant: Identifiable {} 
+extension Plant: Identifiable {
+    @objc(addCareRemindersObject:)
+    @NSManaged public func addToCareReminders(_ value: CareReminder)
+
+    @objc(removeCareRemindersObject:)
+    @NSManaged public func removeFromCareReminders(_ value: CareReminder)
+
+    @objc(addCareReminders:)
+    @NSManaged public func addToCareReminders(_ values: NSSet)
+
+    @objc(removeCareReminders:)
+    @NSManaged public func removeFromCareReminders(_ values: NSSet)
+} 

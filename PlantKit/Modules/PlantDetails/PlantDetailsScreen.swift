@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CoreData
+import UserNotifications
 
 struct PlantDetailsScreen: View {
     let plantDetails: PlantDetails?
@@ -14,12 +15,15 @@ struct PlantDetailsScreen: View {
     let isSamplePlant: Bool
     @State private var selectedTab = 0
     @State private var showDeleteAlert = false
-    private let tabs = ["Overview", "Requirements", "Culture", "FAQ", "Articles"]
+    private let tabs = ["Plant Info", "Care Guide"]
     @Environment(\.dismiss) private var dismiss
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var conversationManager: ConversationManager
     @EnvironmentObject var myPlantsRouter: Router<ContentRoute>
     @ObservedObject var proManager: ProManager = .shared
+    @StateObject private var reminderManager = CareReminderManager.shared
+    @State private var showCareReminders = false
+    @State private var refreshReminders = false
     
     var body: some View {
         ZStack {
@@ -50,6 +54,26 @@ struct PlantDetailsScreen: View {
             .padding(.horizontal)
         }
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            // Load reminders for this plant when screen appears
+            if let plant = getPlantFromCoreData() {
+                reminderManager.loadReminders(for: plant)
+            }
+            // Request notification permission
+            reminderManager.requestNotificationPermission()
+        }
+        .sheet(isPresented: $showCareReminders) {
+            if let plant = getPlantFromCoreData() {
+                CareRemindersListView(plant: plant)
+                    .environmentObject(reminderManager)
+                    .onDisappear {
+                        // Refresh reminders when the sheet is dismissed
+                        if let plant = getPlantFromCoreData() {
+                            reminderManager.loadReminders(for: plant)
+                        }
+                    }
+            }
+        }
         .alert("Delete Plant", isPresented: $showDeleteAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
@@ -113,12 +137,31 @@ struct PlantDetailsScreen: View {
 //                            .padding(.horizontal)
 //                            .padding(.bottom, 12)
 //                        }
-                        descriptionSection(details: details)
-                        toxicitySection(details: details)
-                        careGuideSection(details: details)
-                        generalSection(details: details)
-                        characteristicsSection(details: details)
-                        conditionsSection(details: details)
+                        // Tabs
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 12) {
+                                ForEach(tabs.indices, id: \.self) { idx in
+                                    Button(action: { selectedTab = idx }) {
+                                        Text(tabs[idx])
+                                            .font(.system(size: 16, weight: .medium))
+                                            .foregroundColor(selectedTab == idx ? .white : .primary)
+                                            .padding(.vertical, 8)
+                                            .padding(.horizontal, 18)
+                                            .background(selectedTab == idx ? Color.black : Color.secondary.opacity(0.1))
+                                            .cornerRadius(16)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                            .padding(.bottom, 12)
+                        }
+                        
+                        // Tab Content
+                        if selectedTab == 0 {
+                            plantInfoTab(details: details)
+                        } else {
+                            careGuideTab(details: details)
+                        }
                     }
                 } else {
                     VStack {
@@ -213,6 +256,180 @@ struct PlantDetailsScreen: View {
             .padding(.horizontal)
         }
         .padding(.bottom, 20)
+    }
+    
+    private var careRemindersSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Care Reminders")
+                    .font(.system(size: 15))
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Button(action: {
+                    showCareReminders = true
+                }) {
+                    Text("Manage")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.green)
+                }
+            }
+            .padding(.horizontal)
+            
+            if let plant = getPlantFromCoreData() {
+                // Use the published reminders array which updates automatically
+                let reminders = reminderManager.reminders.filter { $0.plant == plant }
+                let overdueCount = reminders.filter { reminder in
+                    guard let nextDue = reminder.nextDueDate else { return false }
+                    return nextDue < Date() && reminder.isEnabled
+                }.count
+                
+                let upcomingCount = reminders.filter { reminder in
+                    guard let nextDue = reminder.nextDueDate else { return false }
+                    let futureDate = Date().addingTimeInterval(TimeInterval(7 * 24 * 60 * 60))
+                    return nextDue > Date() && nextDue <= futureDate && reminder.isEnabled
+                }.count
+                
+                VStack(spacing: 0) {
+                    if reminders.isEmpty {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("\(reminders.count) Reminders")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.primary)
+                                
+                                Text("No reminders set")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                        }
+                        .padding()
+                    } else {
+                        // Show reminder details
+                        VStack(spacing: 0) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("\(reminders.count) Reminders")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(.primary)
+                                    
+                                    HStack(spacing: 12) {
+                                        if overdueCount > 0 {
+                                            HStack(spacing: 4) {
+                                                Circle()
+                                                    .fill(Color.red)
+                                                    .frame(width: 8, height: 8)
+                                                Text("\(overdueCount) overdue")
+                                                    .font(.system(size: 12))
+                                                    .foregroundColor(.red)
+                                            }
+                                        }
+                                        
+                                        if upcomingCount > 0 {
+                                            HStack(spacing: 4) {
+                                                Circle()
+                                                    .fill(Color.orange)
+                                                    .frame(width: 8, height: 8)
+                                                Text("\(upcomingCount) upcoming")
+                                                    .font(.system(size: 12))
+                                                    .foregroundColor(.orange)
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding(.horizontal)
+                            .padding(.top)
+                            
+                            // Show upcoming reminders (up to 3)
+                            let upcomingReminders = reminders.prefix(3)
+                            ForEach(Array(upcomingReminders.enumerated()), id: \.element.id) { index, reminder in
+                                if index > 0 {
+                                    Divider()
+                                        .padding(.horizontal)
+                                }
+                                
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(reminder.title ?? "Reminder")
+                                            .font(.system(size: 14, weight: .medium))
+                                            .foregroundColor(.primary)
+                                        
+                                        if let nextDue = reminder.nextDueDate {
+                                            Text(formatNextDueDate(nextDue))
+                                                .font(.system(size: 12))
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    if let reminderTime = reminder.reminderTime {
+                                        Text(formatTime(reminderTime))
+                                            .font(.system(size: 14, weight: .medium))
+                                            .foregroundColor(.blue)
+                                    }
+                                }
+                                .padding(.horizontal)
+                                .padding(.vertical, 8)
+                            }
+                            
+                            // Show "View All" if there are more than 3 reminders
+                            if reminders.count > 3 {
+                                Divider()
+                                    .padding(.horizontal)
+                                    .padding(.bottom)
+                                
+                                HStack {
+                                    Text("View all \(reminders.count) reminders")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.blue)
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.blue)
+                                }
+                                .padding(.horizontal)
+                                .padding(.bottom)
+                            }
+                        }
+                    }
+                }
+                .background(Color.white)
+                .cornerRadius(16)
+                .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+                .padding(.horizontal)
+            }
+        }
+        .padding(.bottom, 20)
+    }
+    
+    private func plantInfoTab(details: PlantDetails) -> some View {
+        VStack(spacing: 0) {
+            descriptionSection(details: details)
+            toxicitySection(details: details)
+            careGuideSection(details: details)
+            generalSection(details: details)
+            characteristicsSection(details: details)
+            conditionsSection(details: details)
+        }
+    }
+    
+    private func careGuideTab(details: PlantDetails) -> some View {
+        VStack(spacing: 0) {
+            careRemindersSection
+        }
     }
     
     @ViewBuilder
@@ -852,6 +1069,41 @@ struct PlantDetailsScreen: View {
         .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
         .padding(.horizontal)
     }
+    
+    private func getPlantFromCoreData() -> Plant? {
+        guard let details = plantDetails else { return nil }
+        
+        let fetchRequest: NSFetchRequest<Plant> = Plant.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", details.id.uuidString)
+        
+        do {
+            let results = try viewContext.fetch(fetchRequest)
+            return results.first
+        } catch {
+            print("Error fetching plant: \(error)")
+            return nil
+        }
+    }
+    
+    private func formatNextDueDate(_ date: Date) -> String {
+        let calendar = Calendar.current
+        
+        if calendar.isDateInToday(date) {
+            return "Today"
+        } else if calendar.isDateInTomorrow(date) {
+            return "Tomorrow"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            return formatter.string(from: date)
+        }
+    }
+    
+    private func formatTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
 }
 
 struct FlagChip: View {
@@ -983,4 +1235,5 @@ private let mockImage: UIImage? = {
         capturedImage: mockImage,
         isSamplePlant: false
     )
+    .environmentObject(CareReminderManager.shared)
 }

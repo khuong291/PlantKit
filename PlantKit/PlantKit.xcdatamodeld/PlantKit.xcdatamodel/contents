@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24A348" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CareReminder" representedClassName=".CareReminder" syncable="YES">
+        <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="frequency" attributeType="Integer 16" defaultValueString="7" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="isEnabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="lastCompleted" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="nextDueDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="reminderTime" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="repeatType" attributeType="String"/>
+        <attribute name="reminderType" attributeType="String"/>
+        <attribute name="title" attributeType="String"/>
+        <attribute name="updatedAt" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="plant" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Plant" inverseName="careReminders" inverseEntity="Plant"/>
+    </entity>
     <entity name="Conversation" representedClassName=".Conversation" syncable="YES">
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="String"/>
@@ -57,5 +72,6 @@
         <attribute name="soilTypes" optional="YES" attributeType="String"/>
         <attribute name="toxicity" optional="YES" attributeType="String"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="careReminders" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CareReminder" inverseName="plant" inverseEntity="CareReminder"/>
     </entity>
 </model>

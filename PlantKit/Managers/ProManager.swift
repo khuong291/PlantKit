@@ -99,9 +99,9 @@ final class ProManager: ObservableObject {
     
     private func handle(purchaseInfo: RevenueCat.CustomerInfo?) {
         hasPro = purchaseInfo?.entitlements["Autorenew"]?.isActive == true
-//#if DEBUG
-//        hasPro = true
-//        #endif
+#if DEBUG
+        hasPro = true
+        #endif
     }
 }
 

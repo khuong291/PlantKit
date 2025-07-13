@@ -8,6 +8,7 @@
 import SwiftUI
 import StoreKit
 import MessageUI
+import RevenueCat
 
 struct SettingsScreen: View {
     @Environment(\.requestReview) var requestReview
@@ -105,7 +106,18 @@ struct SettingsScreen: View {
                     showChevron: true,
                     action: { showUpgradePro = true }
                 )
+                
+                Divider()
+                    .padding(.leading, 56)
             }
+            
+            settingsRowWithCopyButton(
+                icon: "creditcard.fill",
+                iconColor: .blue,
+                title: "Purchase ID",
+                subtitle: "Your unique identifier",
+                action: { copyPurchaseID() }
+            )
         }
         .background(
             RoundedRectangle(cornerRadius: 16)
@@ -234,6 +246,45 @@ struct SettingsScreen: View {
         .buttonStyle(PlainButtonStyle())
     }
     
+    private func settingsRowWithCopyButton(
+        icon: String,
+        iconColor: Color,
+        title: String,
+        subtitle: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: {
+            Haptics.shared.play()
+            action()
+        }) {
+            HStack(spacing: 16) {
+                Image(systemName: icon)
+                    .font(.system(size: 22))
+                    .foregroundColor(iconColor)
+                    .frame(width: 24)
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.system(size: 17))
+                        .foregroundColor(.primary)
+                    
+                    Text(subtitle)
+                        .font(.system(size: 15))
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "doc.on.doc.fill")
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
     private func rateApp() {
         requestReview()
     }
@@ -265,6 +316,12 @@ struct SettingsScreen: View {
                 UIApplication.shared.open(url)
             }
         }
+    }
+    
+    private func copyPurchaseID() {
+        let appUserID = Purchases.shared.appUserID
+        UIPasteboard.general.string = appUserID
+        Haptics.shared.play()
     }
 }
 

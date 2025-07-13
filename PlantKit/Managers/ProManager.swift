@@ -114,6 +114,10 @@ extension ProManager {
         return packages.first(where: { $0.packageType == .annual })
     }
     
+    var appUserID: String {
+        return Purchases.shared.appUserID
+    }
+    
     var weeklyPriceString: String {
         if let package = weeklyPackage {
             return "\(package.localizedPriceString)"

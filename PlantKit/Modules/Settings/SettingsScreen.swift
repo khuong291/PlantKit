@@ -334,7 +334,29 @@ struct MailComposeView: UIViewControllerRepresentable {
         mailComposer.mailComposeDelegate = context.coordinator
         mailComposer.setToRecipients(["plantkit.app@gmail.com"])
         mailComposer.setSubject("PlantKit Support")
-        mailComposer.setMessageBody("Hello PlantKit team,\n\nI need help with:\n\n[Please describe your issue here]\n\nThank you!", isHTML: false)
+        
+        let iPhoneModel = UIDevice.current.model
+        let iOSVersion = UIDevice.current.systemVersion
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+        let userID = Purchases.shared.appUserID
+        
+        let messageBody = """
+        Hello PlantKit team,
+        
+        I need help with:
+        
+        [Please describe your issue here]
+        
+        Thank you!
+        
+        
+        Device: \(iPhoneModel)
+        OS version: \(iOSVersion)
+        App version: \(appVersion)
+        User ID: \(userID)
+        """
+        
+        mailComposer.setMessageBody(messageBody, isHTML: false)
         return mailComposer
     }
     

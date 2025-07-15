@@ -240,7 +240,7 @@ struct MyPlantsScreen: View {
         var allReminders: [CareReminder] = []
         for plant in plants {
             let plantReminders = careReminderManager.getRemindersForPlant(plant)
-            allReminders.append(contentsOf: plantReminders.filter { $0.isEnabled })
+            allReminders.append(contentsOf: plantReminders) // Remove the filter to show all reminders
         }
         return allReminders.sorted { ($0.nextDueDate ?? Date()) < ($1.nextDueDate ?? Date()) }
     }

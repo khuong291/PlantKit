@@ -597,8 +597,9 @@ struct PlantDetailsScreen: View {
             if let repotting = details.careGuideRepotting, !repotting.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(alignment: .top, spacing: 6) {
-                        Image(systemName: "arrow.triangle.2.circlepath")
-                            .foregroundColor(.brown)
+                        Image("ic-repotting")
+                            .resizable()
+                            .frame(width: 16, height: 16)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Repotting")
                                 .font(.system(size: 15))

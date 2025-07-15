@@ -163,31 +163,24 @@ struct ReminderCard: View {
         return nextDue > Date() && nextDue <= futureDate && reminder.isEnabled
     }
     
+    private var isCompletedToday: Bool {
+        reminderManager.isCompletionMarked(for: reminder, date: Date())
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 if let type = reminderType {
                     Image(systemName: type.icon)
-                        .font(.system(size: 20))
+                        .font(.system(size: 18))
                         .foregroundColor(type.color)
                         .frame(width: 24)
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    HStack {
-                        Text(reminder.title ?? "Reminder")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.primary)
-                        
-                        Spacer()
-                        
-                        // Today's completion indicator
-                        if reminderManager.isCompletionMarked(for: reminder, date: Date()) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 16))
-                                .foregroundColor(.green)
-                        }
-                    }
+                    Text(reminder.title ?? "Reminder")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
                     
                     if let notes = reminder.notes, !notes.isEmpty {
                         Text(notes)
@@ -225,37 +218,33 @@ struct ReminderCard: View {
                 
                 Spacer()
                 
-                HStack(spacing: 12) {
-                    Button(action: {
-                        showDailyTracking = true
-                    }) {
-                        Image(systemName: "calendar")
-                            .font(.system(size: 18))
-                            .foregroundColor(.purple)
-                            .frame(width: 44, height: 44)
-                            .background(Color.purple.opacity(0.1))
-                            .clipShape(Circle())
+                HStack(spacing: 8) {
+                    // Single completion button that changes appearance
+                    if reminder.isEnabled {
+                        Button(action: onComplete) {
+                            HStack(spacing: 4) {
+                                Image(systemName: isCompletedToday ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 16))
+                                Text(isCompletedToday ? "Done" : "Mark Done")
+                                    .font(.system(size: 14, weight: .medium))
+                            }
+                            .foregroundColor(isCompletedToday ? .green : .blue)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(isCompletedToday ? Color.green.opacity(0.1) : Color.blue.opacity(0.1))
+                            .cornerRadius(8)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
-                    .buttonStyle(PlainButtonStyle())
-                    
-                    Button(action: onComplete) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(.green)
-                            .frame(width: 44, height: 44)
-                            .background(Color.green.opacity(0.1))
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(PlainButtonStyle())
                     
                     Button(action: {
                         showActionSheet = true
                     }) {
                         Image(systemName: "ellipsis.circle")
-                            .font(.system(size: 18))
-                            .foregroundColor(.orange)
-                            .frame(width: 44, height: 44)
-                            .background(Color.orange.opacity(0.1))
+                            .font(.system(size: 16))
+                            .foregroundColor(.gray)
+                            .frame(width: 32, height: 32)
+                            .background(Color.gray.opacity(0.1))
                             .clipShape(Circle())
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -283,8 +272,10 @@ struct ReminderCard: View {
             }
         }
         .contextMenu {
-            Button(action: onComplete) {
-                Label("Mark as Done", systemImage: "checkmark.circle.fill")
+            if reminder.isEnabled {
+                Button(action: onComplete) {
+                    Label(isCompletedToday ? "Mark as Undone" : "Mark as Done", systemImage: isCompletedToday ? "circle" : "checkmark.circle.fill")
+                }
             }
             
             Button(action: {
@@ -311,8 +302,10 @@ struct ReminderCard: View {
             .foregroundColor(.red)
         }
         .confirmationDialog("Reminder Actions", isPresented: $showActionSheet) {
-            Button("Mark as Done") {
-                onComplete()
+            if reminder.isEnabled {
+                Button(isCompletedToday ? "Mark as Undone" : "Mark as Done") {
+                    onComplete()
+                }
             }
             
             Button("Remind in 1 hour") {

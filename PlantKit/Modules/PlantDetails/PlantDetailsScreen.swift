@@ -522,8 +522,9 @@ struct PlantDetailsScreen: View {
             if let watering = details.careGuideWatering, !watering.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(alignment: .top, spacing: 6) {
-                        Image(systemName: "drop.fill")
-                            .foregroundColor(.blue)
+                        Image("ic-watering")
+                            .resizable()
+                            .frame(width: 16, height: 16)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Watering")
                                 .font(.system(size: 15))
@@ -546,8 +547,9 @@ struct PlantDetailsScreen: View {
             if let fertilizing = details.careGuideFertilizing, !fertilizing.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(alignment: .top, spacing: 6) {
-                        Image(systemName: "leaf.fill")
-                            .foregroundColor(.green)
+                        Image("ic-fertilizing")
+                            .resizable()
+                            .frame(width: 16, height: 16)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Fertilizing")
                                 .font(.system(size: 15))
@@ -570,8 +572,9 @@ struct PlantDetailsScreen: View {
             if let pruning = details.careGuidePruning, !pruning.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(alignment: .top, spacing: 6) {
-                        Image(systemName: "scissors")
-                            .foregroundColor(.purple)
+                        Image("ic-pruning")
+                            .resizable()
+                            .frame(width: 16, height: 16)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Pruning")
                                 .font(.system(size: 15))

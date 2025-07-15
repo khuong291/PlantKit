@@ -38,6 +38,11 @@ struct MyPlantsScreen: View {
                 .padding(.top, 10)
                 .padding(.horizontal)
                 .padding(.bottom, 16)
+                .onChange(of: selectedTab) { newValue in
+                    if newValue == 1 {
+                        careReminderManager.loadAllReminders()
+                    }
+                }
                 
                 // Tab Content
                 TabView(selection: $selectedTab) {
@@ -54,7 +59,7 @@ struct MyPlantsScreen: View {
         .onAppear {
             refreshID = UUID()
             updatePlantDetailsList()
-            loadAllPlantReminders()
+            careReminderManager.loadAllReminders()
         }
         .onReceive(careReminderManager.$reminders) { _ in
             // Refresh the view when reminders are updated
@@ -121,14 +126,14 @@ struct MyPlantsScreen: View {
     private func getReminderEmoji(for reminder: CareReminder) -> String {
         guard let reminderTypeString = reminder.reminderType,
               let reminderType = careReminderManager.getReminderType(from: reminderTypeString) else {
-            return "🌱"
+            return "ic-watering"
         }
         
         switch reminderType {
-        case .watering: return "💧"
-        case .fertilizing: return "🌿"
-        case .repotting: return "🪴"
-        case .pruning: return "✂️"
+        case .watering: return "ic-watering"
+        case .fertilizing: return "ic-fertilizing"
+        case .repotting: return "ic-repotting"
+        case .pruning: return "ic-pruning"
         }
     }
     
@@ -281,8 +286,7 @@ struct MyPlantsScreen: View {
                                     Text(reminder.plant?.commonName ?? "Unknown Plant")
                                         .font(.system(size: 16).weight(.semibold))
                                     Spacer()
-                                    Text(getReminderEmoji(for: reminder))
-                                        .font(.system(size: 16))
+                                    Image(getReminderEmoji(for: reminder)).resizable().frame(width: 16, height: 16)
                                 }
                                 
                                 // Reminder type and time

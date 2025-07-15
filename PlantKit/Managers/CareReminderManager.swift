@@ -75,6 +75,19 @@ class CareReminderManager: ObservableObject {
     
     private init() {}
     
+    // Loads reminders for all plants and updates the reminders array
+    func loadAllReminders() {
+        let context = CoreDataManager.shared.viewContext
+        let fetchRequest: NSFetchRequest<CareReminder> = CareReminder.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CareReminder.nextDueDate, ascending: true)]
+        do {
+            reminders = try context.fetch(fetchRequest)
+        } catch {
+            print("Error loading all reminders: \(error)")
+            reminders = []
+        }
+    }
+    
     func createReminder(
         for plant: Plant,
         type: ReminderType,
@@ -105,7 +118,7 @@ class CareReminderManager: ObservableObject {
         do {
             try context.save()
             scheduleNotification(for: reminder)
-            loadReminders(for: plant)
+            loadAllReminders()
         } catch {
             print("Error creating reminder: \(error)")
         }
@@ -161,7 +174,7 @@ class CareReminderManager: ObservableObject {
             } else {
                 cancelNotification(for: reminder)
             }
-            loadReminders(for: reminder.plant)
+            loadAllReminders()
         } catch {
             print("Error updating reminder: \(error)")
         }
@@ -191,7 +204,7 @@ class CareReminderManager: ObservableObject {
         do {
             try context.save()
             scheduleNotification(for: reminder)
-            loadReminders(for: reminder.plant)
+            loadAllReminders()
         } catch {
             print("Error marking reminder completed: \(error)")
         }
@@ -205,7 +218,7 @@ class CareReminderManager: ObservableObject {
         
         do {
             try context.save()
-            loadReminders(for: reminder.plant)
+            loadAllReminders()
         } catch {
             print("Error deleting reminder: \(error)")
         }
@@ -234,8 +247,8 @@ class CareReminderManager: ObservableObject {
         let content = UNMutableNotificationContent()
         
         // Get emoji, title, and body based on reminder type
-        let (emoji, title, body) = getNotificationContent(for: reminder)
-        content.title = "\(title) \(emoji)"
+        let (imageName, title, body) = getNotificationContent(for: reminder)
+        content.title = "\(title) \(imageName)"
         
         // No subtitle needed - keep it clean and simple
         
@@ -376,10 +389,10 @@ class CareReminderManager: ObservableObject {
         return RepeatType.allCases.first { $0.rawValue == string }
     }
     
-    private func getNotificationContent(for reminder: CareReminder) -> (emoji: String, title: String, body: String) {
+    private func getNotificationContent(for reminder: CareReminder) -> (imageName: String, title: String, body: String) {
         guard let reminderTypeString = reminder.reminderType,
               let reminderType = getReminderType(from: reminderTypeString) else {
-            return ("🌱", reminder.title ?? "Plant Care Reminder", "Your plant needs some care!")
+            return ("ic-watering", reminder.title ?? "Plant Care Reminder", "Your plant needs some care!")
         }
         
         let plantName = reminder.plant?.commonName ?? "your plant"
@@ -394,7 +407,7 @@ class CareReminderManager: ObservableObject {
                 "Your \(plantName) is waiting for its drink! Proper hydration keeps leaves vibrant and healthy."
             ]
             let randomMessage = motivationalMessages.randomElement() ?? motivationalMessages[0]
-            return ("💧", "Time to water \(plantName)", randomMessage)
+            return ("ic-watering", "Time to water \(plantName)", randomMessage)
             
         case .fertilizing:
             let motivationalMessages = [
@@ -405,7 +418,7 @@ class CareReminderManager: ObservableObject {
                 "Your \(plantName) needs a boost! Fertilizing gives it the energy to thrive and flourish."
             ]
             let randomMessage = motivationalMessages.randomElement() ?? motivationalMessages[0]
-            return ("🌿", "Time to fertilize \(plantName)", randomMessage)
+            return ("ic-fertilizing", "Time to fertilize \(plantName)", randomMessage)
             
         case .repotting:
             let motivationalMessages = [
@@ -416,7 +429,7 @@ class CareReminderManager: ObservableObject {
                 "Your \(plantName) needs a new pot! Repotting refreshes the soil and encourages new growth."
             ]
             let randomMessage = motivationalMessages.randomElement() ?? motivationalMessages[0]
-            return ("🪴", "Time to repot \(plantName)", randomMessage)
+            return ("ic-repotting", "Time to repot \(plantName)", randomMessage)
             
         case .pruning:
             let motivationalMessages = [
@@ -427,7 +440,7 @@ class CareReminderManager: ObservableObject {
                 "Your \(plantName) needs some grooming! Pruning encourages healthy new shoots and leaves."
             ]
             let randomMessage = motivationalMessages.randomElement() ?? motivationalMessages[0]
-            return ("✂️", "Time to prune \(plantName)", randomMessage)
+            return ("ic-pruning", "Time to prune \(plantName)", randomMessage)
         }
     }
     
@@ -615,7 +628,7 @@ class CareReminderManager: ObservableObject {
         do {
             try context.save()
             scheduleNotification(for: reminder)
-            loadReminders(for: reminder.plant)
+            loadAllReminders()
         } catch {
             print("Error snoozing reminder: \(error)")
         }

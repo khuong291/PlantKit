@@ -71,6 +71,7 @@ class CareReminderManager: ObservableObject {
     static let shared = CareReminderManager()
     
     @Published var reminders: [CareReminder] = []
+    @Published var dailyCompletions: [CareCompletion] = []
     
     private init() {}
     
@@ -184,6 +185,9 @@ class CareReminderManager: ObservableObject {
         
         reminder.updatedAt = Date()
         
+        // Also mark daily completion for today
+        markDailyCompletion(for: reminder, date: Date())
+        
         do {
             try context.save()
             scheduleNotification(for: reminder)
@@ -231,28 +235,15 @@ class CareReminderManager: ObservableObject {
         
         // Get emoji, title, and body based on reminder type
         let (emoji, title, body) = getNotificationContent(for: reminder)
-        content.title = "\(emoji) \(title)"
+        content.title = "\(title) \(emoji)"
         
-        // Add subtitle with plant name and due time
-        let plantName = reminder.plant?.commonName ?? "Plant"
-        let timeFormatter = DateFormatter()
-        timeFormatter.timeStyle = .short
-        let timeString = timeFormatter.string(from: nextDueDate)
-        content.subtitle = "🌱 \(plantName) • Due at \(timeString)"
+        // No subtitle needed - keep it clean and simple
         
         // Use custom notes if available, otherwise use the enhanced body
         var finalBody = body
         
-        // Add plant-specific care tip
-        if let plantName = reminder.plant?.commonName,
-           let reminderTypeString = reminder.reminderType,
-           let reminderType = getReminderType(from: reminderTypeString) {
-            let careTip = getCareTip(for: reminderType, plantName: plantName)
-            finalBody += "\n\n💡 Pro tip: \(careTip)"
-        }
-        
         if let notes = reminder.notes, !notes.isEmpty {
-            finalBody += "\n\n📝 Your notes: \(notes)"
+            finalBody += "\n\nYour notes: \(notes)"
         }
         
         content.body = finalBody
@@ -349,19 +340,19 @@ class CareReminderManager: ObservableObject {
         // Create custom actions for plant care reminders
         let markCompletedAction = UNNotificationAction(
             identifier: "MARK_COMPLETED",
-            title: "✅ Mark as Done",
+            title: "Mark as Done",
             options: [.foreground]
         )
         
         let snoozeAction = UNNotificationAction(
             identifier: "SNOOZE_1_HOUR",
-            title: "⏰ Remind in 1 hour",
+            title: "Remind in 1 hour",
             options: []
         )
         
         let snoozeTomorrowAction = UNNotificationAction(
             identifier: "SNOOZE_TOMORROW",
-            title: "🌅 Remind tomorrow",
+            title: "Remind tomorrow",
             options: []
         )
         
@@ -388,7 +379,7 @@ class CareReminderManager: ObservableObject {
     private func getNotificationContent(for reminder: CareReminder) -> (emoji: String, title: String, body: String) {
         guard let reminderTypeString = reminder.reminderType,
               let reminderType = getReminderType(from: reminderTypeString) else {
-            return ("🌱", reminder.title ?? "Plant Care Reminder", "Your plant needs some love! 🌱")
+            return ("🌱", reminder.title ?? "Plant Care Reminder", "Your plant needs some care!")
         }
         
         let plantName = reminder.plant?.commonName ?? "your plant"
@@ -396,47 +387,47 @@ class CareReminderManager: ObservableObject {
         switch reminderType {
         case .watering:
             let motivationalMessages = [
-                "💧 Your \(plantName) is thirsty! Give it a refreshing drink to keep it happy and healthy.",
-                "💧 Time to hydrate your \(plantName)! A little water goes a long way in plant care.",
-                "💧 Your \(plantName) needs hydration! Watering regularly helps it grow strong and beautiful.",
-                "💧 Don't forget to water your \(plantName)! Consistent watering is key to plant success.",
-                "💧 Your \(plantName) is waiting for its drink! Proper hydration keeps leaves vibrant and healthy."
+                "Your \(plantName) is thirsty! Give it a refreshing drink to keep it happy and healthy.",
+                "Time to hydrate your \(plantName)! A little water goes a long way in plant care.",
+                "Your \(plantName) needs hydration! Watering regularly helps it grow strong and beautiful.",
+                "Don't forget to water your \(plantName)! Consistent watering is key to plant success.",
+                "Your \(plantName) is waiting for its drink! Proper hydration keeps leaves vibrant and healthy."
             ]
             let randomMessage = motivationalMessages.randomElement() ?? motivationalMessages[0]
-            return ("💧", "Time to Water Your Plant! 💧", randomMessage)
+            return ("💧", "Time to water \(plantName)", randomMessage)
             
         case .fertilizing:
             let motivationalMessages = [
-                "🌿 Your \(plantName) needs nutrients! Fertilizing helps it grow bigger and stronger.",
-                "🌿 Time to feed your \(plantName)! Nutrients are essential for healthy growth and vibrant leaves.",
-                "🌿 Your \(plantName) is hungry for nutrients! Regular fertilizing promotes lush growth.",
-                "🌿 Don't forget to fertilize your \(plantName)! Good nutrition leads to beautiful plants.",
-                "🌿 Your \(plantName) needs a boost! Fertilizing gives it the energy to thrive and flourish."
+                "Your \(plantName) needs nutrients! Fertilizing helps it grow bigger and stronger.",
+                "Time to feed your \(plantName)! Nutrients are essential for healthy growth and vibrant leaves.",
+                "Your \(plantName) is hungry for nutrients! Regular fertilizing promotes lush growth.",
+                "Don't forget to fertilize your \(plantName)! Good nutrition leads to beautiful plants.",
+                "Your \(plantName) needs a boost! Fertilizing gives it the energy to thrive and flourish."
             ]
             let randomMessage = motivationalMessages.randomElement() ?? motivationalMessages[0]
-            return ("🌿", "Time to Fertilize Your Plant! 🌿", randomMessage)
+            return ("🌿", "Time to fertilize \(plantName)", randomMessage)
             
         case .repotting:
             let motivationalMessages = [
-                "🪴 Your \(plantName) needs more space! Repotting gives it room to grow and flourish.",
-                "🪴 Time to give your \(plantName) a new home! Fresh soil and more space promote healthy growth.",
-                "🪴 Your \(plantName) is ready for an upgrade! Repotting helps prevent root-bound issues.",
-                "🪴 Don't forget to repot your \(plantName)! A bigger pot means bigger growth potential.",
-                "🪴 Your \(plantName) needs a new pot! Repotting refreshes the soil and encourages new growth."
+                "Your \(plantName) needs more space! Repotting gives it room to grow and flourish.",
+                "Time to give your \(plantName) a new home! Fresh soil and more space promote healthy growth.",
+                "Your \(plantName) is ready for an upgrade! Repotting helps prevent root-bound issues.",
+                "Don't forget to repot your \(plantName)! A bigger pot means bigger growth potential.",
+                "Your \(plantName) needs a new pot! Repotting refreshes the soil and encourages new growth."
             ]
             let randomMessage = motivationalMessages.randomElement() ?? motivationalMessages[0]
-            return ("🪴", "Time to Repot Your Plant! 🪴", randomMessage)
+            return ("🪴", "Time to repot \(plantName)", randomMessage)
             
         case .pruning:
             let motivationalMessages = [
-                "✂️ Your \(plantName) needs a trim! Pruning keeps it healthy and encourages new growth.",
-                "✂️ Time to shape your \(plantName)! Pruning removes dead leaves and promotes bushier growth.",
-                "✂️ Your \(plantName) is ready for a haircut! Pruning helps maintain its beautiful shape.",
-                "✂️ Don't forget to prune your \(plantName)! Regular trimming keeps plants looking their best.",
-                "✂️ Your \(plantName) needs some grooming! Pruning encourages healthy new shoots and leaves."
+                "Your \(plantName) needs a trim! Pruning keeps it healthy and encourages new growth.",
+                "Time to shape your \(plantName)! Pruning removes dead leaves and promotes bushier growth.",
+                "Your \(plantName) is ready for a haircut! Pruning helps maintain its beautiful shape.",
+                "Don't forget to prune your \(plantName)! Regular trimming keeps plants looking their best.",
+                "Your \(plantName) needs some grooming! Pruning encourages healthy new shoots and leaves."
             ]
             let randomMessage = motivationalMessages.randomElement() ?? motivationalMessages[0]
-            return ("✂️", "Time to Prune Your Plant! ✂️", randomMessage)
+            return ("✂️", "Time to prune \(plantName)", randomMessage)
         }
     }
     
@@ -459,6 +450,131 @@ class CareReminderManager: ObservableObject {
         }
     }
     
+    // MARK: - Daily Completion Tracking
+    
+    func markDailyCompletion(for reminder: CareReminder, date: Date = Date()) {
+        let context = CoreDataManager.shared.viewContext
+        
+        // Check if completion already exists for this date
+        if isCompletionMarked(for: reminder, date: date) {
+            return
+        }
+        
+        let completion = CareCompletion(context: context)
+        completion.id = UUID().uuidString
+        completion.completionDate = date
+        completion.reminder = reminder
+        completion.plant = reminder.plant
+        completion.reminderType = reminder.reminderType
+        completion.createdAt = Date()
+        
+        do {
+            try context.save()
+            loadDailyCompletions(for: reminder.plant)
+        } catch {
+            print("Error marking daily completion: \(error)")
+        }
+    }
+    
+    func unmarkDailyCompletion(for reminder: CareReminder, date: Date = Date()) {
+        let context = CoreDataManager.shared.viewContext
+        
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
+        
+        let fetchRequest: NSFetchRequest<CareCompletion> = CareCompletion.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "reminder == %@ AND completionDate >= %@ AND completionDate < %@", 
+                                           reminder, 
+                                           startOfDay as NSDate,
+                                           endOfDay as NSDate)
+        
+        do {
+            let completions = try context.fetch(fetchRequest)
+            for completion in completions {
+                context.delete(completion)
+            }
+            try context.save()
+            loadDailyCompletions(for: reminder.plant)
+        } catch {
+            print("Error unmarking daily completion: \(error)")
+        }
+    }
+    
+    func isCompletionMarked(for reminder: CareReminder, date: Date = Date()) -> Bool {
+        let context = CoreDataManager.shared.viewContext
+        
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
+        
+        let fetchRequest: NSFetchRequest<CareCompletion> = CareCompletion.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "reminder == %@ AND completionDate >= %@ AND completionDate < %@", 
+                                           reminder, 
+                                           startOfDay as NSDate,
+                                           endOfDay as NSDate)
+        
+        do {
+            let count = try context.count(for: fetchRequest)
+            return count > 0
+        } catch {
+            print("Error checking completion status: \(error)")
+            return false
+        }
+    }
+    
+    func loadDailyCompletions(for plant: Plant?) {
+        guard let plant = plant else { return }
+        
+        let context = CoreDataManager.shared.viewContext
+        let fetchRequest: NSFetchRequest<CareCompletion> = CareCompletion.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "plant == %@", plant)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CareCompletion.completionDate, ascending: false)]
+        
+        do {
+            dailyCompletions = try context.fetch(fetchRequest)
+        } catch {
+            print("Error loading daily completions: \(error)")
+            dailyCompletions = []
+        }
+    }
+    
+    func getCompletionsForDate(_ date: Date, plant: Plant) -> [CareCompletion] {
+        return dailyCompletions.filter { completion in
+            guard let completionDate = completion.completionDate else { return false }
+            return Calendar.current.isDate(completionDate, inSameDayAs: date)
+        }
+    }
+    
+    func getCompletionStreak(for reminder: CareReminder) -> Int {
+        let context = CoreDataManager.shared.viewContext
+        
+        let fetchRequest: NSFetchRequest<CareCompletion> = CareCompletion.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "reminder == %@", reminder)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CareCompletion.completionDate, ascending: false)]
+        
+        do {
+            let completions = try context.fetch(fetchRequest)
+            let calendar = Calendar.current
+            var streak = 0
+            var currentDate = Date()
+            
+            for completion in completions {
+                guard let completionDate = completion.completionDate else { continue }
+                
+                if calendar.isDate(completionDate, inSameDayAs: currentDate) {
+                    streak += 1
+                    currentDate = calendar.date(byAdding: .day, value: -1, to: currentDate) ?? currentDate
+                } else {
+                    break
+                }
+            }
+            
+            return streak
+        } catch {
+            print("Error calculating completion streak: \(error)")
+            return 0
+        }
+    }
+    
     // Handle notification actions
     func handleNotificationAction(identifier: String, for reminderId: String) {
         guard let reminder = reminders.first(where: { $0.id == reminderId }) else { return }
@@ -475,11 +591,24 @@ class CareReminderManager: ObservableObject {
         }
     }
     
-    private func snoozeReminder(_ reminder: CareReminder, by timeInterval: TimeInterval) {
+    func snoozeReminder(_ reminder: CareReminder, by timeInterval: TimeInterval) {
         let context = CoreDataManager.shared.viewContext
         
-        // Update the next due date
+        // Calculate the new due date
         let newDueDate = Date().addingTimeInterval(timeInterval)
+        
+        // Check if this is a daily reminder and we're snoozing to tomorrow (24+ hours)
+        if let repeatTypeString = reminder.repeatType,
+           let repeatType = getRepeatType(from: repeatTypeString),
+           repeatType == .days && reminder.frequency == 1 && timeInterval >= 24 * 60 * 60 {
+            
+            // For daily reminders snoozed to tomorrow, just mark today as completed
+            // and let the normal schedule continue. This prevents duplicate reminders.
+            markDailyCompletion(for: reminder, date: Date())
+            return
+        }
+        
+        // For all other cases, simply update the next due date
         reminder.nextDueDate = newDueDate
         reminder.updatedAt = Date()
         

@@ -16,6 +16,7 @@ public class CareReminder: NSManagedObject {
     @NSManaged public var reminderTime: Date?
     @NSManaged public var repeatType: String?
     @NSManaged public var plant: Plant?
+    @NSManaged public var completions: NSSet?
 }
 
 extension CareReminder {
@@ -24,4 +25,16 @@ extension CareReminder {
     }
 }
 
-extension CareReminder: Identifiable {} 
+extension CareReminder: Identifiable {
+    @objc(addCompletionsObject:)
+    @NSManaged public func addToCompletions(_ value: CareCompletion)
+
+    @objc(removeCompletionsObject:)
+    @NSManaged public func removeFromCompletions(_ value: CareCompletion)
+
+    @objc(addCompletions:)
+    @NSManaged public func addToCompletions(_ values: NSSet)
+
+    @objc(removeCompletions:)
+    @NSManaged public func removeFromCompletions(_ values: NSSet)
+} 

@@ -15,7 +15,7 @@ struct PlantDetailsScreen: View {
     let isSamplePlant: Bool
     @State private var selectedTab = 0
     @State private var showDeleteAlert = false
-    private let tabs = ["Plant Info", "Care Guide"]
+    private let tabs = ["Plant Info", "Care Reminders"]
     @Environment(\.dismiss) private var dismiss
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var conversationManager: ConversationManager
@@ -58,6 +58,7 @@ struct PlantDetailsScreen: View {
             // Load reminders for this plant when screen appears
             if let plant = getPlantFromCoreData() {
                 reminderManager.loadReminders(for: plant)
+                reminderManager.loadDailyCompletions(for: plant)
             }
             // Request notification permission
             reminderManager.requestNotificationPermission()
@@ -70,6 +71,7 @@ struct PlantDetailsScreen: View {
                         // Refresh reminders when the sheet is dismissed
                         if let plant = getPlantFromCoreData() {
                             reminderManager.loadReminders(for: plant)
+                            reminderManager.loadDailyCompletions(for: plant)
                         }
                     }
             }
@@ -261,10 +263,6 @@ struct PlantDetailsScreen: View {
     private var careRemindersSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Care Reminders")
-                    .font(.system(size: 15))
-                    .foregroundColor(.primary)
-                
                 Spacer()
                 
                 Button(action: {
@@ -291,23 +289,26 @@ struct PlantDetailsScreen: View {
                     return nextDue > Date() && nextDue <= futureDate && reminder.isEnabled
                 }.count
                 
-                VStack(spacing: 0) {
-                    if reminders.isEmpty {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("\(reminders.count) Reminders")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(.primary)
+                Button(action: {
+                    showCareReminders = true
+                }) {
+                    VStack(spacing: 0) {
+                        if reminders.isEmpty {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("\(reminders.count) Reminders")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(.primary)
+                                    
+                                    Text("No reminders set")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.secondary)
+                                }
                                 
-                                Text("No reminders set")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.secondary)
+                                Spacer()
                             }
-                            
-                            Spacer()
-                        }
-                        .padding()
-                    } else {
+                            .padding()
+                        } else {
                         // Show reminder details
                         VStack(spacing: 0) {
                             HStack {
@@ -344,8 +345,8 @@ struct PlantDetailsScreen: View {
                                 Spacer()
                                 
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.green)
                             }
                             .padding(.horizontal)
                             .padding(.top)
@@ -397,12 +398,52 @@ struct PlantDetailsScreen: View {
                                     Spacer()
                                     
                                     Image(systemName: "chevron.right")
-                                        .font(.system(size: 12))
+                                        .font(.system(size: 14, weight: .medium))
                                         .foregroundColor(.blue)
                                 }
                                 .padding(.horizontal)
                                 .padding(.bottom)
                             }
+                        }
+                        
+                        // Completion statistics
+                        if !reminders.isEmpty {
+                            Divider()
+                                .padding(.horizontal)
+                            
+                            let todayCompletions = reminders.filter { reminder in
+                                reminderManager.isCompletionMarked(for: reminder, date: Date())
+                            }.count
+                            
+                            let totalCompletions = reminders.reduce(0) { total, reminder in
+                                total + reminderManager.getCompletionStreak(for: reminder)
+                            }
+                            
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Today's Progress")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.primary)
+                                    
+                                    Text("\(todayCompletions) of \(reminders.count) completed")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
+                                
+                                VStack(alignment: .trailing, spacing: 4) {
+                                    Text("Total Streaks")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.primary)
+                                    
+                                    Text("\(totalCompletions) days")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .padding(.horizontal)
+                            .padding(.vertical, 12)
                         }
                     }
                 }
@@ -410,6 +451,8 @@ struct PlantDetailsScreen: View {
                 .cornerRadius(16)
                 .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
                 .padding(.horizontal)
+                }
+                .buttonStyle(PlainButtonStyle())
             }
         }
         .padding(.bottom, 20)

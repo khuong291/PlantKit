@@ -15,6 +15,9 @@ struct MyPlantsScreen: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State private var refreshID = UUID()
     @State private var selectedTab = 0
+    @State private var selectedDayOffset = 0
+    @State private var showActionSheet = false
+    @State private var selectedReminder: CareReminder?
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Plant.scannedAt, ascending: false)],
         animation: .default)
@@ -26,22 +29,13 @@ struct MyPlantsScreen: View {
             Color.appScreenBackgroundColor
                 .edgesIgnoringSafeArea(.all)
             VStack(spacing: 0) {
-                // Header
-                HStack {
-                    Text("My Plants")
-                        .font(.system(size: 34))
-                        .bold()
-                    Spacer()
-                }
-                .padding(.horizontal)
-                .padding(.top)
-                
                 // Tab Picker
                 Picker("View", selection: $selectedTab) {
                     Text("Plants").tag(0)
                     Text("Reminders").tag(1)
                 }
                 .pickerStyle(SegmentedPickerStyle())
+                .padding(.top, 10)
                 .padding(.horizontal)
                 .padding(.bottom, 16)
                 
@@ -75,6 +69,7 @@ struct MyPlantsScreen: View {
     private func loadAllPlantReminders() {
         for plant in plants {
             careReminderManager.loadReminders(for: plant)
+            careReminderManager.loadDailyCompletions(for: plant)
         }
     }
     
@@ -93,23 +88,23 @@ struct MyPlantsScreen: View {
         let timeInterval = nextDueDate.timeIntervalSince(now)
         
         if timeInterval < 0 {
-            // Overdue
-            let days = Int(abs(timeInterval) / (24 * 60 * 60))
-            if days == 0 {
-                return "Overdue today"
-            } else if days == 1 {
-                return "Overdue 1 day"
-            } else {
-                return "Overdue \(days) days"
-            }
+            // Overdue - show exact time
+            let formatter = DateFormatter()
+            formatter.timeStyle = .short
+            return "Overdue at \(formatter.string(from: nextDueDate))"
         } else {
             // Upcoming
             let days = Int(timeInterval / (24 * 60 * 60))
             let hours = Int((timeInterval.truncatingRemainder(dividingBy: 24 * 60 * 60)) / (60 * 60))
+            let minutes = Int((timeInterval.truncatingRemainder(dividingBy: 60 * 60)) / 60)
             
             if days == 0 {
                 if hours == 0 {
-                    return "Due now"
+                    if minutes <= 1 {
+                        return "Due now"
+                    } else {
+                        return "Due in \(minutes) minutes"
+                    }
                 } else if hours == 1 {
                     return "Due in 1 hour"
                 } else {
@@ -177,20 +172,47 @@ struct MyPlantsScreen: View {
             VStack(alignment: .leading, spacing: 16) {
                 let allReminders = getAllReminders()
                 if allReminders.isEmpty {
-                    Spacer()
                     remindersEmptyView
                         .frame(maxWidth: .infinity)
-                    Spacer()
+                        .padding(.top, 50)
                 } else {
-                    remindersListView(reminders: allReminders)
+                    weeklyOverviewBar(reminders: allReminders)
+                    let selectedDayReminders = getRemindersForSelectedDay(reminders: allReminders)
+                    if selectedDayReminders.isEmpty {
+                        selectedDayEmptyView
+                            .padding(.top, 50)
+                    } else {
+                        remindersListView(reminders: selectedDayReminders)
+                    }
                 }
                 Spacer()
                     .frame(height: 40)
             }
             .padding()
-            .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height - 200)
+            .frame(maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity)
+        .confirmationDialog("Reminder Actions", isPresented: $showActionSheet) {
+            if let reminder = selectedReminder {
+                Button("Mark as Done") {
+                    careReminderManager.markReminderCompleted(reminder)
+                }
+                
+                Button("Remind in 1 hour") {
+                    careReminderManager.snoozeReminder(reminder, by: 1 * 60 * 60)
+                }
+                
+                Button("Remind tomorrow") {
+                    careReminderManager.snoozeReminder(reminder, by: 24 * 60 * 60)
+                }
+                
+                Button("Cancel", role: .cancel) { }
+            }
+        } message: {
+            if let reminder = selectedReminder {
+                Text("Choose an action for \(reminder.plant?.commonName ?? "this reminder")")
+            }
+        }
     }
     
     private var remindersEmptyView: some View {
@@ -221,71 +243,248 @@ struct MyPlantsScreen: View {
     private func remindersListView(reminders: [CareReminder]) -> some View {
         LazyVStack {
             ForEach(reminders, id: \.id) { reminder in
-                Button {
-                    if let plant = reminder.plant,
-                       let plantDetails = plantDetails(from: plant) {
-                        myPlantsRouter.navigate(to: .plantDetails(plantDetails))
-                    }
-                } label: {
-                    HStack(spacing: 16) {
-                        // Plant image
+                HStack(spacing: 16) {
+                    // Plant image and info (clickable for navigation)
+                    Button {
                         if let plant = reminder.plant,
-                           let plantImageData = plant.plantImage,
-                           let uiImage = UIImage(data: plantImageData) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .frame(width: 60, height: 60)
-                                .cornerRadius(10)
-                                .clipped()
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.white, lineWidth: 2)
-                                )
-                        } else {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.gray.opacity(0.2))
-                                .frame(width: 60, height: 60)
-                                .overlay(
-                                    Image(systemSymbol: .leafFill)
-                                        .foregroundColor(.gray)
-                                )
+                           let plantDetails = plantDetails(from: plant) {
+                            myPlantsRouter.navigate(to: .plantDetails(plantDetails))
                         }
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            // Plant name and reminder type
-                            HStack {
-                                Text(reminder.plant?.commonName ?? "Unknown Plant")
-                                    .font(.system(size: 16).weight(.semibold))
-                                Spacer()
-                                Text(getReminderEmoji(for: reminder))
-                                    .font(.system(size: 16))
+                    } label: {
+                        HStack(spacing: 16) {
+                            // Plant image
+                            if let plant = reminder.plant,
+                               let plantImageData = plant.plantImage,
+                               let uiImage = UIImage(data: plantImageData) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .frame(width: 60, height: 60)
+                                    .cornerRadius(10)
+                                    .clipped()
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(Color.white, lineWidth: 2)
+                                    )
+                            } else {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.gray.opacity(0.2))
+                                    .frame(width: 60, height: 60)
+                                    .overlay(
+                                        Image(systemSymbol: .leafFill)
+                                            .foregroundColor(.gray)
+                                    )
                             }
                             
-                            // Reminder type and time
-                            HStack {
-                                Text(getReminderTypeText(for: reminder))
-                                    .font(.system(size: 14).weight(.medium))
-                                    .foregroundColor(getReminderColor(for: reminder))
-                                Spacer()
-                                Text(getReminderDisplayText(for: reminder))
-                                    .font(.system(size: 12))
-                                    .foregroundColor(getReminderColor(for: reminder))
+                            VStack(alignment: .leading, spacing: 4) {
+                                // Plant name and reminder type
+                                HStack {
+                                    Text(reminder.plant?.commonName ?? "Unknown Plant")
+                                        .font(.system(size: 16).weight(.semibold))
+                                    Spacer()
+                                    Text(getReminderEmoji(for: reminder))
+                                        .font(.system(size: 16))
+                                }
+                                
+                                // Reminder type and time
+                                HStack {
+                                    Text(getReminderTypeText(for: reminder))
+                                        .font(.system(size: 14).weight(.medium))
+                                        .foregroundColor(getReminderColor(for: reminder))
+                                    Spacer()
+                                    Text(getReminderDisplayText(for: reminder))
+                                        .font(.system(size: 12))
+                                        .foregroundColor(getReminderColor(for: reminder))
+                                }
                             }
+                            
+                            Spacer()
                         }
-                        Spacer()
                     }
-                    .padding()
-                    .background(Color.white)
-                    .cornerRadius(16)
-                    .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(getReminderColor(for: reminder).opacity(0.3), lineWidth: 2)
-                    )
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    // Menu button
+                    Button(action: {
+                        selectedReminder = reminder
+                        showActionSheet = true
+                    }) {
+                        Image(systemName: "ellipsis.circle")
+                            .font(.system(size: 20))
+                            .foregroundColor(.gray)
+                            .frame(width: 32, height: 32)
+                            .background(Color.gray.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
-                .buttonStyle(PlainButtonStyle())
+                .padding()
+                .background(Color.white)
+                .cornerRadius(16)
+                .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(getReminderColor(for: reminder).opacity(0.3), lineWidth: 2)
+                )
+                .contextMenu {
+                    Button(action: {
+                        careReminderManager.markReminderCompleted(reminder)
+                    }) {
+                        Label("Mark as Done", systemImage: "checkmark.circle.fill")
+                    }
+                    
+                    Button(action: {
+                        careReminderManager.snoozeReminder(reminder, by: 1 * 60 * 60) // 1 hour
+                    }) {
+                        Label("Remind in 1 hour", systemImage: "clock")
+                    }
+                    
+                    Button(action: {
+                        careReminderManager.snoozeReminder(reminder, by: 24 * 60 * 60) // 24 hours
+                    }) {
+                        Label("Remind tomorrow", systemImage: "calendar")
+                    }
+                }
             }
         }
+    }
+    
+    private func weeklyOverviewBar(reminders: [CareReminder]) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("This Week")
+                .font(.system(size: 18).weight(.semibold))
+                .foregroundColor(.primary)
+            
+            HStack(spacing: 8) {
+                ForEach(0..<7, id: \.self) { dayOffset in
+                    let dayData = getDayData(for: dayOffset, reminders: reminders)
+                    Button {
+                        selectedDayOffset = dayOffset
+                    } label: {
+                        VStack(spacing: 4) {
+                            // Day name
+                            Text(dayData.dayName)
+                                .font(.system(size: 10).weight(.medium))
+                                .foregroundColor(dayData.isSelected ? .white : .secondary)
+                            
+                            // Day number
+                            Text("\(dayData.dayNumber)")
+                                .font(.system(size: 14).weight(.semibold))
+                                .foregroundColor(dayData.isSelected ? .white : (dayData.isToday ? .white : .primary))
+                            
+                            // Reminder count
+                            if dayData.reminderCount > 0 {
+                                Text("\(dayData.reminderCount)")
+                                    .font(.system(size: 10).weight(.bold))
+                                    .foregroundColor(.white)
+                                    .frame(width: 16, height: 16)
+                                    .background(dayData.priorityColor)
+                                    .clipShape(Circle())
+                            } else {
+                                Circle()
+                                    .fill(Color.clear)
+                                    .frame(width: 16, height: 16)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(getDayBackgroundColor(dayData: dayData))
+                                .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+                        )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+    }
+    
+    private func getDayData(for dayOffset: Int, reminders: [CareReminder]) -> (dayName: String, dayNumber: Int, reminderCount: Int, isToday: Bool, isSelected: Bool, priorityColor: Color) {
+        let calendar = Calendar.current
+        let today = Date()
+        let targetDate = calendar.date(byAdding: .day, value: dayOffset, to: today) ?? today
+        
+        let dayName = getDayName(for: targetDate)
+        let dayNumber = calendar.component(.day, from: targetDate)
+        let isToday = calendar.isDate(targetDate, inSameDayAs: today)
+        let isSelected = dayOffset == selectedDayOffset
+        
+        // Count reminders for this day
+        let dayReminders = reminders.filter { reminder in
+            guard let dueDate = reminder.nextDueDate else { return false }
+            return calendar.isDate(dueDate, inSameDayAs: targetDate)
+        }
+        
+        let reminderCount = dayReminders.count
+        
+        // Determine priority color based on most urgent reminder
+        let priorityColor: Color
+        if reminderCount == 0 {
+            priorityColor = .clear
+        } else {
+            let mostUrgentReminder = dayReminders.min { reminder1, reminder2 in
+                let date1 = reminder1.nextDueDate ?? Date()
+                let date2 = reminder2.nextDueDate ?? Date()
+                return date1 < date2
+            }
+            priorityColor = getReminderColor(for: mostUrgentReminder ?? dayReminders[0])
+        }
+        
+        return (dayName: dayName, dayNumber: dayNumber, reminderCount: reminderCount, isToday: isToday, isSelected: isSelected, priorityColor: priorityColor)
+    }
+    
+    private func getDayName(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE"
+        return formatter.string(from: date)
+    }
+    
+    private func getDayBackgroundColor(dayData: (dayName: String, dayNumber: Int, reminderCount: Int, isToday: Bool, isSelected: Bool, priorityColor: Color)) -> Color {
+        if dayData.isSelected {
+            return .blue
+        } else if dayData.isToday {
+            return .blue.opacity(0.7)
+        } else {
+            return .white
+        }
+    }
+    
+    private func getRemindersForSelectedDay(reminders: [CareReminder]) -> [CareReminder] {
+        let calendar = Calendar.current
+        let today = Date()
+        let selectedDate = calendar.date(byAdding: .day, value: selectedDayOffset, to: today) ?? today
+        
+        return reminders.filter { reminder in
+            guard let dueDate = reminder.nextDueDate else { return false }
+            return calendar.isDate(dueDate, inSameDayAs: selectedDate)
+        }.sorted { ($0.nextDueDate ?? Date()) < ($1.nextDueDate ?? Date()) }
+    }
+    
+    private var selectedDayEmptyView: some View {
+        VStack(spacing: 10) {
+            Image(systemSymbol: .calendar)
+                .font(.system(size: 28))
+                .foregroundStyle(.blue)
+            Text("No reminders for \(getSelectedDayName())")
+                .font(.system(size: 17))
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+            Text("Tap another day to see reminders")
+                .font(.system(size: 14))
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+    }
+    
+    private func getSelectedDayName() -> String {
+        let calendar = Calendar.current
+        let today = Date()
+        let selectedDate = calendar.date(byAdding: .day, value: selectedDayOffset, to: today) ?? today
+        return getDayName(for: selectedDate)
     }
     
     private var emptyView: some View {
@@ -422,18 +621,16 @@ struct MyPlantsScreen: View {
                         }
                         VStack(alignment: .leading, spacing: 6) {
                             // Top row: Plant name and created date
-                            HStack {
-                                Text(details.commonName)
-                                    .font(.system(size: 17).weight(.semibold))
-                                Spacer()
-                                Text(details.createdAt, style: .date)
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.gray)
-                            }
+                            Text(details.commonName)
+                                .font(.system(size: 17).weight(.semibold))
                             
                             Text(details.scientificName)
                                 .font(.system(size: 15))
                                 .foregroundColor(.secondary)
+                            
+                            Text(details.createdAt, style: .date)
+                                .font(.system(size: 12))
+                                .foregroundColor(.gray)
                         }
                         Spacer()
                     }

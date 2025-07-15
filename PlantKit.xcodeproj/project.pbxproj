@@ -10,6 +10,7 @@
 		1B13544F2DEDEABA00EBF77B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 1B13544E2DEDEABA00EBF77B /* FirebaseAuth */; };
 		1B1354512DEDEABA00EBF77B /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 1B1354502DEDEABA00EBF77B /* FirebaseFirestore */; };
 		1B1354532DEDEAF500EBF77B /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1B1354522DEDEAF500EBF77B /* FirebaseCore */; };
+		1B1D5B0E2E26A66700A5F70F /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1B1D5B0D2E26A66700A5F70F /* Launch Screen.storyboard */; };
 		1BA24ABC2DEF47D700DCA65F /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 1BA24ABB2DEF47D700DCA65F /* Lottie */; };
 		1BAD97662DEF437200F7E04B /* ConfettiSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 1BAD97652DEF437200F7E04B /* ConfettiSwiftUI */; };
 		1BAD97692DEF437F00F7E04B /* Device in Frameworks */ = {isa = PBXBuildFile; productRef = 1BAD97682DEF437F00F7E04B /* Device */; };
@@ -21,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1B1D5B0D2E26A66700A5F70F /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		1BB737AD2E1275C200EA3F6B /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		1BD2FC532DE96D5C0019C364 /* PlantKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlantKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -79,6 +81,7 @@
 		1BD2FC4A2DE96D5C0019C364 = {
 			isa = PBXGroup;
 			children = (
+				1B1D5B0D2E26A66700A5F70F /* Launch Screen.storyboard */,
 				1BD2FC552DE96D5C0019C364 /* PlantKit */,
 				1BB737AC2E1275C200EA3F6B /* Frameworks */,
 				1BD2FC542DE96D5C0019C364 /* Products */,
@@ -177,6 +180,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1B1D5B0E2E26A66700A5F70F /* Launch Screen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,6 +338,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
@@ -378,6 +383,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;

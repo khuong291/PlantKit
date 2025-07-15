@@ -41,6 +41,7 @@ public class Plant: NSManagedObject {
     @NSManaged public var careGuidePruning: String?
     @NSManaged public var careGuideRepotting: String?
     @NSManaged public var careReminders: NSSet?
+    @NSManaged public var careCompletions: NSSet?
 }
 
 extension Plant {
@@ -61,4 +62,16 @@ extension Plant: Identifiable {
 
     @objc(removeCareReminders:)
     @NSManaged public func removeFromCareReminders(_ values: NSSet)
+    
+    @objc(addCareCompletionsObject:)
+    @NSManaged public func addToCareCompletions(_ value: CareCompletion)
+
+    @objc(removeCareCompletionsObject:)
+    @NSManaged public func removeFromCareCompletions(_ value: CareCompletion)
+
+    @objc(addCareCompletions:)
+    @NSManaged public func addToCareCompletions(_ values: NSSet)
+
+    @objc(removeCareCompletions:)
+    @NSManaged public func removeFromCareCompletions(_ values: NSSet)
 } 

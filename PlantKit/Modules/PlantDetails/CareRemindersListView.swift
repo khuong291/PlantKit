@@ -71,6 +71,7 @@ struct CareRemindersListView: View {
         }
         .onAppear {
             reminderManager.loadReminders(for: plant)
+            reminderManager.loadDailyCompletions(for: plant)
             // Request notification permission when user opens reminders
             reminderManager.requestNotificationPermission()
         }
@@ -144,6 +145,8 @@ struct ReminderCard: View {
     let onDelete: () -> Void
     
     @EnvironmentObject private var reminderManager: CareReminderManager
+    @State private var showDailyTracking = false
+    @State private var showActionSheet = false
     
     private var reminderType: ReminderType? {
         reminderManager.getReminderType(from: reminder.reminderType ?? "")
@@ -171,9 +174,20 @@ struct ReminderCard: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(reminder.title ?? "Reminder")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.primary)
+                    HStack {
+                        Text(reminder.title ?? "Reminder")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.primary)
+                        
+                        Spacer()
+                        
+                        // Today's completion indicator
+                        if reminderManager.isCompletionMarked(for: reminder, date: Date()) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 16))
+                                .foregroundColor(.green)
+                        }
+                    }
                     
                     if let notes = reminder.notes, !notes.isEmpty {
                         Text(notes)
@@ -212,6 +226,18 @@ struct ReminderCard: View {
                 Spacer()
                 
                 HStack(spacing: 12) {
+                    Button(action: {
+                        showDailyTracking = true
+                    }) {
+                        Image(systemName: "calendar")
+                            .font(.system(size: 18))
+                            .foregroundColor(.purple)
+                            .frame(width: 44, height: 44)
+                            .background(Color.purple.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
                     Button(action: onComplete) {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 24))
@@ -222,22 +248,14 @@ struct ReminderCard: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                     
-                    Button(action: onEdit) {
-                        Image(systemName: "pencil")
+                    Button(action: {
+                        showActionSheet = true
+                    }) {
+                        Image(systemName: "ellipsis.circle")
                             .font(.system(size: 18))
-                            .foregroundColor(.blue)
+                            .foregroundColor(.orange)
                             .frame(width: 44, height: 44)
-                            .background(Color.blue.opacity(0.1))
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    
-                    Button(action: onDelete) {
-                        Image(systemName: "trash")
-                            .font(.system(size: 18))
-                            .foregroundColor(.red)
-                            .frame(width: 44, height: 44)
-                            .background(Color.red.opacity(0.1))
+                            .background(Color.orange.opacity(0.1))
                             .clipShape(Circle())
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -258,6 +276,65 @@ struct ReminderCard: View {
                     lineWidth: 1
                 )
         )
+        .sheet(isPresented: $showDailyTracking) {
+            if let plant = reminder.plant {
+                DailyCompletionView(plant: plant, reminder: reminder)
+                    .environmentObject(reminderManager)
+            }
+        }
+        .contextMenu {
+            Button(action: onComplete) {
+                Label("Mark as Done", systemImage: "checkmark.circle.fill")
+            }
+            
+            Button(action: {
+                reminderManager.snoozeReminder(reminder, by: 1 * 60 * 60) // 1 hour
+            }) {
+                Label("Remind in 1 hour", systemImage: "clock")
+            }
+            
+            Button(action: {
+                reminderManager.snoozeReminder(reminder, by: 24 * 60 * 60) // 24 hours
+            }) {
+                Label("Remind tomorrow", systemImage: "calendar")
+            }
+            
+            Divider()
+            
+            Button(action: onEdit) {
+                Label("Edit", systemImage: "pencil")
+            }
+            
+            Button(action: onDelete) {
+                Label("Delete", systemImage: "trash")
+            }
+            .foregroundColor(.red)
+        }
+        .confirmationDialog("Reminder Actions", isPresented: $showActionSheet) {
+            Button("Mark as Done") {
+                onComplete()
+            }
+            
+            Button("Remind in 1 hour") {
+                reminderManager.snoozeReminder(reminder, by: 1 * 60 * 60)
+            }
+            
+            Button("Remind tomorrow") {
+                reminderManager.snoozeReminder(reminder, by: 24 * 60 * 60)
+            }
+            
+            Button("Edit") {
+                onEdit()
+            }
+            
+            Button("Delete", role: .destructive) {
+                onDelete()
+            }
+            
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Choose an action for this reminder")
+        }
     }
     
     private func formatDate(_ date: Date) -> String {

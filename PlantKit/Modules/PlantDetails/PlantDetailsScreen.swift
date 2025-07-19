@@ -15,7 +15,13 @@ struct PlantDetailsScreen: View {
     let isSamplePlant: Bool
     @State private var selectedTab = 0
     @State private var showDeleteAlert = false
-    private let tabs = ["Plant Info", "Care Reminders"]
+    private var tabs: [String] {
+        if isSamplePlant {
+            return ["Plant Info"]
+        } else {
+            return ["Plant Info", "Care Reminders"]
+        }
+    }
     @Environment(\.dismiss) private var dismiss
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var conversationManager: ConversationManager
@@ -471,7 +477,9 @@ struct PlantDetailsScreen: View {
     
     private func careGuideTab(details: PlantDetails) -> some View {
         VStack(spacing: 0) {
-            careRemindersSection
+            if !isSamplePlant {
+                careRemindersSection
+            }
         }
     }
     

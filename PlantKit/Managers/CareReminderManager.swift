@@ -27,10 +27,10 @@ enum ReminderType: String, CaseIterable {
     
     var icon: String {
         switch self {
-        case .watering: return "drop.fill"
-        case .fertilizing: return "leaf.fill"
-        case .repotting: return "arrow.triangle.2.circlepath"
-        case .pruning: return "scissors"
+        case .watering: return "ic-watering"
+        case .fertilizing: return "ic-fertilizing"
+        case .repotting: return "ic-repotting"
+        case .pruning: return "ic-pruning"
         }
     }
     

@@ -183,40 +183,6 @@ struct PlantDetailsScreen: View {
                     .background(Color.yellow.opacity(0.3))
                 }
             }
-            if plantDetails != nil {
-                VStack(spacing: 4) {
-                    // Only show delete button for non-sample plants
-                    if !isSamplePlant {
-                        Button {
-                            showDeleteAlert = true
-                        } label: {
-                            HStack {
-                                Image(systemName: "trash")
-                                Text("Delete Plant")
-                            }
-                            .font(.system(size: 17))
-                            .foregroundColor(.red)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    
-                    ShinyBorderButton(systemName: "message.fill", title: "Ask Anything") {
-                        Haptics.shared.play()
-                        if proManager.hasPro {
-                            let newConversation = conversationManager.createNewConversation(plantName: plantDetails?.commonName, plantDetails: plantDetails)
-                            conversationManager.currentConversationId = newConversation.id
-                            myPlantsRouter.navigate(to: .conversation(newConversation.id, plantDetails))
-                        } else {
-                            proManager.showUpgradeProIfNeeded()
-                        }
-                    }
-                    .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
-                }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 40)
-            }
         }
         .edgesIgnoringSafeArea(.top)
     }
@@ -267,22 +233,18 @@ struct PlantDetailsScreen: View {
     }
     
     private var careRemindersSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 16) {
+            // Header with manual add button
             HStack {
-                Spacer()
+                Text("Care Reminders")
+                    .font(.system(size: 15))
+                    .foregroundColor(.primary)
                 
-                Button(action: {
-                    showCareReminders = true
-                }) {
-                    Text("Manage")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.green)
-                }
+                Spacer()
             }
             .padding(.horizontal)
             
             if let plant = getPlantFromCoreData() {
-                // Use the published reminders array which updates automatically
                 let reminders = reminderManager.reminders.filter { $0.plant == plant }
                 let overdueCount = reminders.filter { reminder in
                     guard let nextDue = reminder.nextDueDate else { return false }
@@ -295,173 +257,238 @@ struct PlantDetailsScreen: View {
                     return nextDue > Date() && nextDue <= futureDate && reminder.isEnabled
                 }.count
                 
+                // Quick action buttons for common reminders
+                if reminders.isEmpty {
+                    careRemindersEmptyState
+                } else {
+                    // Show existing reminders with quick actions
+                    VStack(spacing: 12) {
+                        // Reminder summary card
+                        reminderSummaryCard(reminders: reminders, overdueCount: overdueCount, upcomingCount: upcomingCount)
+                        
+                        // Quick action buttons for adding more
+                        quickActionButtons
+                    }
+                }
+            }
+            
+            HStack {
+                Spacer()
                 Button(action: {
                     showCareReminders = true
                 }) {
-                    VStack(spacing: 0) {
-                        if reminders.isEmpty {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("\(reminders.count) Reminders")
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundColor(.primary)
-                                    
-                                    Text("No reminders set")
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.secondary)
-                                }
-                                
-                                Spacer()
-                            }
-                            .padding()
-                        } else {
-                        // Show reminder details
-                        VStack(spacing: 0) {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("\(reminders.count) Reminders")
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundColor(.primary)
-                                    
-                                    HStack(spacing: 12) {
-                                        if overdueCount > 0 {
-                                            HStack(spacing: 4) {
-                                                Circle()
-                                                    .fill(Color.red)
-                                                    .frame(width: 8, height: 8)
-                                                Text("\(overdueCount) overdue")
-                                                    .font(.system(size: 12))
-                                                    .foregroundColor(.red)
-                                            }
-                                        }
-                                        
-                                        if upcomingCount > 0 {
-                                            HStack(spacing: 4) {
-                                                Circle()
-                                                    .fill(Color.orange)
-                                                    .frame(width: 8, height: 8)
-                                                Text("\(upcomingCount) upcoming")
-                                                    .font(.system(size: 12))
-                                                    .foregroundColor(.orange)
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(.green)
-                            }
-                            .padding(.horizontal)
-                            .padding(.top)
-                            
-                            // Show upcoming reminders (up to 3)
-                            let upcomingReminders = reminders.prefix(3)
-                            ForEach(Array(upcomingReminders.enumerated()), id: \.element.id) { index, reminder in
-                                if index > 0 {
-                                    Divider()
-                                        .padding(.horizontal)
-                                }
-                                
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(reminder.title ?? "Reminder")
-                                            .font(.system(size: 14, weight: .medium))
-                                            .foregroundColor(.primary)
-                                        
-                                        if let nextDue = reminder.nextDueDate {
-                                            Text(formatNextDueDate(nextDue))
-                                                .font(.system(size: 12))
-                                                .foregroundColor(.secondary)
-                                        }
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    if let reminderTime = reminder.reminderTime {
-                                        Text(formatTime(reminderTime))
-                                            .font(.system(size: 14, weight: .medium))
-                                            .foregroundColor(.blue)
-                                    }
-                                }
-                                .padding(.horizontal)
-                                .padding(.vertical, 8)
-                            }
-                            
-                            // Show "View All" if there are more than 3 reminders
-                            if reminders.count > 3 {
-                                Divider()
-                                    .padding(.horizontal)
-                                    .padding(.bottom)
-                                
-                                HStack {
-                                    Text("View all \(reminders.count) reminders")
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.blue)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .font(.system(size: 14, weight: .medium))
-                                        .foregroundColor(.blue)
-                                }
-                                .padding(.horizontal)
-                                .padding(.bottom)
-                            }
-                        }
-                        
-                        // Completion statistics
-                        if !reminders.isEmpty {
-                            Divider()
-                                .padding(.horizontal)
-                            
-                            let todayCompletions = reminders.filter { reminder in
-                                reminderManager.isCompletionMarked(for: reminder, date: Date())
-                            }.count
-                            
-                            let totalCompletions = reminders.reduce(0) { total, reminder in
-                                total + reminderManager.getCompletionStreak(for: reminder)
-                            }
-                            
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Today's Progress")
-                                        .font(.system(size: 14, weight: .medium))
-                                        .foregroundColor(.primary)
-                                    
-                                    Text("\(todayCompletions) of \(reminders.count) completed")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.secondary)
-                                }
-                                
-                                Spacer()
-                                
-                                VStack(alignment: .trailing, spacing: 4) {
-                                    Text("Total Streaks")
-                                        .font(.system(size: 14, weight: .medium))
-                                        .foregroundColor(.primary)
-                                    
-                                    Text("\(totalCompletions) days")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                            .padding(.horizontal)
-                            .padding(.vertical, 12)
-                        }
+                    HStack(spacing: 6) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 14))
+                        Text("Manual Add")
+                            .font(.system(size: 14, weight: .medium))
                     }
+                    .foregroundColor(.green)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.green.opacity(0.1))
+                    .cornerRadius(16)
                 }
-                .background(Color.white)
-                .cornerRadius(16)
-                .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
-                .padding(.horizontal)
-                }
-                .buttonStyle(PlainButtonStyle())
+                Spacer()
             }
         }
         .padding(.bottom, 20)
+    }
+    
+    private var careRemindersEmptyState: some View {
+        VStack(spacing: 20) {
+            // Empty state icon and text
+            VStack(spacing: 12) {
+                Image("ic-calendar")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 40, height: 40)
+                
+                VStack(spacing: 8) {
+                    Text("No Care Reminders")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.primary)
+                    
+                    Text("Set up reminders to help you take care of your plant")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+            }
+            .padding(24)
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+            .padding(.horizontal)
+            
+            // Quick action buttons
+            quickActionButtons
+        }
+    }
+    
+    private var quickActionButtons: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text("Quick Add")
+                    .font(.system(size: 15))
+                    .foregroundColor(.primary)
+                    .padding(.horizontal)
+                Spacer()
+            }
+            
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
+                QuickReminderButton(
+                    title: "Water",
+                    icon: "ic-watering",
+                    color: .blue,
+                    frequency: "Every 7 days"
+                ) {
+                    addQuickReminder(type: .watering)
+                }
+                
+                QuickReminderButton(
+                    title: "Fertilize",
+                    icon: "ic-fertilizing",
+                    color: .green,
+                    frequency: "Every 30 days"
+                ) {
+                    addQuickReminder(type: .fertilizing)
+                }
+                
+                QuickReminderButton(
+                    title: "Prune",
+                    icon: "ic-pruning",
+                    color: .purple,
+                    frequency: "Every 90 days"
+                ) {
+                    addQuickReminder(type: .pruning)
+                }
+                
+                QuickReminderButton(
+                    title: "Repot",
+                    icon: "ic-repotting",
+                    color: .brown,
+                    frequency: "Every year"
+                ) {
+                    addQuickReminder(type: .repotting)
+                }
+            }
+            .padding(.horizontal)
+        }
+        .padding(.top)
+    }
+    
+    private func reminderSummaryCard(reminders: [CareReminder], overdueCount: Int, upcomingCount: Int) -> some View {
+        Button(action: {
+            showCareReminders = true
+        }) {
+            VStack(spacing: 0) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("\(reminders.count) Active Reminders")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.primary)
+                        
+                        HStack(spacing: 12) {
+                            if overdueCount > 0 {
+                                HStack(spacing: 4) {
+                                    Circle()
+                                        .fill(Color.red)
+                                        .frame(width: 8, height: 8)
+                                    Text("\(overdueCount) overdue")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.red)
+                                }
+                            }
+                            
+                            if upcomingCount > 0 {
+                                HStack(spacing: 4) {
+                                    Circle()
+                                        .fill(Color.orange)
+                                        .frame(width: 8, height: 8)
+                                    Text("\(upcomingCount) upcoming")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.orange)
+                                }
+                            }
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.green)
+                }
+                .padding(.horizontal)
+                .padding(.top)
+                
+                // Show next 2 upcoming reminders
+                let upcomingReminders = reminders.prefix(2)
+                ForEach(Array(upcomingReminders.enumerated()), id: \.element.id) { index, reminder in
+                    if index > 0 {
+                        Divider()
+                            .padding(.horizontal)
+                    }
+                    
+                    HStack {
+                        if let type = reminderManager.getReminderType(from: reminder.reminderType ?? "") {
+                            Image(type.icon)
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                                .foregroundColor(type.color)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(reminder.title ?? "Reminder")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.primary)
+                            
+                            if let nextDue = reminder.nextDueDate {
+                                Text(formatNextDueDate(nextDue))
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        
+                        Spacer()
+                        
+                        // Quick complete button
+                        Button(action: {
+                            reminderManager.markReminderCompleted(reminder)
+                        }) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 20))
+                                .foregroundColor(.green)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                }
+            }
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+            .padding(.horizontal)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+    private func addQuickReminder(type: ReminderType) {
+        guard let plant = getPlantFromCoreData() else { return }
+        
+        // Create reminder with default settings
+        reminderManager.createReminder(
+            for: plant,
+            type: type,
+            frequency: type.defaultFrequency,
+            repeatType: .days,
+            reminderTime: Date(),
+            notes: nil
+        )
+        
+        Haptics.shared.play()
     }
     
     private func plantInfoTab(details: PlantDetails) -> some View {
@@ -472,6 +499,40 @@ struct PlantDetailsScreen: View {
             generalSection(details: details)
             characteristicsSection(details: details)
             conditionsSection(details: details)
+            
+            // Action buttons - only show in Plant Info tab
+            VStack(spacing: 4) {
+                // Only show delete button for non-sample plants
+                if !isSamplePlant {
+                    Button {
+                        showDeleteAlert = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "trash")
+                            Text("Delete Plant")
+                        }
+                        .font(.system(size: 17))
+                        .foregroundColor(.red)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                    }
+                    .buttonStyle(.plain)
+                }
+                
+                ShinyBorderButton(systemName: "message.fill", title: "Ask Anything") {
+                    Haptics.shared.play()
+                    if proManager.hasPro {
+                        let newConversation = conversationManager.createNewConversation(plantName: details.commonName, plantDetails: details)
+                        conversationManager.currentConversationId = newConversation.id
+                        myPlantsRouter.navigate(to: .conversation(newConversation.id, details))
+                    } else {
+                        proManager.showUpgradeProIfNeeded()
+                    }
+                }
+                .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 40)
         }
     }
     
@@ -810,7 +871,7 @@ struct PlantDetailsScreen: View {
         guard let conditions = details.conditions else { return AnyView(EmptyView()) }
         return AnyView(
             VStack(alignment: .leading, spacing: 16) {
-                Text("CONDITIONS")
+                Text("Conditions")
                     .font(.system(size: 15))
                     .foregroundColor(.primary)
                     .padding(.horizontal)
@@ -1227,6 +1288,45 @@ private struct RangeBar: View {
             }
         }
         .frame(height: 14)
+    }
+}
+
+struct QuickReminderButton: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let frequency: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Image(icon)
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .foregroundColor(color)
+                
+                VStack(spacing: 2) {
+                    Text(title)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.primary)
+                    
+                    Text(frequency)
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(Color.white)
+            .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(color.opacity(0.2), lineWidth: 1)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

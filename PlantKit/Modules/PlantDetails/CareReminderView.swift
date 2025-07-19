@@ -110,48 +110,99 @@ struct CareReminderView: View {
     
     private var frequencySection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Repeat")
+            Text("Frequency")
                 .font(.system(size: 17, weight: .semibold))
                 .foregroundColor(.primary)
             
-            HStack(spacing: 16) {
-                // Frequency picker
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Every")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                    
-                    Picker("Frequency", selection: $frequency) {
-                        ForEach(frequencyOptions, id: \.0) { option in
-                            Text(option.1).tag(option.0)
-                        }
-                    }
-                    .pickerStyle(WheelPickerStyle())
-                    .frame(height: 120)
-                }
-                .frame(maxWidth: .infinity)
+            // Quick presets
+            VStack(spacing: 8) {
+                Text("Quick Presets")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 
-                // Repeat type picker
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Repeat")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                    
-                    Picker("Repeat Type", selection: $selectedRepeatType) {
-                        ForEach(RepeatType.allCases, id: \.self) { type in
-                            Text(type.title).tag(type)
-                        }
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
+                    FrequencyPresetButton(
+                        title: "Weekly",
+                        subtitle: "Every 7 days",
+                        isSelected: frequency == 7 && selectedRepeatType == .days
+                    ) {
+                        frequency = 7
+                        selectedRepeatType = .days
                     }
-                    .pickerStyle(WheelPickerStyle())
-                    .frame(height: 120)
+                    
+                    FrequencyPresetButton(
+                        title: "Bi-weekly",
+                        subtitle: "Every 14 days",
+                        isSelected: frequency == 14 && selectedRepeatType == .days
+                    ) {
+                        frequency = 14
+                        selectedRepeatType = .days
+                    }
+                    
+                    FrequencyPresetButton(
+                        title: "Monthly",
+                        subtitle: "Every 30 days",
+                        isSelected: frequency == 30 && selectedRepeatType == .days
+                    ) {
+                        frequency = 30
+                        selectedRepeatType = .days
+                    }
+                    
+                    FrequencyPresetButton(
+                        title: "Custom",
+                        subtitle: "Set your own",
+                        isSelected: !isPresetSelected
+                    ) {
+                        // Keep current values for custom
+                    }
                 }
-                .frame(maxWidth: .infinity)
+            }
+            
+            // Custom frequency picker (only show if not using preset)
+            if !isPresetSelected {
+                VStack(spacing: 12) {
+                    HStack {
+                        Text("Custom Frequency")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.secondary)
+                        Spacer()
+                    }
+                    
+                    HStack(spacing: 12) {
+                        Picker("Frequency", selection: $frequency) {
+                            ForEach(Array(1...31), id: \.self) { value in
+                                Text("\(value)").tag(Int16(value))
+                            }
+                        }
+                        .pickerStyle(WheelPickerStyle())
+                        .frame(maxWidth: .infinity)
+                        
+                        Picker("Repeat Type", selection: $selectedRepeatType) {
+                            ForEach(RepeatType.allCases, id: \.self) { type in
+                                Text(type.title).tag(type)
+                            }
+                        }
+                        .pickerStyle(WheelPickerStyle())
+                        .frame(maxWidth: .infinity)
+                    }
+                    .padding()
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(12)
+                }
             }
         }
         .padding()
         .background(Color.white)
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+    }
+    
+    private var isPresetSelected: Bool {
+        let presets = [(7, RepeatType.days), (14, RepeatType.days), (30, RepeatType.days)]
+        return presets.contains { preset in
+            frequency == preset.0 && selectedRepeatType == preset.1
+        }
     }
     
     private var notesSection: some View {
@@ -243,8 +294,9 @@ struct ReminderTypeCard: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
-                Image(systemName: type.icon)
-                    .font(.system(size: 24))
+                Image(type.icon)
+                    .resizable()
+                    .frame(width: 24, height: 24)
                     .foregroundColor(type.color)
                 
                 Text(type.title)
@@ -261,6 +313,36 @@ struct ReminderTypeCard: View {
                                 .stroke(isSelected ? type.color : Color.clear, lineWidth: 2)
                         )
                 )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+struct FrequencyPresetButton: View {
+    let title: String
+    let subtitle: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Text(title)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(isSelected ? .white : .primary)
+                
+                Text(subtitle)
+                    .font(.system(size: 11))
+                    .foregroundColor(isSelected ? .white.opacity(0.8) : .secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(isSelected ? Color.green : Color.gray.opacity(0.1))
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isSelected ? Color.green : Color.clear, lineWidth: 1)
+            )
         }
         .buttonStyle(PlainButtonStyle())
     }

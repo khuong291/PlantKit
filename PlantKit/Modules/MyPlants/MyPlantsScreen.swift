@@ -174,22 +174,24 @@ struct MyPlantsScreen: View {
     
     private var remindersTab: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 20) {
                 let allReminders = getAllReminders()
+                
                 if allReminders.isEmpty {
-                    remindersEmptyView
+                    improvedEmptyStateView
                         .frame(maxWidth: .infinity)
                         .padding(.top, 50)
                 } else {
-                    weeklyOverviewBar(reminders: allReminders)
-                    let selectedDayReminders = getRemindersForSelectedDay(reminders: allReminders)
-                    if selectedDayReminders.isEmpty {
-                        selectedDayEmptyView
-                            .padding(.top, 50)
-                    } else {
-                        remindersListView(reminders: selectedDayReminders)
-                    }
+                    // Quick stats overview
+                    quickStatsOverview(reminders: allReminders)
+                    
+                    // Today's reminders section
+                    todaysRemindersSection(reminders: allReminders)
+                    
+                    // Upcoming reminders section
+                    upcomingRemindersSection(reminders: allReminders)
                 }
+                
                 Spacer()
                     .frame(height: 40)
             }
@@ -218,6 +220,199 @@ struct MyPlantsScreen: View {
                 Text("Choose an action for \(reminder.plant?.commonName ?? "this reminder")")
             }
         }
+    }
+    
+    private var improvedEmptyStateView: some View {
+        VStack(spacing: 20) {
+            Image(systemSymbol: .bellFill)
+                .font(.system(size: 48))
+                .foregroundStyle(.orange)
+            
+            VStack(spacing: 8) {
+                Text("No care reminders yet")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(.primary)
+                    .multilineTextAlignment(.center)
+                
+                Text("Add reminders to your plants to keep track of their care schedule")
+                    .font(.system(size: 16))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+            }
+            
+            // Quick action to add reminders
+            Button(action: {
+                // Navigate to first plant to add reminder
+                if let firstPlant = plants.first,
+                   let plantDetails = plantDetails(from: firstPlant) {
+                    myPlantsRouter.navigate(to: .plantDetails(plantDetails))
+                }
+            }) {
+                HStack {
+                    Image(systemName: "plus.circle.fill")
+                    Text("Add Your First Reminder")
+                }
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.white)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .background(Color.green)
+                .cornerRadius(25)
+            }
+        }
+    }
+    
+    private func quickStatsOverview(reminders: [CareReminder]) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Overview")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.primary)
+            
+            HStack(spacing: 12) {
+                StatCard(
+                    title: "Today",
+                    value: "\(getTodaysReminders(reminders: reminders).count)",
+                    color: .blue,
+                    icon: "calendar"
+                )
+                
+                StatCard(
+                    title: "Overdue",
+                    value: "\(getOverdueReminders(reminders: reminders).count)",
+                    color: .red,
+                    icon: "exclamationmark.triangle.fill"
+                )
+                
+                StatCard(
+                    title: "This Week",
+                    value: "\(getThisWeeksReminders(reminders: reminders).count)",
+                    color: .orange,
+                    icon: "clock.fill"
+                )
+            }
+        }
+    }
+    
+    private func todaysRemindersSection(reminders: [CareReminder]) -> some View {
+        let todaysReminders = getTodaysReminders(reminders: reminders)
+        
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Today")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                if !todaysReminders.isEmpty {
+                    Text("\(todaysReminders.count) due")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            if todaysReminders.isEmpty {
+                HStack {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                    Text("All caught up! No reminders due today.")
+                        .font(.system(size: 16))
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+                .padding()
+                .background(Color.green.opacity(0.1))
+                .cornerRadius(12)
+            } else {
+                LazyVStack(spacing: 8) {
+                    ForEach(todaysReminders, id: \.id) { reminder in
+                        ImprovedReminderCard(
+                            reminder: reminder,
+                            onComplete: {
+                                careReminderManager.markReminderCompleted(reminder)
+                            },
+                            onSnooze: {
+                                selectedReminder = reminder
+                                showActionSheet = true
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+    
+    private func upcomingRemindersSection(reminders: [CareReminder]) -> some View {
+        let upcomingReminders = getUpcomingReminders(reminders: reminders)
+        
+        return VStack(alignment: .leading, spacing: 12) {
+            Text("Upcoming")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.primary)
+            
+            if upcomingReminders.isEmpty {
+                Text("No upcoming reminders")
+                    .font(.system(size: 16))
+                    .foregroundColor(.secondary)
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(12)
+            } else {
+                LazyVStack(spacing: 8) {
+                    ForEach(upcomingReminders.prefix(5), id: \.id) { reminder in
+                        ImprovedReminderCard(
+                            reminder: reminder,
+                            onComplete: {
+                                careReminderManager.markReminderCompleted(reminder)
+                            },
+                            onSnooze: {
+                                selectedReminder = reminder
+                                showActionSheet = true
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+    
+    private func getTodaysReminders(reminders: [CareReminder]) -> [CareReminder] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
+        
+        return reminders.filter { reminder in
+            guard let nextDue = reminder.nextDueDate else { return false }
+            let reminderDay = calendar.startOfDay(for: nextDue)
+            return reminderDay >= today && reminderDay < tomorrow && reminder.isEnabled
+        }
+    }
+    
+    private func getOverdueReminders(reminders: [CareReminder]) -> [CareReminder] {
+        return reminders.filter { reminder in
+            guard let nextDue = reminder.nextDueDate else { return false }
+            return nextDue < Date() && reminder.isEnabled
+        }
+    }
+    
+    private func getThisWeeksReminders(reminders: [CareReminder]) -> [CareReminder] {
+        let calendar = Calendar.current
+        let today = Date()
+        let weekFromNow = calendar.date(byAdding: .day, value: 7, to: today)!
+        
+        return reminders.filter { reminder in
+            guard let nextDue = reminder.nextDueDate else { return false }
+            return nextDue > today && nextDue <= weekFromNow && reminder.isEnabled
+        }
+    }
+    
+    private func getUpcomingReminders(reminders: [CareReminder]) -> [CareReminder] {
+        return reminders.filter { reminder in
+            guard let nextDue = reminder.nextDueDate else { return false }
+            return nextDue > Date() && reminder.isEnabled
+        }.sorted { ($0.nextDueDate ?? Date()) < ($1.nextDueDate ?? Date()) }
     }
     
     private var remindersEmptyView: some View {
@@ -644,6 +839,181 @@ struct MyPlantsScreen: View {
                     .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
                 }
                 .buttonStyle(PlainButtonStyle())
+            }
+        }
+    }
+}
+
+struct StatCard: View {
+    let title: String
+    let value: String
+    let color: Color
+    let icon: String
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.system(size: 16))
+                    .foregroundColor(color)
+                Spacer()
+            }
+            
+            HStack {
+                Text(value)
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(.primary)
+                Spacer()
+            }
+            
+            HStack {
+                Text(title)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.secondary)
+                Spacer()
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .frame(maxWidth: .infinity)
+    }
+}
+
+struct ImprovedReminderCard: View {
+    let reminder: CareReminder
+    let onComplete: () -> Void
+    let onSnooze: () -> Void
+    
+    @EnvironmentObject private var reminderManager: CareReminderManager
+    
+    private var reminderType: ReminderType? {
+        reminderManager.getReminderType(from: reminder.reminderType ?? "")
+    }
+    
+    private var isOverdue: Bool {
+        guard let nextDue = reminder.nextDueDate else { return false }
+        return nextDue < Date() && reminder.isEnabled
+    }
+    
+    private var isCompletedToday: Bool {
+        reminderManager.isCompletionMarked(for: reminder, date: Date())
+    }
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // Plant image
+            if let plant = reminder.plant,
+               let plantImageData = plant.plantImage,
+               let uiImage = UIImage(data: plantImageData) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .frame(width: 50, height: 50)
+                    .cornerRadius(8)
+                    .clipped()
+            } else {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 50, height: 50)
+                    .overlay(
+                        Image(systemSymbol: .leafFill)
+                            .foregroundColor(.gray)
+                    )
+            }
+            
+            // Reminder info
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(reminder.plant?.commonName ?? "Unknown Plant")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                    
+                    Spacer()
+                    
+                    if let type = reminderType {
+                        Image(type.icon)
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                            .foregroundColor(type.color)
+                    }
+                }
+                
+                HStack {
+                    Text(reminder.title ?? "Reminder")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(reminderType?.color ?? .primary)
+                    
+                    Spacer()
+                    
+                    if isOverdue {
+                        Text("Overdue")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(Color.red.opacity(0.1))
+                            .cornerRadius(8)
+                    }
+                }
+                
+                if let nextDue = reminder.nextDueDate {
+                    Text(formatReminderTime(nextDue))
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            // Action buttons
+            VStack(spacing: 8) {
+                Button(action: onComplete) {
+                    Image(systemName: isCompletedToday ? "checkmark.circle.fill" : "circle")
+                        .font(.system(size: 20))
+                        .foregroundColor(isCompletedToday ? .green : .gray)
+                }
+                .buttonStyle(PlainButtonStyle())
+                
+                Button(action: onSnooze) {
+                    Image(systemName: "clock")
+                        .font(.system(size: 16))
+                        .foregroundColor(.orange)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(isOverdue ? Color.red.opacity(0.3) : Color.clear, lineWidth: 2)
+        )
+    }
+    
+    private func formatReminderTime(_ date: Date) -> String {
+        let now = Date()
+        let timeInterval = date.timeIntervalSince(now)
+        
+        if timeInterval < 0 {
+            // Overdue
+            let days = Int(abs(timeInterval) / (24 * 60 * 60))
+            if days == 0 {
+                return "Overdue today"
+            } else if days == 1 {
+                return "Overdue yesterday"
+            } else {
+                return "Overdue \(days) days ago"
+            }
+        } else {
+            // Upcoming
+            let days = Int(timeInterval / (24 * 60 * 60))
+            if days == 0 {
+                return "Due today"
+            } else if days == 1 {
+                return "Due tomorrow"
+            } else {
+                return "Due in \(days) days"
             }
         }
     }

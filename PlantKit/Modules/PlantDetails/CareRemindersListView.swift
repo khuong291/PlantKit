@@ -24,7 +24,8 @@ struct CareRemindersListView: View {
                 Color.appScreenBackgroundColor
                     .edgesIgnoringSafeArea(.all)
                 
-                if reminderManager.reminders.isEmpty {
+                let plantReminders = reminderManager.reminders.filter { $0.plant == plant }
+                if plantReminders.isEmpty {
                     emptyStateView
                 } else {
                     remindersList
@@ -115,7 +116,8 @@ struct CareRemindersListView: View {
     private var remindersList: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
-                ForEach(reminderManager.reminders, id: \.id) { reminder in
+                let plantReminders = reminderManager.reminders.filter { $0.plant == plant }
+                ForEach(plantReminders, id: \.id) { reminder in
                     ReminderCard(
                         reminder: reminder,
                         onEdit: {
@@ -171,10 +173,10 @@ struct ReminderCard: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 if let type = reminderType {
-                    Image(systemName: type.icon)
-                        .font(.system(size: 18))
+                    Image(type.icon)
+                        .resizable()
+                        .frame(width: 18, height: 18)
                         .foregroundColor(type.color)
-                        .frame(width: 24)
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {

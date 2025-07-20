@@ -248,7 +248,7 @@ class CareReminderManager: ObservableObject {
         
         // Get emoji, title, and body based on reminder type
         let (imageName, title, body) = getNotificationContent(for: reminder)
-        content.title = "\(title) \(imageName)"
+        content.title = title
         
         // No subtitle needed - keep it clean and simple
         

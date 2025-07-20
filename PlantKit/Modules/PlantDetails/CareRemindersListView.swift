@@ -80,9 +80,10 @@ struct CareRemindersListView: View {
     
     private var emptyStateView: some View {
         VStack(spacing: 20) {
-            Image(systemName: "bell.badge")
-                .font(.system(size: 60))
-                .foregroundColor(.secondary)
+            Image("ic-calendar")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 50, height: 50)
             
             VStack(spacing: 8) {
                 Text("No Care Reminders")

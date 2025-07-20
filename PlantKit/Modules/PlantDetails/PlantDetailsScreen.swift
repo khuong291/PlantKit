@@ -15,6 +15,8 @@ struct PlantDetailsScreen: View {
     let isSamplePlant: Bool
     @State private var selectedTab = 0
     @State private var showDeleteAlert = false
+    @State private var showQuickAddAlert = false
+    @State private var selectedQuickAddType: ReminderType?
     private var tabs: [String] {
         if isSamplePlant {
             return ["Plant Info"]
@@ -90,6 +92,18 @@ struct PlantDetailsScreen: View {
         } message: {
             Text("Are you sure you want to delete this plant? This action cannot be undone.")
         }
+        .alert("Add Reminder", isPresented: $showQuickAddAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Add") {
+                if let type = selectedQuickAddType {
+                    addQuickReminder(type: type)
+                }
+            }
+        } message: {
+            if let type = selectedQuickAddType {
+                Text("Add a \(type.title.lowercased()) reminder for this plant?")
+            }
+        }
     }
     
     private func deletePlant() {
@@ -163,6 +177,7 @@ struct PlantDetailsScreen: View {
                             .padding(.horizontal)
                             .padding(.bottom, 12)
                         }
+                        .padding(.bottom, 10)
                         
                         // Tab Content
                         if selectedTab == 0 {
@@ -277,17 +292,17 @@ struct PlantDetailsScreen: View {
                 Button(action: {
                     showCareReminders = true
                 }) {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 8) {
                         Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 14))
+                            .font(.system(size: 18))
                         Text("Manual Add")
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.system(size: 16, weight: .medium))
                     }
                     .foregroundColor(.green)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
                     .background(Color.green.opacity(0.1))
-                    .cornerRadius(16)
+                    .cornerRadius(20)
                 }
                 Spacer()
             }
@@ -296,13 +311,13 @@ struct PlantDetailsScreen: View {
     }
     
     private var careRemindersEmptyState: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 14) {
             // Empty state icon and text
             VStack(spacing: 12) {
                 Image("ic-calendar")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 40, height: 40)
+                    .frame(width: 50, height: 50)
                 
                 VStack(spacing: 8) {
                     Text("No Care Reminders")
@@ -337,45 +352,72 @@ struct PlantDetailsScreen: View {
             }
             
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
+                let existingReminders = getExistingReminders()
+                
                 QuickReminderButton(
                     title: "Water",
                     icon: "ic-watering",
                     color: .blue,
-                    frequency: "Every 7 days"
+                    frequency: "Every 7 days",
+                    isDisabled: existingReminders.contains(.watering)
                 ) {
-                    addQuickReminder(type: .watering)
+                    Haptics.shared.play()
+                    selectedQuickAddType = .watering
+                    showQuickAddAlert = true
                 }
                 
                 QuickReminderButton(
                     title: "Fertilize",
                     icon: "ic-fertilizing",
                     color: .green,
-                    frequency: "Every 30 days"
+                    frequency: "Every 30 days",
+                    isDisabled: existingReminders.contains(.fertilizing)
                 ) {
-                    addQuickReminder(type: .fertilizing)
+                    Haptics.shared.play()
+                    selectedQuickAddType = .fertilizing
+                    showQuickAddAlert = true
                 }
                 
                 QuickReminderButton(
                     title: "Prune",
                     icon: "ic-pruning",
                     color: .purple,
-                    frequency: "Every 90 days"
+                    frequency: "Every 90 days",
+                    isDisabled: existingReminders.contains(.pruning)
                 ) {
-                    addQuickReminder(type: .pruning)
+                    Haptics.shared.play()
+                    selectedQuickAddType = .pruning
+                    showQuickAddAlert = true
                 }
                 
                 QuickReminderButton(
                     title: "Repot",
                     icon: "ic-repotting",
                     color: .brown,
-                    frequency: "Every year"
+                    frequency: "Every year",
+                    isDisabled: existingReminders.contains(.repotting)
                 ) {
-                    addQuickReminder(type: .repotting)
+                    Haptics.shared.play()
+                    selectedQuickAddType = .repotting
+                    showQuickAddAlert = true
                 }
             }
             .padding(.horizontal)
         }
         .padding(.top)
+    }
+    
+    private func getExistingReminders() -> Set<ReminderType> {
+        guard let plant = getPlantFromCoreData() else { return [] }
+        let reminders = reminderManager.reminders.filter { $0.plant == plant }
+        
+        var existingTypes: Set<ReminderType> = []
+        for reminder in reminders {
+            if let type = reminderManager.getReminderType(from: reminder.reminderType ?? "") {
+                existingTypes.insert(type)
+            }
+        }
+        return existingTypes
     }
     
     private func reminderSummaryCard(reminders: [CareReminder], overdueCount: Int, upcomingCount: Int) -> some View {
@@ -1296,37 +1338,39 @@ struct QuickReminderButton: View {
     let icon: String
     let color: Color
     let frequency: String
+    let isDisabled: Bool
     let action: () -> Void
     
     var body: some View {
-        Button(action: action) {
+        Button(action: isDisabled ? {} : action) {
             VStack(spacing: 8) {
                 Image(icon)
                     .resizable()
                     .frame(width: 24, height: 24)
-                    .foregroundColor(color)
+                    .foregroundColor(isDisabled ? .gray : color)
                 
                 VStack(spacing: 2) {
                     Text(title)
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.primary)
+                        .foregroundColor(isDisabled ? .gray : .primary)
                     
-                    Text(frequency)
+                    Text(isDisabled ? "Already added" : frequency)
                         .font(.system(size: 11))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(isDisabled ? .gray : .secondary)
                 }
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-            .background(Color.white)
+            .background(isDisabled ? Color.gray.opacity(0.1) : Color.white)
             .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+            .shadow(color: Color.black.opacity(isDisabled ? 0.02 : 0.05), radius: 4, x: 0, y: 2)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(color.opacity(0.2), lineWidth: 1)
+                    .stroke(isDisabled ? Color.gray.opacity(0.3) : color.opacity(0.2), lineWidth: 1)
             )
         }
         .buttonStyle(PlainButtonStyle())
+        .disabled(isDisabled)
     }
 }
 

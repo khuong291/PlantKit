@@ -18,6 +18,7 @@ struct MyPlantsScreen: View {
     @State private var selectedDayOffset = 0
     @State private var showActionSheet = false
     @State private var selectedReminder: CareReminder?
+    @State private var selectedDate = Date()
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Plant.scannedAt, ascending: false)],
         animation: .default)
@@ -186,8 +187,8 @@ struct MyPlantsScreen: View {
                 .padding()
             } else {
                 VStack(alignment: .leading, spacing: 20) {
-                    // Quick stats overview
-                    quickStatsOverview(reminders: allReminders)
+                    // Weekly calendar view
+                    weeklyCalendarView
                     
                     // Grouped reminders by care type
                     groupedRemindersSection(reminders: allReminders)
@@ -312,12 +313,6 @@ struct MyPlantsScreen: View {
         }
     }
     
-
-    
-
-    
-
-    
     private func getAllReminders() -> [CareReminder] {
         var allReminders: [CareReminder] = []
         for plant in plants {
@@ -329,17 +324,14 @@ struct MyPlantsScreen: View {
     
     private func groupedRemindersSection(reminders: [CareReminder]) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Care Tasks")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.primary)
+            // Only show reminders for selected date
+            let selectedDateReminders = getRemindersForDate(selectedDate)
             
-            let groupedReminders = getGroupedReminders(reminders: reminders)
-            
-            if groupedReminders.isEmpty {
+            if selectedDateReminders.isEmpty {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.green)
-                    Text("All caught up! No reminders due.")
+                    Text("No reminders for \(formatSelectedDate(selectedDate))")
                         .font(.system(size: 16))
                         .foregroundColor(.secondary)
                     Spacer()
@@ -348,8 +340,11 @@ struct MyPlantsScreen: View {
                 .background(Color.green.opacity(0.1))
                 .cornerRadius(12)
             } else {
+                // Group reminders by care type for selected date
+                let groupedReminders = getGroupedReminders(reminders: selectedDateReminders)
+                
                 LazyVStack(spacing: 12) {
-                    ForEach(ReminderType.allCases, id: \.self) { reminderType in
+                    ForEach(Array(ReminderType.allCases.enumerated()), id: \.element) { index, reminderType in
                         if let typeReminders = groupedReminders[reminderType], !typeReminders.isEmpty {
                             careTypeGroupView(reminderType: reminderType, reminders: typeReminders)
                         }
@@ -359,8 +354,31 @@ struct MyPlantsScreen: View {
         }
     }
     
+    private func getDayName(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE"
+        return formatter.string(from: date)
+    }
+    
+    private func getGroupedReminders(reminders: [CareReminder]) -> [ReminderType: [CareReminder]] {
+        var grouped: [ReminderType: [CareReminder]] = [:]
+        
+        for reminder in reminders {
+            guard let reminderTypeString = reminder.reminderType,
+                  let reminderType = careReminderManager.getReminderType(from: reminderTypeString),
+                  reminder.isEnabled else { continue }
+            
+            if grouped[reminderType] == nil {
+                grouped[reminderType] = []
+            }
+            grouped[reminderType]?.append(reminder)
+        }
+        
+        return grouped
+    }
+    
     private func careTypeGroupView(reminderType: ReminderType, reminders: [CareReminder]) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 14) {
             // Header with care type info
             HStack {
                 Image(reminderType.icon)
@@ -407,7 +425,7 @@ struct MyPlantsScreen: View {
             
             // Reminders list
             LazyVStack(spacing: 6) {
-                ForEach(reminders.sorted { ($0.nextDueDate ?? Date()) < ($1.nextDueDate ?? Date()) }, id: \.id) { reminder in
+                ForEach(Array(reminders.sorted { ($0.nextDueDate ?? Date()) < ($1.nextDueDate ?? Date()) }.enumerated()), id: \.element.id) { index, reminder in
                     GroupedReminderCard(
                         reminder: reminder,
                         reminderType: reminderType,
@@ -416,6 +434,12 @@ struct MyPlantsScreen: View {
                             showActionSheet = true
                         }
                     )
+                    
+                    // Add divider if not the last item
+                    if index < reminders.count - 1 {
+                        Divider()
+                            .padding(.vertical, 4)
+                    }
                 }
             }
         }
@@ -424,118 +448,6 @@ struct MyPlantsScreen: View {
         .background(.white)
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
-    }
-    
-    private func getGroupedReminders(reminders: [CareReminder]) -> [ReminderType: [CareReminder]] {
-        var grouped: [ReminderType: [CareReminder]] = [:]
-        
-        for reminder in reminders {
-            guard let reminderTypeString = reminder.reminderType,
-                  let reminderType = careReminderManager.getReminderType(from: reminderTypeString),
-                  reminder.isEnabled else { continue }
-            
-            if grouped[reminderType] == nil {
-                grouped[reminderType] = []
-            }
-            grouped[reminderType]?.append(reminder)
-        }
-        
-        return grouped
-    }
-    
-    private func weeklyOverviewBar(reminders: [CareReminder]) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("This Week")
-                .font(.system(size: 18).weight(.semibold))
-                .foregroundColor(.primary)
-            
-            HStack(spacing: 8) {
-                ForEach(0..<7, id: \.self) { dayOffset in
-                    let dayData = getDayData(for: dayOffset, reminders: reminders)
-                    Button {
-                        selectedDayOffset = dayOffset
-                    } label: {
-                        VStack(spacing: 4) {
-                            // Day name
-                            Text(dayData.dayName)
-                                .font(.system(size: 10).weight(.medium))
-                                .foregroundColor(dayData.isSelected ? .white : .secondary)
-                            
-                            // Day number
-                            Text("\(dayData.dayNumber)")
-                                .font(.system(size: 14).weight(.semibold))
-                                .foregroundColor(dayData.isSelected ? .white : (dayData.isToday ? .white : .primary))
-                            
-                            // Reminder count
-                            if dayData.reminderCount > 0 {
-                                Text("\(dayData.reminderCount)")
-                                    .font(.system(size: 10).weight(.bold))
-                                    .foregroundColor(.white)
-                                    .frame(width: 16, height: 16)
-                                    .background(dayData.priorityColor)
-                                    .clipShape(Circle())
-                            } else {
-                                Circle()
-                                    .fill(Color.clear)
-                                    .frame(width: 16, height: 16)
-                            }
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(getDayBackgroundColor(dayData: dayData))
-                                .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
-                        )
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-            }
-        }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
-    }
-    
-    private func getDayData(for dayOffset: Int, reminders: [CareReminder]) -> (dayName: String, dayNumber: Int, reminderCount: Int, isToday: Bool, isSelected: Bool, priorityColor: Color) {
-        let calendar = Calendar.current
-        let today = Date()
-        let targetDate = calendar.date(byAdding: .day, value: dayOffset, to: today) ?? today
-        
-        let dayName = getDayName(for: targetDate)
-        let dayNumber = calendar.component(.day, from: targetDate)
-        let isToday = calendar.isDate(targetDate, inSameDayAs: today)
-        let isSelected = dayOffset == selectedDayOffset
-        
-        // Count reminders for this day
-        let dayReminders = reminders.filter { reminder in
-            guard let dueDate = reminder.nextDueDate else { return false }
-            return calendar.isDate(dueDate, inSameDayAs: targetDate)
-        }
-        
-        let reminderCount = dayReminders.count
-        
-        // Determine priority color based on most urgent reminder
-        let priorityColor: Color
-        if reminderCount == 0 {
-            priorityColor = .clear
-        } else {
-            let mostUrgentReminder = dayReminders.min { reminder1, reminder2 in
-                let date1 = reminder1.nextDueDate ?? Date()
-                let date2 = reminder2.nextDueDate ?? Date()
-                return date1 < date2
-            }
-            priorityColor = getReminderColor(for: mostUrgentReminder ?? dayReminders[0])
-        }
-        
-        return (dayName: dayName, dayNumber: dayNumber, reminderCount: reminderCount, isToday: isToday, isSelected: isSelected, priorityColor: priorityColor)
-    }
-    
-    private func getDayName(for date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEE"
-        return formatter.string(from: date)
     }
     
     private func getDayBackgroundColor(dayData: (dayName: String, dayNumber: Int, reminderCount: Int, isToday: Bool, isSelected: Bool, priorityColor: Color)) -> Color {
@@ -557,30 +469,6 @@ struct MyPlantsScreen: View {
             guard let dueDate = reminder.nextDueDate else { return false }
             return calendar.isDate(dueDate, inSameDayAs: selectedDate)
         }.sorted { ($0.nextDueDate ?? Date()) < ($1.nextDueDate ?? Date()) }
-    }
-    
-    private var selectedDayEmptyView: some View {
-        VStack(spacing: 10) {
-            Image(systemSymbol: .calendar)
-                .font(.system(size: 28))
-                .foregroundStyle(.blue)
-            Text("No reminders for \(getSelectedDayName())")
-                .font(.system(size: 17))
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-            Text("Tap another day to see reminders")
-                .font(.system(size: 14))
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-    }
-    
-    private func getSelectedDayName() -> String {
-        let calendar = Calendar.current
-        let today = Date()
-        let selectedDate = calendar.date(byAdding: .day, value: selectedDayOffset, to: today) ?? today
-        return getDayName(for: selectedDate)
     }
     
     private var emptyView: some View {
@@ -738,6 +626,189 @@ struct MyPlantsScreen: View {
                 .buttonStyle(PlainButtonStyle())
             }
         }
+    }
+    
+    // MARK: - Weekly Calendar View
+    
+    private var weeklyCalendarView: some View {
+        VStack(spacing: 4) {
+            // Week navigation
+            HStack {
+                Button(action: {
+                    selectedDayOffset -= 7
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.primary)
+                        .font(.system(size: 16, weight: .medium))
+                }
+                
+                Spacer()
+                
+                let weekStart = getWeekStart(for: Date().addingTimeInterval(TimeInterval(selectedDayOffset * 24 * 60 * 60)))
+                let weekEnd = Calendar.current.date(byAdding: .day, value: 6, to: weekStart)!
+                
+                Text("\(formatDateRange(from: weekStart, to: weekEnd))")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Button(action: {
+                    selectedDayOffset += 7
+                }) {
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.primary)
+                        .font(.system(size: 16, weight: .medium))
+                }
+            }
+            .padding(.horizontal, 4)
+            .padding(.bottom, 10)
+            
+            // Days of week header
+            HStack(spacing: 0) {
+                ForEach(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], id: \.self) { day in
+                    Text(day)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            
+            // Calendar dates
+            HStack(spacing: 0) {
+                ForEach(0..<7, id: \.self) { dayOffset in
+                    let weekStart = getWeekStart(for: Date().addingTimeInterval(TimeInterval(selectedDayOffset * 24 * 60 * 60)))
+                    let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: weekStart)!
+                    let isSelected = Calendar.current.isDate(date, inSameDayAs: selectedDate)
+                    let isToday = Calendar.current.isDateInToday(date)
+                    let hasReminders = getRemindersForDate(date).count > 0
+                    
+                    Button(action: {
+                        selectedDate = date
+                    }) {
+                        VStack(spacing: 4) {
+                            Text("\(Calendar.current.component(.day, from: date))")
+                                .font(.system(size: 16, weight: isSelected ? .semibold : .medium))
+                                .foregroundColor(isSelected ? .white : (isToday ? .blue : .primary))
+                            
+                            if hasReminders {
+                                Circle()
+                                    .fill(isSelected ? .white : .green)
+                                    .frame(width: 4, height: 4)
+                            } else {
+                                Circle()
+                                    .fill(Color.clear)
+                                    .frame(width: 4, height: 4)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 40)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(isSelected ? Color.green : Color.clear)
+                        )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+    }
+    
+    private func getWeekStart(for date: Date) -> Date {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)
+        return calendar.date(from: components) ?? date
+    }
+    
+    private func formatDateRange(from startDate: Date, to endDate: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d"
+        return "\(formatter.string(from: startDate)) - \(formatter.string(from: endDate))"
+    }
+    
+    private func formatSelectedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, MMM d"
+        return formatter.string(from: date)
+    }
+    
+    private func getRemindersForDate(_ date: Date) -> [CareReminder] {
+        let allReminders = getAllReminders()
+        return allReminders.filter { reminder in
+            guard let nextDue = reminder.nextDueDate else { return false }
+            return Calendar.current.isDate(nextDue, inSameDayAs: date) && reminder.isEnabled
+        }
+    }
+    
+    private func selectedDateRemindersSection(reminders: [CareReminder]) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("\(formatSelectedDate(selectedDate))")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.primary)
+            
+            LazyVStack(spacing: 8) {
+                ForEach(reminders, id: \.id) { reminder in
+                    selectedDateReminderRow(reminder: reminder)
+                }
+            }
+        }
+    }
+    
+    private func selectedDateReminderRow(reminder: CareReminder) -> some View {
+        HStack(spacing: 12) {
+            // Plant image
+            if let plantImageData = reminder.plant?.plantImage,
+               let uiImage = UIImage(data: plantImageData) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 40, height: 40)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            } else {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 40, height: 40)
+                    .overlay(
+                        Image(systemName: "leaf.fill")
+                            .foregroundColor(.gray)
+                    )
+            }
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(reminder.plant?.commonName ?? "Unknown Plant")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.primary)
+                
+                HStack(spacing: 6) {
+                    Image(getReminderEmoji(for: reminder))
+                        .resizable()
+                        .frame(width: 14, height: 14)
+                    
+                    Text(getReminderTypeText(for: reminder))
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            Spacer()
+            
+            Button("Complete") {
+                careReminderManager.markReminderCompleted(reminder)
+            }
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Color.green)
+            .cornerRadius(20)
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
     }
 }
 

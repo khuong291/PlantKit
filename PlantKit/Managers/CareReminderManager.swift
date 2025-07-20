@@ -407,7 +407,7 @@ class CareReminderManager: ObservableObject {
                 "Your \(plantName) is waiting for its drink! Proper hydration keeps leaves vibrant and healthy."
             ]
             let randomMessage = motivationalMessages.randomElement() ?? motivationalMessages[0]
-            return ("ic-watering", "Time to water \(plantName)", randomMessage)
+            return ("ic-watering", "💧 Time to water \(plantName)", randomMessage)
             
         case .fertilizing:
             let motivationalMessages = [
@@ -418,7 +418,7 @@ class CareReminderManager: ObservableObject {
                 "Your \(plantName) needs a boost! Fertilizing gives it the energy to thrive and flourish."
             ]
             let randomMessage = motivationalMessages.randomElement() ?? motivationalMessages[0]
-            return ("ic-fertilizing", "Time to fertilize \(plantName)", randomMessage)
+            return ("ic-fertilizing", "🌱 Time to fertilize \(plantName)", randomMessage)
             
         case .repotting:
             let motivationalMessages = [
@@ -429,7 +429,7 @@ class CareReminderManager: ObservableObject {
                 "Your \(plantName) needs a new pot! Repotting refreshes the soil and encourages new growth."
             ]
             let randomMessage = motivationalMessages.randomElement() ?? motivationalMessages[0]
-            return ("ic-repotting", "Time to repot \(plantName)", randomMessage)
+            return ("ic-repotting", "🪴 Time to repot \(plantName)", randomMessage)
             
         case .pruning:
             let motivationalMessages = [
@@ -440,7 +440,7 @@ class CareReminderManager: ObservableObject {
                 "Your \(plantName) needs some grooming! Pruning encourages healthy new shoots and leaves."
             ]
             let randomMessage = motivationalMessages.randomElement() ?? motivationalMessages[0]
-            return ("ic-pruning", "Time to prune \(plantName)", randomMessage)
+            return ("ic-pruning", "✂️ Time to prune \(plantName)", randomMessage)
         }
     }
     

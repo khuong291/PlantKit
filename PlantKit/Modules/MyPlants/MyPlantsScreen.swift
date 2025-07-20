@@ -19,6 +19,7 @@ struct MyPlantsScreen: View {
     @State private var showActionSheet = false
     @State private var selectedReminder: CareReminder?
     @State private var selectedDate = Date()
+    @State private var showPlantPicker = false
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Plant.scannedAt, ascending: false)],
         animation: .default)
@@ -222,10 +223,19 @@ struct MyPlantsScreen: View {
                 Text("Choose an action for \(reminder.plant?.commonName ?? "this reminder")")
             }
         }
+        .sheet(isPresented: $showPlantPicker) {
+            PlantPickerView(plants: Array(plants)) { selectedPlant in
+                if let plantDetails = plantDetails(from: selectedPlant) {
+                    myPlantsRouter.navigate(to: .plantDetails(plantDetails))
+                }
+                showPlantPicker = false
+            }
+        }
     }
     
     private var improvedEmptyStateView: some View {
         VStack(spacing: 20) {
+            Spacer()
             Image("ic-calendar")
                 .resizable()
                 .scaledToFit()
@@ -246,11 +256,7 @@ struct MyPlantsScreen: View {
             
             // Quick action to add reminders
             Button(action: {
-                // Navigate to first plant to add reminder
-                if let firstPlant = plants.first,
-                   let plantDetails = plantDetails(from: firstPlant) {
-                    myPlantsRouter.navigate(to: .plantDetails(plantDetails))
-                }
+                showPlantPicker = true
             }) {
                 HStack {
                     Image(systemName: "plus.circle.fill")
@@ -263,53 +269,7 @@ struct MyPlantsScreen: View {
                 .background(Color.green)
                 .cornerRadius(25)
             }
-        }
-    }
-    
-    private func quickStatsOverview(reminders: [CareReminder]) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Overview")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.primary)
-            
-            HStack(spacing: 12) {
-                let todayCount = reminders.filter { reminder in
-                    guard let nextDue = reminder.nextDueDate else { return false }
-                    let calendar = Calendar.current
-                    let today = calendar.startOfDay(for: Date())
-                    let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
-                    let reminderDay = calendar.startOfDay(for: nextDue)
-                    return reminderDay >= today && reminderDay < tomorrow && reminder.isEnabled
-                }.count
-                
-                let overdueCount = reminders.filter { reminder in
-                    guard let nextDue = reminder.nextDueDate else { return false }
-                    return nextDue < Date() && reminder.isEnabled
-                }.count
-                
-                let totalCount = reminders.filter { $0.isEnabled }.count
-                
-                StatCard(
-                    title: "Today",
-                    value: "\(todayCount)",
-                    color: .blue,
-                    icon: "calendar"
-                )
-                
-                StatCard(
-                    title: "Overdue",
-                    value: "\(overdueCount)",
-                    color: .red,
-                    icon: "exclamationmark.triangle.fill"
-                )
-                
-                StatCard(
-                    title: "Total",
-                    value: "\(totalCount)",
-                    color: .green,
-                    icon: "leaf.fill"
-                )
-            }
+            Spacer()
         }
     }
     
@@ -901,30 +861,29 @@ struct GroupedReminderCard: View {
             
             // Reminder info
             VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(reminder.plant?.commonName ?? "Unknown Plant")
-                        .font(.system(size: 17).weight(.semibold))
-                        .foregroundColor(.primary)
-                    
-                    Spacer()
-                    
-                    if isOverdue {
-                        Text("Overdue")
-                            .font(.system(size: 15))
-                            .foregroundColor(.red)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.red.opacity(0.1))
-                            .cornerRadius(6)
-                    }
-                }
+                // Line 1: Plant name
+                Text(reminder.plant?.commonName ?? "Unknown Plant")
+                    .font(.system(size: 17).weight(.semibold))
+                    .foregroundColor(.primary)
                 
+                // Line 2: Time only
                 if let nextDue = reminder.nextDueDate {
-                    Text(formatReminderTime(nextDue))
+                    Text(formatTimeOnly(nextDue))
                         .font(.system(size: 15))
                         .foregroundColor(.secondary)
                 }
+                
+                // Line 3: Status
+                Text(getReminderStatus())
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(getStatusColor())
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(getStatusColor().opacity(0.1))
+                    .cornerRadius(8)
             }
+            
+            Spacer()
             
             // Menu button
             Button(action: onMenuTap) {
@@ -939,19 +898,30 @@ struct GroupedReminderCard: View {
         }
     }
     
-    private func formatReminderTime(_ date: Date) -> String {
+    private func formatTimeOnly(_ date: Date) -> String {
+        let timeFormatter = DateFormatter()
+        timeFormatter.timeStyle = .short
+        return timeFormatter.string(from: date)
+    }
+    
+    private func getReminderStatus() -> String {
+        if isCompletedToday {
+            return "Completed"
+        }
+        
+        guard let nextDue = reminder.nextDueDate else { return "Unknown" }
         let now = Date()
-        let timeInterval = date.timeIntervalSince(now)
+        let timeInterval = nextDue.timeIntervalSince(now)
         
         if timeInterval < 0 {
             // Overdue
             let days = Int(abs(timeInterval) / (24 * 60 * 60))
             if days == 0 {
-                return "Overdue today"
+                return "Overdue"
             } else if days == 1 {
-                return "Overdue yesterday"
+                return "Overdue 1 day"
             } else {
-                return "Overdue \(days) days ago"
+                return "Overdue \(days) days"
             }
         } else {
             // Upcoming
@@ -963,6 +933,24 @@ struct GroupedReminderCard: View {
             } else {
                 return "Due in \(days) days"
             }
+        }
+    }
+    
+    private func getStatusColor() -> Color {
+        if isCompletedToday {
+            return .green
+        }
+        
+        guard let nextDue = reminder.nextDueDate else { return .gray }
+        let now = Date()
+        let timeInterval = nextDue.timeIntervalSince(now)
+        
+        if timeInterval < 0 {
+            return .red // Overdue
+        } else if timeInterval < 24 * 60 * 60 {
+            return .orange // Due within 24 hours
+        } else {
+            return .blue // Due later
         }
     }
     
@@ -1050,6 +1038,111 @@ struct GroupedReminderCard: View {
             createdAt: plant.createdAt ?? Date(),
             updatedAt: plant.updatedAt ?? Date()
         )
+    }
+}
+
+struct PlantPickerView: View {
+    let plants: [Plant]
+    let onPlantSelected: (Plant) -> Void
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color.appScreenBackgroundColor
+                    .edgesIgnoringSafeArea(.all)
+                
+                if plants.isEmpty {
+                    VStack(spacing: 20) {
+                        Image(systemName: "leaf.fill")
+                            .font(.system(size: 40))
+                            .foregroundColor(.gray)
+                        
+                        Text("No plants yet")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.primary)
+                        
+                        Text("Scan a plant first to add reminders")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: 12) {
+                            ForEach(plants, id: \.id) { plant in
+                                PlantPickerRow(plant: plant) {
+                                    onPlantSelected(plant)
+                                }
+                            }
+                        }
+                        .padding()
+                    }
+                }
+            }
+            .navigationTitle("Select Plant")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct PlantPickerRow: View {
+    let plant: Plant
+    let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 12) {
+                // Plant image
+                if let plantImageData = plant.plantImage,
+                   let uiImage = UIImage(data: plantImageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 60, height: 60)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(width: 60, height: 60)
+                        .overlay(
+                            Image(systemName: "leaf.fill")
+                                .foregroundColor(.gray)
+                        )
+                }
+                
+                // Plant info
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(plant.commonName ?? "Unknown Plant")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.primary)
+                    
+                    if let scientificName = plant.scientificName, !scientificName.isEmpty {
+                        Text(scientificName)
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.secondary)
+            }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

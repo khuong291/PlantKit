@@ -286,26 +286,6 @@ struct PlantDetailsScreen: View {
                     }
                 }
             }
-            
-            HStack {
-                Spacer()
-                Button(action: {
-                    showCareReminders = true
-                }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 18))
-                        Text("Manual Add")
-                            .font(.system(size: 16, weight: .medium))
-                    }
-                    .foregroundColor(.green)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(Color.green.opacity(0.1))
-                    .cornerRadius(20)
-                }
-                Spacer()
-            }
         }
         .padding(.bottom, 20)
     }
@@ -324,10 +304,29 @@ struct PlantDetailsScreen: View {
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.primary)
                     
-                    Text("Set up reminders to help you take care of your plant")
+                    Text("Set up reminders to help you take care of your \(plantDetails?.commonName ?? "plant")")
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
+                }
+                
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        showCareReminders = true
+                    }) {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                            Text("Add Reminder")
+                        }
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 12)
+                        .background(Color.green)
+                        .cornerRadius(25)
+                    }
+                    Spacer()
                 }
             }
             .padding(24)

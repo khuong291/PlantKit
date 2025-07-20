@@ -91,7 +91,7 @@ struct CareRemindersListView: View {
                     .foregroundColor(.primary)
                 
                 Text("Set up reminders to help you take care of your \(plant.commonName ?? "plant")")
-                    .font(.system(size: 16))
+                    .font(.system(size: 14))
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
@@ -100,7 +100,7 @@ struct CareRemindersListView: View {
                 showAddReminder = true
             }) {
                 HStack {
-                    Image(systemName: "plus")
+                    Image(systemName: "plus.circle.fill")
                     Text("Add First Reminder")
                 }
                 .font(.system(size: 16, weight: .medium))
@@ -108,7 +108,7 @@ struct CareRemindersListView: View {
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
                 .background(Color.green)
-                .cornerRadius(12)
+                .cornerRadius(25)
             }
         }
         .padding(.horizontal, 40)

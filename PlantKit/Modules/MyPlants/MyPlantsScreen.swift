@@ -410,16 +410,6 @@ struct MyPlantsScreen: View {
         .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
     }
     
-    private func getDayBackgroundColor(dayData: (dayName: String, dayNumber: Int, reminderCount: Int, isToday: Bool, isSelected: Bool, priorityColor: Color)) -> Color {
-        if dayData.isSelected {
-            return .blue
-        } else if dayData.isToday {
-            return .blue.opacity(0.7)
-        } else {
-            return .white
-        }
-    }
-    
     private func getRemindersForSelectedDay(reminders: [CareReminder]) -> [CareReminder] {
         let calendar = Calendar.current
         let today = Date()
@@ -633,6 +623,7 @@ struct MyPlantsScreen: View {
                         .frame(maxWidth: .infinity)
                 }
             }
+            .padding(.horizontal)
             
             // Calendar dates
             HStack(spacing: 0) {
@@ -646,30 +637,43 @@ struct MyPlantsScreen: View {
                     Button(action: {
                         selectedDate = date
                     }) {
-                        VStack(spacing: 4) {
-                            Text("\(Calendar.current.component(.day, from: date))")
-                                .font(.system(size: 16, weight: isSelected ? .semibold : .medium))
-                                .foregroundColor(isSelected ? .white : (isToday ? .blue : .primary))
-                            
-                            if hasReminders {
-                                Circle()
-                                    .fill(isSelected ? .white : .green)
-                                    .frame(width: 4, height: 4)
-                            } else {
-                                Circle()
-                                    .fill(Color.clear)
-                                    .frame(width: 4, height: 4)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 40)
-                        .background(
+                        ZStack {
+                            // Background
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(isSelected ? Color.green : Color.clear)
-                        )
+                                .frame(width: 40, height: 40)
+                            
+                            // Day number
+                            Text("\(Calendar.current.component(.day, from: date))")
+                                .font(.system(size: 16, weight: isSelected ? .semibold : .medium))
+                                .foregroundColor(isSelected ? .white : (isToday ? .green : .primary))
+                            
+                            // Today indicator (top right overlay)
+                            if hasReminders {
+                                VStack {
+                                    HStack {
+                                        Spacer()
+                                        ZStack {
+                                            Circle()
+                                                .fill(.white)
+                                                .frame(width: 12, height: 12)
+                                            Circle()
+                                                .fill(.green)
+                                                .frame(width: 8, height: 8)
+                                        }
+                                    }
+                                    Spacer()
+                                }
+                                .frame(width: 40, height: 40)
+                                .offset(x: 4, y: -4)
+                            }
+                        }
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .frame(maxWidth: .infinity)
                 }
             }
+            .padding(.horizontal)
         }
         .padding()
         .background(Color.white)

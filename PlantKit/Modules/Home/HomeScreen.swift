@@ -133,7 +133,7 @@ struct HomeScreen: View {
                         .padding(.top, 32)
                     commonPlantDiseasesView
                         .padding(.top, 32)
-                        .padding(.bottom, 32)
+                        .padding(.bottom, 8)
                     articleSuggestionsView
                         .padding(.bottom, 70)
 //                    recentlyScannedView
@@ -351,7 +351,6 @@ struct HomeScreen: View {
             Text("Common Plant Diseases")
                 .font(.system(size: 20))
                 .bold()
-                .padding(.bottom, 8)
 
             // Calculate grid height based on screen width
             let screenWidth = UIScreen.main.bounds.width

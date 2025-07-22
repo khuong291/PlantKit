@@ -10,6 +10,66 @@ import CoreData
 import CoreLocation
 import Combine
 
+// MARK: - Disease Category Model
+
+enum DiseaseCategory: String, CaseIterable, Identifiable, Hashable {
+    case wholePlant = "Whole Plant"
+    case leaves = "Leaves"
+    case stems = "Stems"
+    case flowers = "Flowers"
+    case fruits = "Fruits"
+    case pests = "Pests"
+    var id: String { rawValue }
+}
+
+struct DiseaseSymptom: Identifiable, Hashable {
+    let id = UUID()
+    let imageName: String
+    let description: String
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: DiseaseSymptom, rhs: DiseaseSymptom) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
+let diseaseSymptoms: [DiseaseCategory: [DiseaseSymptom]] = [
+    .wholePlant: [
+        DiseaseSymptom(imageName: "pale-plant", description: "The entire plant is getting pale, and the stems are lengthening."),
+        DiseaseSymptom(imageName: "dried-herb", description: "Every part of the plant above the soil line has dried out. This is common in herbs."),
+        DiseaseSymptom(imageName: "black-rotting", description: "The entire plant has turned black and is rotting from the center."),
+        DiseaseSymptom(imageName: "dried-out", description: "The entire plant has dried out.")
+    ],
+    .leaves: [
+        DiseaseSymptom(imageName: "leaves-yellow", description: "Leaves are turning yellow and dropping off."),
+        DiseaseSymptom(imageName: "leaves-spots", description: "Spots or patches appearing on leaves."),
+        DiseaseSymptom(imageName: "leaves-curl", description: "Leaves are curling or misshapen.")
+    ],
+    .stems: [
+        DiseaseSymptom(imageName: "stem-black", description: "Stems are turning black or mushy."),
+        DiseaseSymptom(imageName: "stem-lesion", description: "Lesions or cankers on stems."),
+        DiseaseSymptom(imageName: "stem-crack", description: "Stems are cracking or splitting.")
+    ],
+    .flowers: [
+        DiseaseSymptom(imageName: "flower-blight", description: "Flowers are wilting or developing spots."),
+        DiseaseSymptom(imageName: "flower-drop", description: "Flowers are dropping prematurely.")
+    ],
+    .fruits: [
+        DiseaseSymptom(imageName: "fruit-rot", description: "Fruits are rotting or developing mold."),
+        DiseaseSymptom(imageName: "fruit-spot", description: "Spots or blemishes on fruit skin.")
+    ],
+    .pests: [
+        DiseaseSymptom(imageName: "pest-aphid", description: "Small green or black insects on leaves/stems."),
+        DiseaseSymptom(imageName: "pest-mite", description: "Fine webbing or tiny moving dots on leaves."),
+        DiseaseSymptom(imageName: "pest-scale", description: "Brown or white bumps on stems/leaves.")
+    ]
+]
+
+
+
 struct HomeScreen: View {
     @EnvironmentObject var cameraManager: CameraManager
     @EnvironmentObject var identifierManager: IdentifierManager
@@ -28,6 +88,8 @@ struct HomeScreen: View {
     @State private var showWaterMeter = false
     
     @StateObject private var healthCheckManager = HealthCheckManager()
+    @State private var showDiseaseCategoryDetail = false
+    @State private var selectedDiseaseCategory: DiseaseCategory? = nil
     
     // Callback to open camera from MainTab
     var onOpenCamera: (() -> Void)?
@@ -68,6 +130,8 @@ struct HomeScreen: View {
                     popularIndoorPlantsView
                         .padding(.top, 32)
                     popularOutdoorPlantsView
+                        .padding(.top, 32)
+                    commonPlantDiseasesView
                         .padding(.top, 32)
                         .padding(.bottom, 32)
                     articleSuggestionsView
@@ -181,7 +245,7 @@ struct HomeScreen: View {
                 .bold()
             
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
+                HStack(spacing: 8) {
                     PopularPlantCard(
                         name: "Monstera Deliciosa",
                         imageName: "monstera",
@@ -235,7 +299,7 @@ struct HomeScreen: View {
                 .bold()
             
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
+                HStack(spacing: 8) {
                     PopularPlantCard(
                         name: "Hydrangea",
                         imageName: "hydrangea",
@@ -279,6 +343,51 @@ struct HomeScreen: View {
                 }
                 .padding(.horizontal, 4)
             }
+        }
+    }
+    
+    private var commonPlantDiseasesView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Common Plant Diseases")
+                .font(.system(size: 20))
+                .bold()
+                .padding(.bottom, 8)
+
+            // Calculate grid height based on screen width
+            let screenWidth = UIScreen.main.bounds.width
+            let totalSpacing: CGFloat = 8 * 2 // 2 gaps between 3 columns
+            let horizontalPadding: CGFloat = 0 // No extra padding
+            let cardWidth = (screenWidth - totalSpacing - horizontalPadding) / 3
+            let cardHeight = cardWidth * 1.25
+            let rowCount = Int(ceil(Double(DiseaseCategory.allCases.count) / 3.0))
+            let gridHeight = CGFloat(rowCount) * cardHeight + CGFloat(rowCount - 1) * 8
+
+            GeometryReader { geometry in
+                let columns = [
+                    GridItem(.flexible(), spacing: 8),
+                    GridItem(.flexible(), spacing: 8),
+                    GridItem(.flexible(), spacing: 8)
+                ]
+                let cardWidth = (geometry.size.width - totalSpacing - horizontalPadding) / 3
+                let cardHeight = cardWidth * 1.25
+
+                LazyVGrid(columns: columns, spacing: 8) {
+                    ForEach(DiseaseCategory.allCases) { category in
+                        DiseaseCard(
+                            title: category.rawValue,
+                            imageName: "disease-\(category.rawValue.lowercased().replacingOccurrences(of: " ", with: "-"))",
+                            onTap: {
+                                Haptics.shared.play()
+                                homeRouter.navigate(to: .diseaseCategoryDetail(category, diseaseSymptoms[category] ?? []))
+                            },
+                            width: cardWidth,
+                            height: cardHeight
+                        )
+                    }
+                }
+                // No .padding(.horizontal)
+            }
+            .frame(height: gridHeight)
         }
     }
     
@@ -437,7 +546,7 @@ struct PopularPlantCard: View {
                     Image(imageName)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 200, height: 250)
+                        .frame(width: 140, height: 180)
                         .clipped()
                         .cornerRadius(16)
                     
@@ -450,12 +559,12 @@ struct PopularPlantCard: View {
                     .cornerRadius(16)
                     
                     Text(name)
-                        .font(.system(size: 17))
+                        .font(.system(size: 15).weight(.medium))
                         .foregroundColor(.white)
-                        .padding(16)
+                        .padding(8)
                 }
             }
-            .frame(width: 200, height: 250)
+            .frame(width: 140, height: 180)
             .background(Color.white)
             .cornerRadius(16)
             .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
@@ -466,6 +575,48 @@ struct PopularPlantCard: View {
 
 #Preview {
     HomeScreen()
+}
+
+struct DiseaseCard: View {
+    let title: String
+    let imageName: String
+    let onTap: (() -> Void)?
+    let width: CGFloat
+    let height: CGFloat
+    
+    var body: some View {
+        Button(action: {
+            Haptics.shared.play()
+            onTap?()
+        }) {
+            ZStack(alignment: .bottomLeading) {
+                Image(imageName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: width, height: height)
+                    .clipped()
+                    .cornerRadius(16)
+                
+                LinearGradient(
+                    gradient: Gradient(colors: [.black.opacity(0.7), .clear]),
+                    startPoint: .bottom,
+                    endPoint: .top
+                )
+                .frame(height: height * 0.33)
+                .cornerRadius(16)
+                
+                Text(title)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(.white)
+                    .padding(8)
+            }
+            .frame(width: width, height: height)
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
 }
 
 // Add ArticleSuggestionCard view

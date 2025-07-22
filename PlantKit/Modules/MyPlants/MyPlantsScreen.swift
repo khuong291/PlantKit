@@ -288,17 +288,33 @@ struct MyPlantsScreen: View {
             let selectedDateReminders = getRemindersForDate(selectedDate)
             
             if selectedDateReminders.isEmpty {
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                    Text("No reminders for \(formatSelectedDate(selectedDate))")
-                        .font(.system(size: 16))
-                        .foregroundColor(.secondary)
-                    Spacer()
+                // Calculate days until next task
+                let futureReminders = reminders.compactMap { $0.nextDueDate }.filter { $0 > selectedDate }
+                let daysUntilNextTask = futureReminders.map { Calendar.current.dateComponents([.day], from: selectedDate, to: $0).day ?? 0 }.min()
+                VStack(spacing: 12) {
+                    Image("no-task-illustration")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
+                        .padding(.bottom, 4)
+                    Text("No task today")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.primary)
+                    if let days = daysUntilNextTask, days > 0 {
+                        Text("The next tasks are in \(days) days")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text("No upcoming tasks")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
                 }
+                .frame(maxWidth: .infinity, minHeight: 180)
                 .padding()
-                .background(Color.green.opacity(0.1))
-                .cornerRadius(12)
+                .background(Color.white)
+                .cornerRadius(16)
+                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
             } else {
                 // Group reminders by care type for selected date
                 let groupedReminders = getGroupedReminders(reminders: selectedDateReminders)

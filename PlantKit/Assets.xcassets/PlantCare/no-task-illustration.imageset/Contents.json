@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "no-task-illustration.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

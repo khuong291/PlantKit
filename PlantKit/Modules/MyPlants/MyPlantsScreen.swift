@@ -291,12 +291,12 @@ struct MyPlantsScreen: View {
                 // Calculate days until next task
                 let futureReminders = reminders.compactMap { $0.nextDueDate }.filter { $0 > selectedDate }
                 let daysUntilNextTask = futureReminders.map { Calendar.current.dateComponents([.day], from: selectedDate, to: $0).day ?? 0 }.min()
-                VStack(spacing: 12) {
+                VStack(spacing: 4) {
                     Image("no-task-illustration")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 80, height: 80)
-                        .padding(.bottom, 4)
+                        .padding(.bottom, 12)
                     Text("No task today")
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.primary)

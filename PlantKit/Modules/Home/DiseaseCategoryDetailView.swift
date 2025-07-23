@@ -1,34 +1,39 @@
 import SwiftUI
 
 struct DiseaseCategoryDetailView: View {
+    @Environment(\.dismiss) private var dismiss
+    
     @State private var selectedCategory: DiseaseCategory
     let symptomsByCategory: [DiseaseCategory: [DiseaseSymptom]]
-    let onBack: () -> Void
     
-    init(category: DiseaseCategory, symptoms: [DiseaseSymptom], onBack: @escaping () -> Void) {
+    init(category: DiseaseCategory, symptoms: [DiseaseSymptom]) {
         self._selectedCategory = State(initialValue: category)
         var dict = [DiseaseCategory: [DiseaseSymptom]]()
         for cat in DiseaseCategory.allCases {
             dict[cat] = diseaseSymptoms[cat] ?? []
         }
         self.symptomsByCategory = dict
-        self.onBack = onBack
     }
     
     var body: some View {
-        VStack(alignment: .leading) {
-            headerView
-            tabPickerView
-            symptomsListView
-            Spacer()
+        ZStack {
+            Color.appScreenBackgroundColor
+                .edgesIgnoringSafeArea(.all)
+            VStack(alignment: .leading) {
+                tabPickerView
+                symptomsListView
+                Spacer()
+            }
+            .padding()
         }
-        .padding()
-        .background(Color(.systemGroupedBackground))
+        .navigationTitle("Common Diseases")
     }
     
     private var headerView: some View {
         HStack {
-            Button(action: onBack) {
+            Button(action: {
+                dismiss()
+            }) {
                 Image(systemName: "chevron.left")
                     .font(.title2)
                     .foregroundColor(.primary)
@@ -38,7 +43,7 @@ struct DiseaseCategoryDetailView: View {
                 .bold()
             Spacer()
         }
-        .padding(.vertical)
+        .padding(.bottom)
     }
     
     private var tabPickerView: some View {
@@ -55,18 +60,18 @@ struct DiseaseCategoryDetailView: View {
     
     private func tabButton(for category: DiseaseCategory) -> some View {
         Button(action: {
-            withAnimation(.spring()) {
+            withAnimation(.easeIn(duration: 0.3)) {
                 selectedCategory = category
             }
         }) {
             VStack(spacing: 4) {
                 Text(category.rawValue)
-                    .font(.system(size: 17, weight: selectedCategory == category ? .bold : .regular))
-                    .foregroundColor(selectedCategory == category ? Color("AppPrimaryColor") : .primary)
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundColor(selectedCategory == category ? Color.green : .secondary)
                 
                 if selectedCategory == category {
                     Capsule()
-                        .fill(Color("AppPrimaryColor"))
+                        .fill(Color.green)
                         .frame(height: 3)
                 } else {
                     Color.clear.frame(height: 3)
@@ -87,8 +92,12 @@ struct DiseaseCategoryDetailView: View {
                     .font(.body)
                     .foregroundColor(.primary)
                     .padding(.top, 8)
+                Spacer()
             }
-            .padding(.vertical, 4)
+            .padding()
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
         }
     }
 }
@@ -96,7 +105,6 @@ struct DiseaseCategoryDetailView: View {
 #Preview {
     DiseaseCategoryDetailView(
         category: .wholePlant,
-        symptoms: diseaseSymptoms[.wholePlant] ?? [],
-        onBack: {}
+        symptoms: diseaseSymptoms[.wholePlant] ?? []
     )
 } 

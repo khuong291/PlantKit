@@ -53,7 +53,7 @@ enum ContentRoute: Routable, Equatable {
         case .articleDetails(let article):
             ArticleDetailsScreen(article: article)
         case .diseaseCategoryDetail(let category, let symptoms):
-            DiseaseCategoryDetailView(category: category, symptoms: symptoms, onBack: { /* router back logic handled by navigation stack */ })
+            DiseaseCategoryDetailView(category: category, symptoms: symptoms)
         }
     }
 }

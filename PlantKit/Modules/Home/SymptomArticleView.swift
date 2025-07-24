@@ -59,10 +59,10 @@ struct SymptomArticleView: View {
                                     .foregroundColor(.orange)
                                     .padding(.top, 8)
                                 Text(content.symptomDetails)
-                                    .font(.body)
+                                    .font(.system(size: 17))
                                     .foregroundColor(.primary)
                                 Text(content.body)
-                                    .font(.body)
+                                    .font(.system(size: 17))
                                     .foregroundColor(.primary)
                             }
                         }

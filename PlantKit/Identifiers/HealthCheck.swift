@@ -7,6 +7,7 @@ struct HealthCheck {
         let diseaseRisk: String
         let healthIssues: [String]
         let recommendations: [String]
+        let quickHack: String?
     }
 
     static func diagnose(image: UIImage, completion: @escaping (Result<Diagnosis, Error>) -> Void) {

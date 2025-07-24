@@ -56,8 +56,15 @@ struct PlantDiagnosisResultView: View {
                             
                             // Recommendations
                             recommendationsCard
+                            
+                            // Quick Hacks
+                            if let quickHack = diagnosis.quickHack, !quickHack.isEmpty {
+                                quickHacksCard
+                                    .padding(.bottom, 40)
+                            }
                         }
-                        .padding(24)
+                        .padding(.vertical, 24)
+                        .padding(.horizontal)
                         .background(
                             RoundedRectangle(cornerRadius: 32)
                                 .fill(Color.white)
@@ -267,6 +274,46 @@ struct PlantDiagnosisResultView: View {
         .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
     }
     
+    private var quickHacksCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(Color.indigo.gradient)
+                Text("Quick Hacks")
+                    .font(.system(size: 17))
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color.indigo.gradient)
+                Spacer()
+            }
+            
+            HStack {
+                Text(diagnosis.quickHack ?? "")
+                    .font(.system(size: 15))
+                //                .foregroundColor(.primary)
+                    .multilineTextAlignment(.leading)
+                    .foregroundStyle(.white)
+                Spacer()
+            }
+            .padding(16)
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 0.4, green: 0.2, blue: 0.8),  // Deep purple
+                        Color(red: 0.3, green: 0.4, blue: 0.9),  // Royal blue
+                        Color(red: 0.5, green: 0.3, blue: 0.8)   // Medium purple-blue
+                    ]),
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .cornerRadius(12)
+        }
+        .padding(20)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+    }
+    
     // MARK: - Computed Properties
     
     private var healthScoreColor: Color {
@@ -316,4 +363,33 @@ struct PlantDiagnosisResultView: View {
             return .red
         }
     }
-} 
+}
+
+// MARK: - Preview
+struct PlantDiagnosisResultView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            PlantDiagnosisResultView(
+                image: UIImage(named: "monstera") ?? UIImage(),
+                diagnosis: HealthCheck.Diagnosis(
+                    healthScore: 75,
+                    overallCondition: "Your plant is generally healthy but shows some signs of stress. The leaves are slightly drooping, which could indicate underwatering or low humidity levels.",
+                    diseaseRisk: "Low risk of disease detected. No visible signs of fungal or bacterial infections.",
+                    healthIssues: [
+                        "Slight leaf drooping indicating possible underwatering",
+                        "Minor yellowing on older leaves",
+                        "Soil appears slightly dry"
+                    ],
+                    recommendations: [
+                        "Water the plant thoroughly when the top 2-3 inches of soil feels dry",
+                        "Increase humidity by misting leaves or using a humidifier",
+                        "Remove any yellowing leaves to promote new growth",
+                        "Consider repotting if the plant has outgrown its current container"
+                    ],
+                    quickHack: "Add used coffee grounds to the soil to reduce salinity and nourish the plant."
+                ),
+                onDismiss: {}
+            )
+        }
+    }
+}

@@ -152,7 +152,7 @@ struct DiseaseCategoryDetailView: View {
                                 .frame(width: 60, height: 60)
                                 .cornerRadius(8)
                             Text(symptom.description)
-                                .font(.body)
+                                .font(.system(size: 17))
                                 .foregroundColor(.primary)
                                 .padding(.top, 8)
                             Spacer()

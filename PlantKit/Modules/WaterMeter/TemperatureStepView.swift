@@ -18,7 +18,7 @@ struct TemperatureStepView: View {
                 .foregroundColor(.accentColor)
             
             Text("Indicate temperature around the plant")
-                .font(.title2)
+                .font(.system(size: 22).bold())
                 .bold()
                 .multilineTextAlignment(.center)
                 .lineLimit(nil)

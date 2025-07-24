@@ -17,33 +17,49 @@ struct DiseaseCategoryDetailView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
             tabPickerView
-            symptomsListView
+            TabView(selection: $selectedCategory) {
+                ForEach(DiseaseCategory.allCases) { category in
+                    symptomsListView(for: category)
+                        .tag(category)
+                }
+            }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            .animation(.easeInOut, value: selectedCategory)
             Spacer()
         }
         .padding()
-        .background(Color(.systemGroupedBackground))
+        .background(Color.appScreenBackgroundColor)
         .navigationBarBackButtonHidden(false)
         .navigationTitle("Common Plant Diseases")
         .tint(.green)
     }
     
     private var tabPickerView: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 24) {
-                ForEach(DiseaseCategory.allCases) { category in
-                    tabButton(for: category)
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 24) {
+                    ForEach(DiseaseCategory.allCases) { category in
+                        tabButton(for: category)
+                            .id(category)
+                    }
                 }
             }
-            .padding(.horizontal, 8)
+            .padding(.bottom, 12)
+            .onChange(of: selectedCategory) { newCategory in
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    proxy.scrollTo(newCategory, anchor: .center)
+                }
+            }
         }
-        .padding(.bottom, 12)
     }
     
     private func tabButton(for category: DiseaseCategory) -> some View {
         Button(action: {
-            selectedCategory = category
+            withAnimation(.easeInOut(duration: 0.3)) {
+                selectedCategory = category
+            }
         }) {
             VStack(spacing: 4) {
                 Text(category.rawValue)
@@ -58,34 +74,43 @@ struct DiseaseCategoryDetailView: View {
                     Color.clear.frame(height: 3)
                 }
             }
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.clear)
+                    .contentShape(Rectangle())
+            )
         }
         .buttonStyle(PlainButtonStyle())
     }
     
-    private var symptomsListView: some View {
-        VStack {
-            ForEach(symptomsByCategory[selectedCategory] ?? []) { symptom in
-                Button {
-                    homeRouter.navigate(to: .diseaseSymptomArticle(symptom))
-                } label: {
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(symptom.imageName)
-                            .resizable()
-                            .frame(width: 60, height: 60)
-                            .cornerRadius(8)
-                        Text(symptom.description)
-                            .font(.body)
-                            .foregroundColor(.primary)
-                            .padding(.top, 8)
-                        Spacer()
+    private func symptomsListView(for category: DiseaseCategory) -> some View {
+        ScrollView {
+            VStack(spacing: 12) {
+                ForEach(symptomsByCategory[category] ?? []) { symptom in
+                    Button {
+                        homeRouter.navigate(to: .diseaseSymptomArticle(symptom))
+                    } label: {
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(symptom.imageName)
+                                .resizable()
+                                .frame(width: 60, height: 60)
+                                .cornerRadius(8)
+                            Text(symptom.description)
+                                .font(.body)
+                                .foregroundColor(.primary)
+                                .padding(.top, 8)
+                            Spacer()
+                        }
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(16)
+                        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
                     }
-                    .padding()
-                    .background(Color.white)
-                    .cornerRadius(16)
-                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+                    .buttonStyle(PlainButtonStyle())
                 }
-                .buttonStyle(PlainButtonStyle())
             }
+            .padding(.top, 8)
         }
     }
 }

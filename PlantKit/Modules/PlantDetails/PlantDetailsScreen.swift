@@ -76,9 +76,11 @@ struct PlantDetailsScreen: View {
                                 Text(details.commonName)
                                     .font(.system(size: 28, weight: .bold))
                                     .foregroundColor(.primary)
+                                    .padding(.horizontal)
                                 Text(details.scientificName)
                                     .font(.system(size: 17))
                                     .foregroundColor(.secondary)
+                                    .padding(.horizontal)
                                 
                                 // Tabs
                                 ScrollView(.horizontal, showsIndicators: false) {
@@ -97,6 +99,7 @@ struct PlantDetailsScreen: View {
                                     }
                                 }
                                 .padding(.bottom, 10)
+                                .padding(.horizontal)
                                 
                                 // Tab Content
                                 if selectedTab == 0 {
@@ -112,14 +115,15 @@ struct PlantDetailsScreen: View {
                                     Text("plantDetails is nil: \(plantDetails == nil)")
                                     Text("capturedImage is nil: \(capturedImage == nil)")
                                 }
+                                .padding(.horizontal)
                                 .frame(maxWidth: .infinity, minHeight: 300)
                                 .background(Color.yellow.opacity(0.3))
                             }
                         }
-                        .padding(24)
+                        .padding(.vertical, 24)
                         .background(
                             RoundedRectangle(cornerRadius: 32)
-                                .fill(Color.white)
+                                .fill(Color.appScreenBackgroundColor)
                                 .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: -2)
                         )
                     }

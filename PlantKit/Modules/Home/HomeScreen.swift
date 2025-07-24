@@ -450,7 +450,7 @@ struct HomeScreen: View {
     // MARK: - Article Suggestions Section
     private var articleSuggestionsView: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Suggestions")
+            Text("Gardening Tips")
                 .font(.system(size: 22))
                 .bold()
                 .padding(.bottom, 4)

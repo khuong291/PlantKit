@@ -32,18 +32,18 @@ struct SymptomArticleView: View {
                     Image(symptom.imageName)
                         .resizable()
                         .scaledToFill()
-                        .frame(height: 240)
+                        .frame(height: 260)
                         .clipped()
                         .ignoresSafeArea(edges: .top)
 
                     VStack(spacing: 0) {
-                        Spacer().frame(height: 200)
+                        Spacer().frame(height: 220)
                         VStack(alignment: .leading, spacing: 20) {
                             Capsule()
                                 .fill(Color.gray.opacity(0.2))
                                 .frame(width: 40, height: 5)
                                 .frame(maxWidth: .infinity)
-                                .padding(.top, 8)
+                                .offset(y: -10)
 
                             if let content = articleContent(for: symptom) {
                                 Text(content.title)

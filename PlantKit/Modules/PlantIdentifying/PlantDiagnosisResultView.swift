@@ -43,6 +43,11 @@ struct PlantDiagnosisResultView: View {
                             // Health Score Card
                             healthScoreCard
                             
+                            // Quick Hacks
+                            if let quickHack = diagnosis.quickHack, !quickHack.isEmpty {
+                                quickHacksCard
+                            }
+                            
                             // Overall Condition
                             conditionCard
                             
@@ -56,12 +61,7 @@ struct PlantDiagnosisResultView: View {
                             
                             // Recommendations
                             recommendationsCard
-                            
-                            // Quick Hacks
-                            if let quickHack = diagnosis.quickHack, !quickHack.isEmpty {
-                                quickHacksCard
-                                    .padding(.bottom, 40)
-                            }
+                                .padding(.bottom, 40)
                         }
                         .padding(.vertical, 24)
                         .padding(.horizontal)

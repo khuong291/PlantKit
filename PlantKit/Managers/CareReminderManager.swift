@@ -221,14 +221,17 @@ class CareReminderManager: ObservableObject {
     
     func loadReminders(for plant: Plant?) {
         guard let plant = plant else { return }
-        
         let context = CoreDataManager.shared.viewContext
         let fetchRequest: NSFetchRequest<CareReminder> = CareReminder.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "plant == %@", plant)
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CareReminder.nextDueDate, ascending: true)]
-        
+        fetchRequest.relationshipKeyPathsForPrefetching = ["plant"]
         do {
             reminders = try context.fetch(fetchRequest)
+            // Force-load plant images for all fetched reminders
+            for reminder in reminders {
+                _ = reminder.plant?.plantImage
+            }
         } catch {
             print("Error loading reminders: \(error)")
             reminders = []

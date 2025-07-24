@@ -93,6 +93,7 @@ struct HomeScreen: View {
     @StateObject private var healthCheckManager = HealthCheckManager()
     @State private var showDiseaseCategoryDetail = false
     @State private var selectedDiseaseCategory: DiseaseCategory? = nil
+    @State private var showReminderIndicator = false
     
     // Callback to open camera from MainTab
     var onOpenCamera: (() -> Void)?
@@ -128,8 +129,10 @@ struct HomeScreen: View {
                         freeTrialClaimSection
                             .padding(.top, 16)
                     }
-                    reminderTaskIndicator
-                        .padding(.top, 16)
+                    if showReminderIndicator {
+                        reminderTaskIndicator
+                            .padding(.top, 16)
+                    }
                     plantToolsView
                         .padding(.top, 16)
                     popularIndoorPlantsView
@@ -161,6 +164,23 @@ struct HomeScreen: View {
                 WaterMeterView(isPresented: $showWaterMeter)
                     .presentationDetents([.height(540)])
 //            }
+        }
+        .onAppear {
+            careReminderManager.loadAllReminders()
+            showReminderIndicator = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                showReminderIndicator = true
+            }
+            // Force-load plant images for today's due reminders
+            let today = Calendar.current.startOfDay(for: Date())
+            let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+            let dueReminders = careReminderManager.reminders.filter { reminder in
+                guard let due = reminder.nextDueDate else { return false }
+                return due >= today && due < tomorrow && reminder.isEnabled
+            }
+            for reminder in dueReminders {
+                _ = reminder.plant?.plantImage
+            }
         }
     }
     
@@ -461,28 +481,46 @@ struct HomeScreen: View {
         }
         let count = dueReminders.count
         
-        return Button(action: {
-            Haptics.shared.play()
-            NotificationCenter.default.post(name: .switchToMyPlantsTab, object: nil)
-        }) {
-            HStack(spacing: 12) {
-                Image(systemName: count > 0 ? "bell.badge.fill" : "bell")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(count > 0 ? .orange : .secondary)
-                Text(count > 0 ? "You have \(count) task\(count > 1 ? "s" : "") today" : "No tasks today")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.primary)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.secondary)
-            }
-            .padding()
-            .background(count > 0 ? Color.orange.opacity(0.1) : Color.gray.opacity(0.08))
-            .cornerRadius(14)
-            .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+        // Hide the indicator if there are no reminders for today
+        if count == 0 {
+            return AnyView(EmptyView())
         }
-        .buttonStyle(PlainButtonStyle())
+        
+        return AnyView(
+            Button(action: {
+                Haptics.shared.play()
+                NotificationCenter.default.post(name: .switchToMyPlantsTab, object: nil)
+            }) {
+                HStack(spacing: 12) {
+                    Image(systemName: "bell.badge.fill")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.orange)
+                    Text("You have \(count) task\(count > 1 ? "s" : "") today")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                    Spacer()
+                    if let plant = dueReminders.first?.plant,
+                       let imageData = plant.plantImage, let uiImage = UIImage(data: imageData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.white, lineWidth: 2)
+                            )
+                    }
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.secondary)
+                }
+                .padding()
+                .background(Color.orange.opacity(0.1))
+                .cornerRadius(14)
+                .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+            }
+            .buttonStyle(PlainButtonStyle())
+        )
     }
     
     // MARK: - Article Suggestions Section

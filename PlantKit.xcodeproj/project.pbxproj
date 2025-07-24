@@ -324,7 +324,7 @@
 				CODE_SIGN_ENTITLEMENTS = PlantKit/PlantKit.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 21;
 				DEVELOPMENT_ASSET_PATHS = "\"PlantKit/Preview Content\"";
 				DEVELOPMENT_TEAM = SKNJUSC35K;
 				ENABLE_PREVIEWS = YES;
@@ -369,7 +369,7 @@
 				CODE_SIGN_ENTITLEMENTS = PlantKit/PlantKit.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 21;
 				DEVELOPMENT_ASSET_PATHS = "\"PlantKit/Preview Content\"";
 				DEVELOPMENT_TEAM = SKNJUSC35K;
 				ENABLE_PREVIEWS = YES;

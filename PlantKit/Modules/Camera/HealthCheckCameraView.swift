@@ -124,21 +124,24 @@ struct HealthCheckCameraView: View {
             closeButton
             VStack {
                 Spacer()
-                HStack(alignment: .center) {
-                    Spacer().frame(width: 20)
-                    photoButton
-                    Spacer()
+                ZStack {
+                    // Center the capture button
                     captureButton
-                    Spacer()
-                    ZoomWedgeControl(
-                        zoomFactor: $zoomFactor,
-                        minZoom: 1.0,
-                        maxZoom: 5.0,
-                        onZoomChanged: { newValue in
-                            cameraManager.setZoomFactor(newValue)
-                        }
-                    )
-                    Spacer().frame(width: 20)
+                    // Position other controls on top
+                    HStack {
+                        Spacer().frame(width: 20)
+                        photoButton
+                        Spacer()
+                        ZoomWedgeControl(
+                            zoomFactor: $zoomFactor,
+                            minZoom: 1.0,
+                            maxZoom: 5.0,
+                            onZoomChanged: { newValue in
+                                cameraManager.setZoomFactor(newValue)
+                            }
+                        )
+                        Spacer().frame(width: 20)
+                    }
                 }
                 .padding(.bottom, 50)
             }

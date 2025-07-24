@@ -151,6 +151,7 @@ struct HealthCheckCameraView: View {
             HStack {
                 Spacer()
                 Button {
+                    Haptics.shared.play()
                     dismissAction()
                 } label: {
                     Image(systemName: "xmark.circle.fill")

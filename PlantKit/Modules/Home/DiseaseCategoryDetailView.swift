@@ -38,7 +38,10 @@ struct DiseaseCategoryDetailView: View {
             VStack(spacing: 0) {
                 HStack {
                     // Custom back button
-                    Button(action: { dismiss() }) {
+                    Button(action: { 
+                        Haptics.shared.play()
+                        dismiss() 
+                    }) {
                         ZStack {
                             Circle()
                                 .fill(Color.black.opacity(0.6))
@@ -144,6 +147,7 @@ struct DiseaseCategoryDetailView: View {
             VStack(spacing: 12) {
                 ForEach(symptomsByCategory[category] ?? []) { symptom in
                     Button {
+                        Haptics.shared.play()
                         homeRouter.navigate(to: .diseaseSymptomArticle(symptom))
                     } label: {
                         HStack(alignment: .top, spacing: 12) {

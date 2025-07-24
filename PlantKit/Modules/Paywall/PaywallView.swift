@@ -162,6 +162,7 @@ struct PaywallView: View {
                     Spacer()
                     if showCloseButton || proManager.hasPro {
                         Button(action: {
+                            Haptics.shared.play()
                             dismiss()
                         }) {
                             Image(systemName: "xmark.circle.fill")

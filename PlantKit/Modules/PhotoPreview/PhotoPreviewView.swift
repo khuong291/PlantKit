@@ -20,6 +20,7 @@ struct PhotoPreviewView: View {
                 HStack {
                     Spacer()
                     Button(action: {
+                        Haptics.shared.play()
                         onDismiss()
                     }) {
                         HStack(spacing: 6) {
@@ -49,6 +50,7 @@ struct PhotoPreviewView: View {
                 Spacer()
 
                 ShinyBorderButton(systemName: "sparkles", title: buttonTitle) {
+                    Haptics.shared.play()
                     onIdentify()
                 }
                 .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)

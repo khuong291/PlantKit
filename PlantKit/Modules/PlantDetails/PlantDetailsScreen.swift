@@ -86,7 +86,10 @@ struct PlantDetailsScreen: View {
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 12) {
                                         ForEach(tabs.indices, id: \.self) { idx in
-                                            Button(action: { selectedTab = idx }) {
+                                            Button(action: {
+                                                Haptics.shared.play()
+                                                selectedTab = idx
+                                            }) {
                                                 Text(tabs[idx])
                                                     .font(.system(size: 16, weight: .medium))
                                                     .foregroundColor(selectedTab == idx ? .white : .primary)
@@ -131,7 +134,10 @@ struct PlantDetailsScreen: View {
             }
             
             // Custom back button
-            Button(action: { dismiss() }) {
+            Button(action: { 
+                Haptics.shared.play()
+                dismiss() 
+            }) {
                 ZStack {
                     Circle()
                         .fill(Color.black.opacity(0.6))
@@ -173,6 +179,7 @@ struct PlantDetailsScreen: View {
         .alert("Delete Plant", isPresented: $showDeleteAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
+                Haptics.shared.play()
                 deletePlant()
             }
         } message: {
@@ -182,6 +189,7 @@ struct PlantDetailsScreen: View {
             Button("Cancel", role: .cancel) { }
             Button("Add") {
                 if let type = selectedQuickAddType {
+                    Haptics.shared.play()
                     addQuickReminder(type: type)
                 }
             }
@@ -249,7 +257,10 @@ struct PlantDetailsScreen: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
                                 ForEach(tabs.indices, id: \.self) { idx in
-                                    Button(action: { selectedTab = idx }) {
+                                    Button(action: {
+                                        Haptics.shared.play()
+                                        selectedTab = idx
+                                    }) {
                                         Text(tabs[idx])
                                             .font(.system(size: 16, weight: .medium))
                                             .foregroundColor(selectedTab == idx ? .white : .primary)

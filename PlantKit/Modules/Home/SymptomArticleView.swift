@@ -77,7 +77,10 @@ struct SymptomArticleView: View {
             }
             .overlay(
                 HStack {
-                    Button(action: { dismiss() }) {
+                    Button(action: { 
+                        Haptics.shared.play()
+                        dismiss() 
+                    }) {
                         ZStack {
                             Circle()
                                 .fill(Color.black.opacity(0.6))

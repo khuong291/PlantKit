@@ -205,14 +205,17 @@ struct MyPlantsScreen: View {
         .confirmationDialog("Reminder Actions", isPresented: $showActionSheet) {
             if let reminder = selectedReminder {
                 Button("Mark as Done") {
+                    Haptics.shared.play()
                     careReminderManager.markReminderCompleted(reminder)
                 }
                 
                 Button("Remind in 1 hour") {
+                    Haptics.shared.play()
                     careReminderManager.snoozeReminder(reminder, by: 1 * 60 * 60)
                 }
                 
                 Button("Remind tomorrow") {
+                    Haptics.shared.play()
                     careReminderManager.snoozeReminder(reminder, by: 24 * 60 * 60)
                 }
                 
@@ -406,6 +409,7 @@ struct MyPlantsScreen: View {
                         reminder: reminder,
                         reminderType: reminderType,
                         onMenuTap: {
+                            Haptics.shared.play()
                             selectedReminder = reminder
                             showActionSheet = true
                         }
@@ -555,6 +559,7 @@ struct MyPlantsScreen: View {
         LazyVStack {
             ForEach(Array(plantDetailsList.enumerated()), id: \.element.id) { index, details in
                 Button {
+                    Haptics.shared.play()
                     myPlantsRouter.navigate(to: .plantDetails(details))
                 } label: {
                     HStack(spacing: 16) {
@@ -601,6 +606,7 @@ struct MyPlantsScreen: View {
             // Week navigation
             HStack {
                 Button(action: {
+                    Haptics.shared.play()
                     selectedDayOffset -= 7
                 }) {
                     Image(systemName: "chevron.left")
@@ -620,6 +626,7 @@ struct MyPlantsScreen: View {
                 Spacer()
                 
                 Button(action: {
+                    Haptics.shared.play()
                     selectedDayOffset += 7
                 }) {
                     Image(systemName: "chevron.right")
@@ -651,6 +658,7 @@ struct MyPlantsScreen: View {
                     let hasReminders = getRemindersForDate(date).count > 0
                     
                     Button(action: {
+                        Haptics.shared.play()
                         selectedDate = date
                     }) {
                         ZStack {
@@ -852,6 +860,7 @@ struct GroupedReminderCard: View {
             Button {
                 if let plant = reminder.plant,
                    let plantDetails = plantDetails(from: plant) {
+                    Haptics.shared.play()
                     myPlantsRouter.navigate(to: .plantDetails(plantDetails))
                 }
             } label: {

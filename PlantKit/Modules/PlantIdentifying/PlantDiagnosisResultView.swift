@@ -75,7 +75,10 @@ struct PlantDiagnosisResultView: View {
             }
             
             // Custom back button
-            Button(action: { onDismiss() }) {
+            Button(action: { 
+                Haptics.shared.play()
+                onDismiss() 
+            }) {
                 ZStack {
                     Circle()
                         .fill(Color.black.opacity(0.6))

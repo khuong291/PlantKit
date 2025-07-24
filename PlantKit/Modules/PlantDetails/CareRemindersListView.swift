@@ -36,12 +36,14 @@ struct CareRemindersListView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Done") {
+                        Haptics.shared.play()
                         dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
+                        Haptics.shared.play()
                         showAddReminder = true
                     }) {
                         Image(systemName: "plus")
@@ -224,7 +226,10 @@ struct ReminderCard: View {
                 HStack(spacing: 8) {
                     // Single completion button that changes appearance
                     if reminder.isEnabled {
-                        Button(action: onComplete) {
+                        Button(action: {
+                            Haptics.shared.play()
+                            onComplete()
+                        }) {
                             HStack(spacing: 4) {
                                 Image(systemName: isCompletedToday ? "checkmark.circle.fill" : "circle")
                                     .font(.system(size: 16))
@@ -241,6 +246,7 @@ struct ReminderCard: View {
                     }
                     
                     Button(action: {
+                        Haptics.shared.play()
                         showActionSheet = true
                     }) {
                         Image(systemName: "ellipsis.circle")
@@ -276,18 +282,23 @@ struct ReminderCard: View {
         }
         .contextMenu {
             if reminder.isEnabled {
-                Button(action: onComplete) {
+                Button(action: {
+                    Haptics.shared.play()
+                    onComplete()
+                }) {
                     Label(isCompletedToday ? "Mark as Undone" : "Mark as Done", systemImage: isCompletedToday ? "circle" : "checkmark.circle.fill")
                 }
             }
             
             Button(action: {
+                Haptics.shared.play()
                 reminderManager.snoozeReminder(reminder, by: 1 * 60 * 60) // 1 hour
             }) {
                 Label("Remind in 1 hour", systemImage: "clock")
             }
             
             Button(action: {
+                Haptics.shared.play()
                 reminderManager.snoozeReminder(reminder, by: 24 * 60 * 60) // 24 hours
             }) {
                 Label("Remind tomorrow", systemImage: "calendar")
@@ -295,11 +306,17 @@ struct ReminderCard: View {
             
             Divider()
             
-            Button(action: onEdit) {
+            Button(action: {
+                Haptics.shared.play()
+                onEdit()
+            }) {
                 Label("Edit", systemImage: "pencil")
             }
             
-            Button(action: onDelete) {
+            Button(action: {
+                Haptics.shared.play()
+                onDelete()
+            }) {
                 Label("Delete", systemImage: "trash")
             }
             .foregroundColor(.red)
@@ -307,23 +324,28 @@ struct ReminderCard: View {
         .confirmationDialog("Reminder Actions", isPresented: $showActionSheet) {
             if reminder.isEnabled {
                 Button(isCompletedToday ? "Mark as Undone" : "Mark as Done") {
+                    Haptics.shared.play()
                     onComplete()
                 }
             }
             
             Button("Remind in 1 hour") {
+                Haptics.shared.play()
                 reminderManager.snoozeReminder(reminder, by: 1 * 60 * 60)
             }
             
             Button("Remind tomorrow") {
+                Haptics.shared.play()
                 reminderManager.snoozeReminder(reminder, by: 24 * 60 * 60)
             }
             
             Button("Edit") {
+                Haptics.shared.play()
                 onEdit()
             }
             
             Button("Delete", role: .destructive) {
+                Haptics.shared.play()
                 onDelete()
             }
             

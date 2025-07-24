@@ -628,6 +628,7 @@ struct ArticleSuggestionCard: View {
 
     var body: some View {
         Button(action: {
+            Haptics.shared.play()
             onTap?()
         }) {
             HStack(alignment: .center, spacing: 16) {

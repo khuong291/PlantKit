@@ -467,15 +467,15 @@ struct HomeScreen: View {
         }) {
             HStack(spacing: 12) {
                 Image(systemName: count > 0 ? "bell.badge.fill" : "bell")
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(count > 0 ? .orange : .gray)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(count > 0 ? .orange : .secondary)
                 Text(count > 0 ? "You have \(count) task\(count > 1 ? "s" : "") today" : "No tasks today")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.primary)
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.gray)
+                    .foregroundColor(.secondary)
             }
             .padding()
             .background(count > 0 ? Color.orange.opacity(0.1) : Color.gray.opacity(0.08))

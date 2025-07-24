@@ -27,6 +27,7 @@ enum ContentRoute: Routable, Equatable {
         case let (.articleDetails(a1), .articleDetails(a2)): return a1.id == a2.id
         case let (.diseaseCategoryDetail(cat1, syms1), .diseaseCategoryDetail(cat2, syms2)):
             return cat1 == cat2 && syms1.map(\.id) == syms2.map(\.id)
+        case let (.diseaseSymptomArticle(s1), .diseaseSymptomArticle(s2)): return s1.id == s2.id
         default: return false
         }
     }

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DiseaseCategoryDetailView: View {
+    @EnvironmentObject var homeRouter: Router<ContentRoute>
     @Environment(\.dismiss) private var dismiss
     
     @State private var selectedCategory: DiseaseCategory
@@ -16,34 +17,16 @@ struct DiseaseCategoryDetailView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color.appScreenBackgroundColor
-                .edgesIgnoringSafeArea(.all)
-            VStack(alignment: .leading) {
-                tabPickerView
-                symptomsListView
-                Spacer()
-            }
-            .padding()
-        }
-        .navigationTitle("Common Diseases")
-    }
-    
-    private var headerView: some View {
-        HStack {
-            Button(action: {
-                dismiss()
-            }) {
-                Image(systemName: "chevron.left")
-                    .font(.title2)
-                    .foregroundColor(.primary)
-            }
-            Text("Common Plant Diseases")
-                .font(.title2)
-                .bold()
+        VStack(alignment: .leading) {
+            tabPickerView
+            symptomsListView
             Spacer()
         }
-        .padding(.bottom)
+        .padding()
+        .background(Color(.systemGroupedBackground))
+        .navigationBarBackButtonHidden(false)
+        .navigationTitle("Common Plant Diseases")
+        .tint(.green)
     }
     
     private var tabPickerView: some View {
@@ -60,9 +43,7 @@ struct DiseaseCategoryDetailView: View {
     
     private func tabButton(for category: DiseaseCategory) -> some View {
         Button(action: {
-            withAnimation(.easeIn(duration: 0.3)) {
-                selectedCategory = category
-            }
+            selectedCategory = category
         }) {
             VStack(spacing: 4) {
                 Text(category.rawValue)
@@ -82,22 +63,29 @@ struct DiseaseCategoryDetailView: View {
     }
     
     private var symptomsListView: some View {
-        ForEach(symptomsByCategory[selectedCategory] ?? []) { symptom in
-            HStack(alignment: .top, spacing: 12) {
-                Image(symptom.imageName)
-                    .resizable()
-                    .frame(width: 60, height: 60)
-                    .cornerRadius(8)
-                Text(symptom.description)
-                    .font(.body)
-                    .foregroundColor(.primary)
-                    .padding(.top, 8)
-                Spacer()
+        VStack {
+            ForEach(symptomsByCategory[selectedCategory] ?? []) { symptom in
+                Button {
+                    homeRouter.navigate(to: .diseaseSymptomArticle(symptom))
+                } label: {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(symptom.imageName)
+                            .resizable()
+                            .frame(width: 60, height: 60)
+                            .cornerRadius(8)
+                        Text(symptom.description)
+                            .font(.body)
+                            .foregroundColor(.primary)
+                            .padding(.top, 8)
+                        Spacer()
+                    }
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(16)
+                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+                }
+                .buttonStyle(PlainButtonStyle())
             }
-            .padding()
-            .background(Color.white)
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
         }
     }
 }

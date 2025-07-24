@@ -15,6 +15,7 @@ enum ContentRoute: Routable, Equatable {
     case samplePlantDetails(PlantDetails, UIImage)
     case articleDetails(ArticleDetails)
     case diseaseCategoryDetail(DiseaseCategory, [DiseaseSymptom])
+    case diseaseSymptomArticle(DiseaseSymptom)
 
     static func == (lhs: ContentRoute, rhs: ContentRoute) -> Bool {
         switch (lhs, rhs) {
@@ -54,6 +55,8 @@ enum ContentRoute: Routable, Equatable {
             ArticleDetailsScreen(article: article)
         case .diseaseCategoryDetail(let category, let symptoms):
             DiseaseCategoryDetailView(category: category, symptoms: symptoms)
+        case .diseaseSymptomArticle(let symptom):
+            SymptomArticleView(symptom: symptom)
         }
     }
 }

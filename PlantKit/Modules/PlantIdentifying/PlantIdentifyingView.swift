@@ -236,7 +236,7 @@ struct PlantIdentifyingView: View {
     }
     
     private func animateScanning() {
-        guard isAnimating, !hasError else { return }
+        guard !hasError else { return }
         
         let animationDuration = 1.5
 
@@ -249,10 +249,8 @@ struct PlantIdentifyingView: View {
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
-            if isAnimating {
-                isReversing.toggle()
-                animateScanning()
-            }
+            isReversing.toggle()
+            animateScanning()
         }
     }
 }

@@ -1060,7 +1060,9 @@ struct PlantDetailsScreen: View {
                     ]
                     HStack(spacing: spacing) {
                         ForEach(1...13, id: \.self) { zone in
-                            let isActive = climatic.hardinessZone.contains(zone)
+                            let minZone = climatic.hardinessZone.min() ?? 1
+                            let maxZone = climatic.hardinessZone.max() ?? 13
+                            let isActive = zone >= minZone && zone <= maxZone
                             let color = (zone-1) < zoneColors.count ? zoneColors[zone-1] : Color.gray
                             RoundedRectangle(cornerRadius: 6)
                                 .fill(color)

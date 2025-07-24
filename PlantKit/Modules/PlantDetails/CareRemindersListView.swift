@@ -172,6 +172,12 @@ struct ReminderCard: View {
         reminderManager.isCompletionMarked(for: reminder, date: Date())
     }
     
+    private var canMarkDone: Bool {
+        guard let nextDue = reminder.nextDueDate else { return false }
+        let calendar = Calendar.current
+        return calendar.isDateInToday(nextDue) || nextDue < Date()
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -225,7 +231,7 @@ struct ReminderCard: View {
                 
                 HStack(spacing: 8) {
                     // Single completion button that changes appearance
-                    if reminder.isEnabled {
+                    if reminder.isEnabled && canMarkDone {
                         Button(action: {
                             Haptics.shared.play()
                             onComplete()

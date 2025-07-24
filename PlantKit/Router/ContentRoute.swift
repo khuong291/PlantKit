@@ -35,7 +35,7 @@ enum ContentRoute: Routable, Equatable {
     var body: some View {
         switch self {
         case .home:
-            HomeScreen()
+            HomeScreen(mainTabSelectedTab: .constant(.home)) // Provide a dummy binding or refactor as needed
         case .ask:
             AskScreen()
         case .conversation(let id, let plantDetails):

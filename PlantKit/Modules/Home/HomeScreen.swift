@@ -76,6 +76,9 @@ struct HomeScreen: View {
     @EnvironmentObject var locationManager: LocationManager
     @EnvironmentObject var homeRouter: Router<ContentRoute>
     @ObservedObject var proManager: ProManager = .shared
+    @EnvironmentObject var careReminderManager: CareReminderManager
+    @EnvironmentObject var mainTabViewModel: MainTabViewModel
+    @Binding var mainTabSelectedTab: MainTab.Tab
     
     @State private var selectedImage: UIImage?
     @State private var showImagePicker = false
@@ -125,6 +128,8 @@ struct HomeScreen: View {
                         freeTrialClaimSection
                             .padding(.top, 16)
                     }
+                    reminderTaskIndicator
+                        .padding(.top, 16)
                     plantToolsView
                         .padding(.top, 16)
                     popularIndoorPlantsView
@@ -447,6 +452,39 @@ struct HomeScreen: View {
         }
     }
     
+    private var reminderTaskIndicator: some View {
+        let today = Calendar.current.startOfDay(for: Date())
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+        let dueReminders = careReminderManager.reminders.filter { reminder in
+            guard let due = reminder.nextDueDate else { return false }
+            return due >= today && due < tomorrow && reminder.isEnabled
+        }
+        let count = dueReminders.count
+        
+        return Button(action: {
+            Haptics.shared.play()
+            NotificationCenter.default.post(name: .switchToMyPlantsTab, object: nil)
+        }) {
+            HStack(spacing: 12) {
+                Image(systemName: count > 0 ? "bell.badge.fill" : "bell")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(count > 0 ? .orange : .gray)
+                Text(count > 0 ? "You have \(count) task\(count > 1 ? "s" : "") today" : "No tasks today")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.primary)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.gray)
+            }
+            .padding()
+            .background(count > 0 ? Color.orange.opacity(0.1) : Color.gray.opacity(0.08))
+            .cornerRadius(14)
+            .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
     // MARK: - Article Suggestions Section
     private var articleSuggestionsView: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -524,6 +562,10 @@ struct HomeScreen: View {
     }
 }
 
+extension Notification.Name {
+    static let switchToMyPlantsTab = Notification.Name("SwitchToMyPlantsTab")
+}
+
 struct PopularPlantCard: View {
     let name: String
     let imageName: String
@@ -570,10 +612,6 @@ struct PopularPlantCard: View {
         }
         .buttonStyle(PlainButtonStyle())
     }
-}
-
-#Preview {
-    HomeScreen()
 }
 
 struct DiseaseCard: View {

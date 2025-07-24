@@ -12,6 +12,7 @@ struct MyPlantsScreen: View {
     @EnvironmentObject var identifierManager: IdentifierManager
     @EnvironmentObject var myPlantsRouter: Router<ContentRoute>
     @EnvironmentObject var careReminderManager: CareReminderManager
+    @EnvironmentObject var mainTabViewModel: MainTabViewModel
     @Environment(\.managedObjectContext) private var viewContext
     @State private var refreshID = UUID()
     @State private var selectedTab = 0
@@ -66,6 +67,11 @@ struct MyPlantsScreen: View {
         .onReceive(careReminderManager.$reminders) { _ in
             // Refresh the view when reminders are updated
             updatePlantDetailsList()
+        }
+        .onReceive(mainTabViewModel.$selectedMyPlantsTab) { newTab in
+            if selectedTab != newTab {
+                selectedTab = newTab
+            }
         }
     }
     
@@ -1179,5 +1185,6 @@ struct PlantPickerRow: View {
     MyPlantsScreen()
         .environmentObject(IdentifierManager())
         .environmentObject(CareReminderManager.shared)
+        .environmentObject(MainTabViewModel())
         .environment(\.managedObjectContext, CoreDataManager.shared.viewContext)
 }

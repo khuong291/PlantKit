@@ -71,7 +71,7 @@ struct MainTab: View {
     @State private var detailsImage: UIImage? = nil
     
     private var homeScreen: HomeScreen {
-        HomeScreen(onOpenCamera: openCamera)
+        HomeScreen(mainTabSelectedTab: $selectedTab, onOpenCamera: openCamera)
     }
     private let askScreen = AskScreen()
     private let myPlantsScreen = MyPlantsScreen()
@@ -121,6 +121,15 @@ struct MainTab: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 ProManager.shared.showUpgradeProIfNeeded()
             }
+            NotificationCenter.default.addObserver(forName: .switchToMyPlantsTab, object: nil, queue: .main) { _ in
+                selectedTab = .myPlants
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    viewModel.selectedMyPlantsTab = 1
+                }
+            }
+        }
+        .onDisappear {
+            NotificationCenter.default.removeObserver(self, name: .switchToMyPlantsTab, object: nil)
         }
         .fullScreenCover(isPresented: $viewModel.isPresentingCamera) {
             CameraView(
@@ -151,7 +160,8 @@ struct MainTab: View {
             }
             if hasSelectedMyPlantsScreen {
                 RoutingView(stack: $myPlantsRouter.stack) {
-                    myPlantsScreen.id(identifierManager.myPlantsScreenID)
+                    myPlantsScreen
+                        .environmentObject(viewModel)
                 }
                 .opacity(selectedTab == .myPlants ? 1 : 0)
                 .environmentObject(myPlantsRouter)

@@ -74,13 +74,19 @@ struct CareReminderView: View {
             
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
                 ForEach(ReminderType.allCases, id: \.self) { type in
+                    let existingReminders = getExistingReminderTypes()
+                    let isDisabled = existingReminders.contains(type) && reminder == nil
+                    
                     ReminderTypeCard(
                         type: type,
-                        isSelected: selectedType == type
+                        isSelected: selectedType == type,
+                        isDisabled: isDisabled
                     ) {
-                        selectedType = type
-                        if reminder == nil {
-                            frequency = type.defaultFrequency
+                        if !isDisabled {
+                            selectedType = type
+                            if reminder == nil {
+                                frequency = type.defaultFrequency
+                            }
                         }
                     }
                 }
@@ -98,7 +104,7 @@ struct CareReminderView: View {
                 .font(.system(size: 17, weight: .semibold))
                 .foregroundColor(.primary)
             
-            DatePicker("Time", selection: $reminderTime, displayedComponents: .hourAndMinute)
+            DatePicker("Time", selection: $reminderTime, displayedComponents: [.date, .hourAndMinute])
                 .datePickerStyle(WheelDatePickerStyle())
                 .labelsHidden()
         }
@@ -154,7 +160,11 @@ struct CareReminderView: View {
                         subtitle: "Set your own",
                         isSelected: !isPresetSelected
                     ) {
-                        // Keep current values for custom
+                        // Set to a non-preset value to trigger custom mode
+                        if isPresetSelected {
+                            frequency = 1
+                            selectedRepeatType = .days
+                        }
                     }
                 }
             }
@@ -284,37 +294,53 @@ struct CareReminderView: View {
         Haptics.shared.play()
         dismiss()
     }
+    
+    private func getExistingReminderTypes() -> Set<ReminderType> {
+        let plantReminders = reminderManager.reminders.filter { $0.plant == plant }
+        var existingTypes: Set<ReminderType> = []
+        
+        for reminder in plantReminders {
+            if let typeString = reminder.reminderType,
+               let type = reminderManager.getReminderType(from: typeString) {
+                existingTypes.insert(type)
+            }
+        }
+        
+        return existingTypes
+    }
 }
 
 struct ReminderTypeCard: View {
     let type: ReminderType
     let isSelected: Bool
+    let isDisabled: Bool
     let action: () -> Void
     
     var body: some View {
-        Button(action: action) {
+        Button(action: isDisabled ? {} : action) {
             VStack(spacing: 8) {
                 Image(type.icon)
                     .resizable()
                     .frame(width: 24, height: 24)
-                    .foregroundColor(type.color)
+                    .foregroundColor(isDisabled ? .gray : type.color)
                 
                 Text(type.title)
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.primary)
+                    .foregroundColor(isDisabled ? .gray : .primary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-                            .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(isSelected ? type.color.opacity(0.1) : Color(.systemGray6))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(isSelected ? type.color : Color.clear, lineWidth: 2)
-                        )
-                )
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isDisabled ? Color.gray.opacity(0.1) : (isSelected ? type.color.opacity(0.1) : Color(.systemGray6)))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(isDisabled ? Color.gray.opacity(0.3) : (isSelected ? type.color : Color.clear), lineWidth: isDisabled ? 1 : 2)
+                    )
+            )
         }
         .buttonStyle(PlainButtonStyle())
+        .disabled(isDisabled)
     }
 }
 

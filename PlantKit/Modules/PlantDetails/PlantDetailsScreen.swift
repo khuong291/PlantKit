@@ -34,33 +34,115 @@ struct PlantDetailsScreen: View {
     @State private var refreshReminders = false
     
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topLeading) {
             Color.appScreenBackgroundColor
                 .edgesIgnoringSafeArea(.all)
-            content
             
-            // Fixed close button on top
-            VStack {
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 15))
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                            .padding(12)
-                            .background(Color.black.opacity(0.3))
-                            .clipShape(Circle())
+            ScrollView(showsIndicators: false) {
+                ZStack(alignment: .top) {
+                    // Header image
+                    if let uiImage = capturedImage {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(maxWidth: UIScreen.main.bounds.width)
+                            .frame(height: 260)
+                            .clipped()
+                            .ignoresSafeArea(edges: .top)
+                    } else {
+                        ZStack {
+                            Color.secondary.opacity(0.2)
+                            Image("peace-lily")
+                                .resizable()
+                                .scaledToFill()
+                        }
+                        .frame(maxWidth: UIScreen.main.bounds.width)
+                        .frame(height: 260)
+                        .clipped()
+                        .ignoresSafeArea(edges: .top)
+                    }
+
+                    VStack(spacing: 0) {
+                        Spacer().frame(height: 220)
+                        VStack(alignment: .leading, spacing: 20) {
+                            Capsule()
+                                .fill(Color.gray.opacity(0.2))
+                                .frame(width: 40, height: 5)
+                                .frame(maxWidth: .infinity)
+                                .offset(y: -10)
+
+                            if let details = plantDetails {
+                                // Title & Subtitle
+                                Text(details.commonName)
+                                    .font(.system(size: 28, weight: .bold))
+                                    .foregroundColor(.primary)
+                                Text(details.scientificName)
+                                    .font(.system(size: 17))
+                                    .foregroundColor(.secondary)
+                                
+                                // Tabs
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 12) {
+                                        ForEach(tabs.indices, id: \.self) { idx in
+                                            Button(action: { selectedTab = idx }) {
+                                                Text(tabs[idx])
+                                                    .font(.system(size: 16, weight: .medium))
+                                                    .foregroundColor(selectedTab == idx ? .white : .primary)
+                                                    .padding(.vertical, 8)
+                                                    .padding(.horizontal, 18)
+                                                    .background(selectedTab == idx ? Color.black : Color.secondary.opacity(0.1))
+                                                    .cornerRadius(16)
+                                            }
+                                        }
+                                    }
+                                }
+                                .padding(.bottom, 10)
+                                
+                                // Tab Content
+                                if selectedTab == 0 {
+                                    plantInfoTab(details: details)
+                                } else {
+                                    careGuideTab(details: details)
+                                }
+                            } else {
+                                VStack {
+                                    Text("No plant details available")
+                                        .foregroundColor(.red)
+                                        .font(.system(size: 28))
+                                    Text("plantDetails is nil: \(plantDetails == nil)")
+                                    Text("capturedImage is nil: \(capturedImage == nil)")
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 300)
+                                .background(Color.yellow.opacity(0.3))
+                            }
+                        }
+                        .padding(24)
+                        .background(
+                            RoundedRectangle(cornerRadius: 32)
+                                .fill(Color.white)
+                                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: -2)
+                        )
                     }
                 }
-                .padding(.trailing, 8)
-                .padding(.top, 14) // Account for safe area
-                Spacer()
             }
-            .padding(.horizontal)
+            
+            // Custom back button
+            Button(action: { dismiss() }) {
+                ZStack {
+                    Circle()
+                        .fill(Color.black.opacity(0.6))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.white)
+                        .font(.system(size: 15, weight: .semibold))
+                        .frame(width: 36, height: 36)
+                }
+            }
+            .padding(.leading, 16)
+            .padding(.top, 44) // For safe area
         }
+        .background(EnableSwipeBack())
+        .ignoresSafeArea(edges: .top)
         .navigationBarBackButtonHidden(true)
         .onAppear {
             // Load reminders for this plant when screen appears

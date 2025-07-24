@@ -6,94 +6,85 @@ struct PlantDiagnosisResultView: View {
     let onDismiss: () -> Void
     
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topLeading) {
             Color.appScreenBackgroundColor.ignoresSafeArea()
             
-            ScrollView {
-                VStack(spacing: 0) {
-                    // Header with image
-                    headerSection
-                    
-                    // Health Score Card
-                    healthScoreCard
-                        .padding(.horizontal, 20)
-                        .padding(.top, 24)
-                    
-                    // Overall Condition
-                    conditionCard
-                        .padding(.horizontal, 20)
-                        .padding(.top, 16)
-                    
-                    // Disease Risk
-                    diseaseRiskCard
-                        .padding(.horizontal, 20)
-                        .padding(.top, 16)
-                    
-                    // Health Issues
-                    if !diagnosis.healthIssues.isEmpty {
-                        healthIssuesCard
-                            .padding(.horizontal, 20)
-                            .padding(.top, 16)
+            ScrollView(showsIndicators: false) {
+                ZStack(alignment: .top) {
+                    // Header image
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxWidth: UIScreen.main.bounds.width)
+                        .frame(height: 260)
+                        .clipped()
+                        .ignoresSafeArea(edges: .top)
+
+                    VStack(spacing: 0) {
+                        Spacer().frame(height: 220)
+                        VStack(alignment: .leading, spacing: 20) {
+                            Capsule()
+                                .fill(Color.gray.opacity(0.2))
+                                .frame(width: 40, height: 5)
+                                .frame(maxWidth: .infinity)
+                                .offset(y: -10)
+
+                            // Title
+                            VStack(spacing: 8) {
+                                Text("Plant Health Diagnosis")
+                                    .font(.system(size: 22, weight: .bold))
+                                    .foregroundColor(.primary)
+                                
+                                Text("Analysis Complete")
+                                    .font(.system(size: 15))
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            // Health Score Card
+                            healthScoreCard
+                            
+                            // Overall Condition
+                            conditionCard
+                            
+                            // Disease Risk
+                            diseaseRiskCard
+                            
+                            // Health Issues
+                            if !diagnosis.healthIssues.isEmpty {
+                                healthIssuesCard
+                            }
+                            
+                            // Recommendations
+                            recommendationsCard
+                        }
+                        .padding(24)
+                        .background(
+                            RoundedRectangle(cornerRadius: 32)
+                                .fill(Color.white)
+                                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: -2)
+                        )
                     }
-                    
-                    // Recommendations
-                    recommendationsCard
-                        .padding(.horizontal, 20)
-                        .padding(.top, 16)
-                        .padding(.bottom, 100)
                 }
             }
-            .scrollIndicators(.hidden)
-        }
-    }
-    
-    private var headerSection: some View {
-        ZStack(alignment: .topTrailing) {
-            ZStack(alignment: .bottom) {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 300)
-                    .clipped()
-                
-                // Gradient overlay
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color.clear,
-                        Color.black.opacity(0.3),
-                        Color.black.opacity(0.7)
-                    ]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 300)
-                
-                VStack(spacing: 8) {
-                    Text("Plant Health Diagnosis")
-                        .font(.system(size: 22))
-                        .fontWeight(.bold)
+            
+            // Custom back button
+            Button(action: { onDismiss() }) {
+                ZStack {
+                    Circle()
+                        .fill(Color.black.opacity(0.6))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "chevron.left")
                         .foregroundColor(.white)
-                    
-                    Text("Analysis Complete")
-                        .font(.system(size: 15))
-                        .foregroundColor(.white.opacity(0.8))
+                        .font(.system(size: 15, weight: .semibold))
+                        .frame(width: 36, height: 36)
                 }
-                .padding(.bottom, 20)
             }
-            Button(action: {
-                onDismiss()
-            }) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 12))
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(12)
-                    .background(Color.black.opacity(0.3))
-                    .clipShape(Circle())
-                    .padding(.trailing)
-                    .padding(.top, 46)
-            }
+            .padding(.leading, 16)
+            .padding(.top, 44) // For safe area
         }
+        .background(EnableSwipeBack())
+        .ignoresSafeArea(edges: .top)
+        .navigationBarBackButtonHidden(true)
     }
     
     private var healthScoreCard: some View {

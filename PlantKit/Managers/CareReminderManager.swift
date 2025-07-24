@@ -88,16 +88,8 @@ class CareReminderManager: ObservableObject {
         }
     }
     
-    func createReminder(
-        for plant: Plant,
-        type: ReminderType,
-        frequency: Int16,
-        repeatType: RepeatType,
-        reminderTime: Date,
-        notes: String? = nil
-    ) {
+    func createReminder(for plant: Plant, type: ReminderType, frequency: Int16, repeatType: RepeatType, reminderTime: Date, notes: String?) {
         let context = CoreDataManager.shared.viewContext
-        
         let reminder = CareReminder(context: context)
         reminder.id = UUID().uuidString
         reminder.title = "\(type.title) \(plant.commonName ?? "Plant")"
@@ -109,12 +101,9 @@ class CareReminderManager: ObservableObject {
         reminder.isEnabled = true
         reminder.createdAt = Date()
         reminder.updatedAt = Date()
-        
-        // Calculate next due date based on repeat type
-        let nextDueDate = calculateNextDueDate(frequency: frequency, repeatType: repeatType, reminderTime: reminderTime)
-        reminder.nextDueDate = nextDueDate
+        // Use the user-selected date/time as the first due date
+        reminder.nextDueDate = reminderTime
         reminder.plant = plant
-        
         do {
             try context.save()
             scheduleNotification(for: reminder)
@@ -182,25 +171,31 @@ class CareReminderManager: ObservableObject {
     
     func markReminderCompleted(_ reminder: CareReminder) {
         let context = CoreDataManager.shared.viewContext
-        
         reminder.lastCompleted = Date()
-        
-        // Calculate next due date based on current reminder settings
+        // Advance from the previous due date, not from now
         if let repeatTypeString = reminder.repeatType,
            let repeatType = RepeatType(rawValue: repeatTypeString),
-           let reminderTime = reminder.reminderTime {
-            let nextDueDate = calculateNextDueDate(frequency: reminder.frequency, repeatType: repeatType, reminderTime: reminderTime)
-            reminder.nextDueDate = nextDueDate
+           let prevDueDate = reminder.nextDueDate {
+            var nextDue: Date?
+            switch repeatType {
+            case .days:
+                nextDue = Calendar.current.date(byAdding: .day, value: Int(reminder.frequency), to: prevDueDate)
+            case .weeks:
+                nextDue = Calendar.current.date(byAdding: .weekOfYear, value: Int(reminder.frequency), to: prevDueDate)
+            case .months:
+                nextDue = Calendar.current.date(byAdding: .month, value: Int(reminder.frequency), to: prevDueDate)
+            }
+            if let nextDue = nextDue {
+                // Preserve the time component from the original reminderTime
+                let timeComp = Calendar.current.dateComponents([.hour, .minute], from: reminder.reminderTime ?? prevDueDate)
+                reminder.nextDueDate = Calendar.current.date(bySettingHour: timeComp.hour ?? 9, minute: timeComp.minute ?? 0, second: 0, of: nextDue) ?? nextDue
+            }
         } else {
             // Fallback to old calculation
             reminder.nextDueDate = Date().addingTimeInterval(TimeInterval(reminder.frequency * 24 * 60 * 60))
         }
-        
         reminder.updatedAt = Date()
-        
-        // Also mark daily completion for today
         markDailyCompletion(for: reminder, date: Date())
-        
         do {
             try context.save()
             scheduleNotification(for: reminder)

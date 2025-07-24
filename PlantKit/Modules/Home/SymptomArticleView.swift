@@ -13,7 +13,6 @@ struct EnableSwipeBack: UIViewControllerRepresentable {
 }
 
 struct SymptomArticleContent {
-    let title: String
     let subtitle: String
     let orangeHeading: String
     let symptomDetails: String
@@ -38,6 +37,7 @@ struct SymptomArticleView: View {
 
                     VStack(spacing: 0) {
                         Spacer().frame(height: 220)
+                        let content = articleContent(for: symptom)
                         VStack(alignment: .leading, spacing: 20) {
                             Capsule()
                                 .fill(Color.gray.opacity(0.2))
@@ -45,32 +45,24 @@ struct SymptomArticleView: View {
                                 .frame(maxWidth: .infinity)
                                 .offset(y: -10)
 
-                            if let content = articleContent(for: symptom) {
-                                Text(content.title)
-                                    .font(.system(size: 28, weight: .bold))
-                                    .foregroundColor(.primary)
+                            Text(symptom.description)
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(.primary)
 
+                            if let content = content {
                                 Text(content.subtitle)
                                     .font(.system(size: 17))
                                     .foregroundColor(.secondary)
-
                                 Text(content.orangeHeading)
                                     .font(.system(size: 17, weight: .semibold))
                                     .foregroundColor(.orange)
                                     .padding(.top, 8)
-
                                 Text(content.symptomDetails)
                                     .font(.body)
                                     .foregroundColor(.primary)
-
                                 Text(content.body)
                                     .font(.body)
                                     .foregroundColor(.primary)
-                            } else {
-                                Text(symptom.description)
-                                    .font(.title2)
-                                    .bold()
-                                    .multilineTextAlignment(.center)
                             }
                         }
                         .padding(24)
@@ -110,11 +102,18 @@ struct SymptomArticleView: View {
     private func articleContent(for symptom: DiseaseSymptom) -> SymptomArticleContent? {
         if symptom.imageName == "pale-plant" {
             return SymptomArticleContent(
-                title: "Insufficient light",
                 subtitle: "Your plant appears a classic sign of etiolation, a condition caused by plants growing in inadequate levels of light.",
                 orangeHeading: "Check if your plant has the following symptoms:",
                 symptomDetails: "Your plant has pale, elongated leaves that reach upward or spindly stems that are pale yellow in color. You will often notice fewer leaves in mature plants and lifeless, fleshy leaves in succulents. Newly germinated seedlings will look tall, thin, and spindly. This is a classic sign of etiolation, a condition caused by plants growing in inadequate levels of light.",
                 body: "In low-level light conditions, etiolation occurs as a result of etioplasts developing in the plant tissue instead of chlorophyll, the compound which converts the sun’s energy into plant food. Etiolation naturally occurs in plants in normal conditions to help plants reach sunlight. However, without adequate light, there are low levels of chlorophyll, and the plant becomes weakened and malnourished."
+            )
+        }
+        if symptom.imageName == "dried-herb" {
+            return SymptomArticleContent(
+                subtitle: "Your plant is showing signs of complete desiccation above the soil, a condition frequently seen in herbs.",
+                orangeHeading: "Check if your plant has the following symptoms:",
+                symptomDetails: "All visible parts of the plant above the soil—leaves, stems, and flowers—are dry, brittle, and lifeless. The plant may appear brown or tan, with no green tissue remaining. This is especially common in potted herbs like basil, parsley, or mint, which are sensitive to water stress and environmental changes.",
+                body: "When every part of a plant above the soil line has dried out, it usually indicates either prolonged underwatering, exposure to excessive heat or sunlight, or the natural end of the plant’s life cycle (especially for annual herbs). Inadequate watering is the most common cause, as herbs have shallow roots and can dry out quickly if the soil is left dry for too long. Other contributing factors may include poor soil drainage, root rot (if the roots were previously waterlogged), or pests and diseases that have damaged the plant’s ability to take up water.\n\nWhat to do:\n- Check the soil moisture. If it’s bone dry, try watering, but if the plant does not recover after a day or two, it may be too late.\n- Inspect the roots. If they are brown and mushy, root rot may be the cause.\n- For annual herbs, remember that they naturally die back after flowering and seeding.\n- To prevent this in the future, water herbs regularly, ensure pots have good drainage, and avoid placing them in intense, direct sunlight for prolonged periods.\n\nTip:\nIf you want to reuse the pot or soil, remove all dried plant material and refresh the soil before planting new herbs."
             )
         }
         return nil

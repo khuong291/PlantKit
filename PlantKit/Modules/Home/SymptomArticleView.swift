@@ -124,6 +124,14 @@ struct SymptomArticleView: View {
                 body: "Black rot starting from the center of the plant is usually caused by a combination of fungal or bacterial pathogens and environmental stress, most commonly overwatering or poor drainage. When the soil remains wet for extended periods, it creates ideal conditions for pathogens like Pythium, Phytophthora, or Erwinia to infect the plant’s crown and roots. Once the infection takes hold, it rapidly destroys plant tissue, turning it black and mushy.\n\nWhat to do:\n- Remove the affected plant immediately to prevent the spread of disease to nearby plants.\n- Discard the soil and thoroughly clean the pot with hot, soapy water or a diluted bleach solution.\n- Avoid reusing contaminated soil.\n- If you catch the rot early and some healthy tissue remains, you may try to cut away all blackened parts with sterile scissors, but recovery is unlikely if the rot has reached the center.\n- To prevent future cases, always use well-draining soil, avoid overwatering, and ensure pots have drainage holes.\n\nTip:\nSterilize any tools used on infected plants to avoid spreading pathogens to healthy plants."
             )
         }
+        if symptom.imageName == "dried-out" {
+            return SymptomArticleContent(
+                subtitle: "Your plant is completely dry, with no green tissue remaining, indicating severe dehydration or the end of its life cycle.",
+                orangeHeading: "Check if your plant has the following symptoms:",
+                symptomDetails: "All parts of the plant—leaves, stems, and sometimes even flowers—are brown, brittle, and dry to the touch. The plant may appear shriveled, and leaves may easily crumble or fall off. There is no sign of moisture or life in any part above the soil.",
+                body: "When a plant has completely dried out, it is usually the result of prolonged underwatering, excessive heat, or natural aging (especially for annuals). Without enough water, the plant cannot maintain its cellular structure, leading to wilting, browning, and eventually total desiccation. Sometimes, a plant may also dry out after it has completed its natural life cycle or if it has suffered from root damage, pests, or disease.\n\nWhat to do:\n- Check the soil. If it is extremely dry and hard, the plant likely died from lack of water.\n- Inspect the roots. If they are also dry and brittle, the plant cannot be revived.\n- Remove the dried plant and dispose of it.\n- Clean the pot thoroughly before reusing it for a new plant.\n- To prevent this in the future, water your plants regularly, especially during hot or dry weather, and ensure the soil retains some moisture but is not waterlogged.\n\nTip:\nIf you want to reuse the soil, mix in fresh potting mix and check for pests or diseases before planting again."
+            )
+        }
         return nil
     }
 }

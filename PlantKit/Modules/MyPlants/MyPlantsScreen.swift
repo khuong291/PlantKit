@@ -731,9 +731,41 @@ struct MyPlantsScreen: View {
     
     private func getRemindersForDate(_ date: Date) -> [CareReminder] {
         let allReminders = getAllReminders()
+        let today = Calendar.current.startOfDay(for: Date())
+        let selectedDate = Calendar.current.startOfDay(for: date)
+        
         return allReminders.filter { reminder in
+            guard reminder.isEnabled else { return false }
+            
+            // Check if this is a recurring reminder
+            if let repeatTypeString = reminder.repeatType,
+               let repeatType = careReminderManager.getRepeatType(from: repeatTypeString),
+               let nextDue = reminder.nextDueDate {
+                
+                let nextDueDate = Calendar.current.startOfDay(for: nextDue)
+                
+                // For daily reminders (frequency = 1, repeatType = .days)
+                if repeatType == .days && reminder.frequency == 1 {
+                    // Show from today onwards (not past days)
+                    return selectedDate >= today
+                }
+                
+                // For other recurring reminders, check if the selected date falls on a due date
+                // Calculate if the selected date is a valid due date based on the reminder's pattern
+                if selectedDate >= nextDueDate {
+                    let calendar = Calendar.current
+                    let daysBetween = calendar.dateComponents([.day], from: nextDueDate, to: selectedDate).day ?? 0
+                    
+                    // Check if the selected date falls on a due date based on the frequency
+                    return daysBetween % Int(reminder.frequency) == 0
+                }
+                
+                return false
+            }
+            
+            // For non-recurring reminders, only show them on their due date
             guard let nextDue = reminder.nextDueDate else { return false }
-            return Calendar.current.isDate(nextDue, inSameDayAs: date) && reminder.isEnabled
+            return Calendar.current.isDate(nextDue, inSameDayAs: date)
         }
     }
     

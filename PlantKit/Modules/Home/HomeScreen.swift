@@ -476,8 +476,19 @@ struct HomeScreen: View {
         let today = Calendar.current.startOfDay(for: Date())
         let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
         let dueReminders = careReminderManager.reminders.filter { reminder in
+            guard reminder.isEnabled else { return false }
+            
+            // Check if this is a daily reminder (frequency = 1, repeatType = .days)
+            if let repeatTypeString = reminder.repeatType,
+               let repeatType = careReminderManager.getRepeatType(from: repeatTypeString),
+               repeatType == .days && reminder.frequency == 1 {
+                // For daily reminders, show them from today onwards (not past days)
+                return true // Since we're checking for today specifically, daily reminders should show
+            }
+            
+            // For non-daily reminders, only show them on their due date
             guard let due = reminder.nextDueDate else { return false }
-            return due >= today && due < tomorrow && reminder.isEnabled
+            return due >= today && due < tomorrow
         }
         let count = dueReminders.count
         

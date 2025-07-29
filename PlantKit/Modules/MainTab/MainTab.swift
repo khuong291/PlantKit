@@ -122,7 +122,7 @@ struct MainTab: View {
                 ProManager.shared.showUpgradeProIfNeeded()
             }
             NotificationCenter.default.addObserver(forName: .switchToMyPlantsTab, object: nil, queue: .main) { _ in
-                selectedTab = .myPlants
+                switchToTab(.myPlants)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     viewModel.selectedMyPlantsTab = 1
                 }

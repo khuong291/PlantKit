@@ -377,9 +377,6 @@ struct PlantDetailsScreen: View {
                     VStack(spacing: 12) {
                         // Reminder summary card
                         reminderSummaryCard(reminders: reminders, overdueCount: overdueCount, upcomingCount: upcomingCount)
-                        
-                        // Quick action buttons for adding more
-                        quickActionButtons
                     }
                 }
             }
@@ -431,76 +428,7 @@ struct PlantDetailsScreen: View {
             .cornerRadius(16)
             .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
             .padding(.horizontal)
-            
-            // Quick action buttons
-            quickActionButtons
         }
-    }
-    
-    private var quickActionButtons: some View {
-        VStack(spacing: 12) {
-            HStack {
-                Text("Quick Add")
-                    .font(.system(size: 15))
-                    .foregroundColor(.primary)
-                    .padding(.horizontal)
-                Spacer()
-            }
-            
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
-                let existingReminders = getExistingReminders()
-                
-                QuickReminderButton(
-                    title: "Water",
-                    icon: "ic-watering",
-                    color: .blue,
-                    frequency: "Every 7 days",
-                    isDisabled: existingReminders.contains(.watering)
-                ) {
-                    Haptics.shared.play()
-                    selectedQuickAddType = .watering
-                    showQuickAddAlert = true
-                }
-                
-                QuickReminderButton(
-                    title: "Fertilize",
-                    icon: "ic-fertilizing",
-                    color: .green,
-                    frequency: "Every 30 days",
-                    isDisabled: existingReminders.contains(.fertilizing)
-                ) {
-                    Haptics.shared.play()
-                    selectedQuickAddType = .fertilizing
-                    showQuickAddAlert = true
-                }
-                
-                QuickReminderButton(
-                    title: "Prune",
-                    icon: "ic-pruning",
-                    color: .purple,
-                    frequency: "Every 90 days",
-                    isDisabled: existingReminders.contains(.pruning)
-                ) {
-                    Haptics.shared.play()
-                    selectedQuickAddType = .pruning
-                    showQuickAddAlert = true
-                }
-                
-                QuickReminderButton(
-                    title: "Repot",
-                    icon: "ic-repotting",
-                    color: .brown,
-                    frequency: "Every year",
-                    isDisabled: existingReminders.contains(.repotting)
-                ) {
-                    Haptics.shared.play()
-                    selectedQuickAddType = .repotting
-                    showQuickAddAlert = true
-                }
-            }
-            .padding(.horizontal)
-        }
-        .padding(.top)
     }
     
     private func getExistingReminders() -> Set<ReminderType> {

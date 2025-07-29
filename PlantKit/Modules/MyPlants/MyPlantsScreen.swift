@@ -375,18 +375,54 @@ struct MyPlantsScreen: View {
                 
                 Spacer()
                 
+                let calendar = Calendar.current
+                let today = calendar.startOfDay(for: Date())
+                let selectedDateStart = calendar.startOfDay(for: selectedDate)
+                
                 let overdueCount = reminders.filter { reminder in
+                    // Only show overdue count for past dates or today
+                    if selectedDateStart > today {
+                        return false // No overdue for future dates
+                    }
+                    
                     guard let nextDue = reminder.nextDueDate else { return false }
                     return nextDue < Date() && reminder.isEnabled
                 }.count
                 
                 let todayCount = reminders.filter { reminder in
+                    // Only show today count when viewing today's date
+                    if !calendar.isDate(selectedDate, inSameDayAs: Date()) {
+                        return false // Not today, so no "today" count
+                    }
+                    
                     guard let nextDue = reminder.nextDueDate else { return false }
                     let calendar = Calendar.current
                     let today = calendar.startOfDay(for: Date())
                     let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
                     let reminderDay = calendar.startOfDay(for: nextDue)
                     return reminderDay >= today && reminderDay < tomorrow && reminder.isEnabled
+                }.count
+                
+                let upcomingCount = reminders.compactMap { reminder -> CareReminder? in
+                    // Only show upcoming count for future dates
+                    guard selectedDateStart > today else { return nil }
+                    guard reminder.isEnabled else { return nil }
+                    
+                    // Check if this is a recurring reminder
+                    if let repeatTypeString = reminder.repeatType,
+                       let repeatType = careReminderManager.getRepeatType(from: repeatTypeString),
+                       repeatType == .days {
+                        // For recurring reminders, check if they appear on the selected date
+                        guard let nextDue = reminder.nextDueDate else { return nil }
+                        let nextDueStart = calendar.startOfDay(for: nextDue)
+                        let daysBetween = calendar.dateComponents([.day], from: nextDueStart, to: selectedDateStart).day ?? 0
+                        
+                        return daysBetween >= 0 && daysBetween % Int(reminder.frequency) == 0 ? reminder : nil
+                    } else {
+                        // For non-recurring reminders, check if due date matches selected date
+                        guard let nextDue = reminder.nextDueDate else { return nil }
+                        return calendar.isDate(nextDue, inSameDayAs: selectedDate) ? reminder : nil
+                    }
                 }.count
                 
                 if overdueCount > 0 {
@@ -405,6 +441,14 @@ struct MyPlantsScreen: View {
                         .padding(.vertical, 4)
                         .background(Color.blue.opacity(0.1))
                         .cornerRadius(8)
+                } else if upcomingCount > 0 {
+                    Text("\(upcomingCount) upcoming")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.blue)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(8)
                 }
             }
             
@@ -414,6 +458,7 @@ struct MyPlantsScreen: View {
                     GroupedReminderCard(
                         reminder: reminder,
                         reminderType: reminderType,
+                        selectedDate: selectedDate,
                         onMenuTap: {
                             Haptics.shared.play()
                             selectedReminder = reminder
@@ -878,18 +923,19 @@ struct StatCard: View {
 struct GroupedReminderCard: View {
     let reminder: CareReminder
     let reminderType: ReminderType
+    let selectedDate: Date
     let onMenuTap: () -> Void
     
     @EnvironmentObject private var reminderManager: CareReminderManager
     @EnvironmentObject var myPlantsRouter: Router<ContentRoute>
     
     private var isOverdue: Bool {
-        guard let nextDue = reminder.nextDueDate else { return false }
-        return nextDue < Date() && reminder.isEnabled
+        let actualDueDate = getActualDueDate(for: selectedDate)
+        return actualDueDate < Date() && reminder.isEnabled
     }
     
     private var isCompletedToday: Bool {
-        reminderManager.isCompletionMarked(for: reminder, date: Date())
+        reminderManager.isCompletionMarked(for: reminder, date: selectedDate)
     }
     
     var body: some View {
@@ -934,11 +980,10 @@ struct GroupedReminderCard: View {
                     .foregroundColor(.primary)
                 
                 // Line 2: Time only
-                if let nextDue = reminder.nextDueDate {
-                    Text(formatTimeOnly(nextDue))
-                        .font(.system(size: 15))
-                        .foregroundColor(.secondary)
-                }
+                let actualDueDate = getActualDueDate(for: selectedDate)
+                Text(formatTimeOnly(actualDueDate))
+                    .font(.system(size: 15))
+                    .foregroundColor(.secondary)
                 
                 // Line 3: Status
                 Text(getReminderStatus())
@@ -971,35 +1016,79 @@ struct GroupedReminderCard: View {
         return timeFormatter.string(from: date)
     }
     
+    private func getActualDueDate(for date: Date) -> Date {
+        guard let nextDue = reminder.nextDueDate,
+              let repeatTypeString = reminder.repeatType,
+              let repeatType = reminderManager.getRepeatType(from: repeatTypeString) else {
+            return reminder.nextDueDate ?? Date()
+        }
+        
+        let calendar = Calendar.current
+        let nextDueDate = calendar.startOfDay(for: nextDue)
+        let selectedDate = calendar.startOfDay(for: date)
+        
+        // For daily reminders (frequency = 1, repeatType = .days)
+        if repeatType == .days && reminder.frequency == 1 {
+            // Use the time from the original reminder but the selected date
+            let timeComponents = calendar.dateComponents([.hour, .minute], from: nextDue)
+            return calendar.date(bySettingHour: timeComponents.hour ?? 9, minute: timeComponents.minute ?? 0, second: 0, of: selectedDate) ?? selectedDate
+        }
+        
+        // For other recurring reminders, calculate the actual due date
+        if selectedDate >= nextDueDate {
+            let daysBetween = calendar.dateComponents([.day], from: nextDueDate, to: selectedDate).day ?? 0
+            
+            // Check if the selected date falls on a due date based on the frequency
+            if daysBetween % Int(reminder.frequency) == 0 {
+                // Use the time from the original reminder but the selected date
+                let timeComponents = calendar.dateComponents([.hour, .minute], from: nextDue)
+                return calendar.date(bySettingHour: timeComponents.hour ?? 9, minute: timeComponents.minute ?? 0, second: 0, of: selectedDate) ?? selectedDate
+            }
+        }
+        
+        // If the selected date is not a due date, return the original next due date
+        return nextDue
+    }
+    
     private func getReminderStatus() -> String {
         if isCompletedToday {
             return "Completed"
         }
         
-        guard let nextDue = reminder.nextDueDate else { return "Unknown" }
-        let now = Date()
-        let timeInterval = nextDue.timeIntervalSince(now)
+        let actualDueDate = getActualDueDate(for: selectedDate)
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let selectedDateStart = calendar.startOfDay(for: selectedDate)
         
-        if timeInterval < 0 {
-            // Overdue
-            let days = Int(abs(timeInterval) / (24 * 60 * 60))
-            if days == 0 {
-                return "Overdue"
-            } else if days == 1 {
-                return "Overdue 1 day"
+        // Compare the selected date with today to determine if it's past, present, or future
+        if selectedDateStart < today {
+            // Past date - show overdue status
+            let timeInterval = actualDueDate.timeIntervalSince(Date())
+            if timeInterval < 0 {
+                let days = Int(abs(timeInterval) / (24 * 60 * 60))
+                if days == 0 {
+                    return "Overdue"
+                } else if days == 1 {
+                    return "Overdue 1 day"
+                } else {
+                    return "Overdue \(days) days"
+                }
             } else {
-                return "Overdue \(days) days"
+                return "Completed"
+            }
+        } else if calendar.isDate(selectedDate, inSameDayAs: Date()) {
+            // Today - show current status
+            let timeInterval = actualDueDate.timeIntervalSince(Date())
+            if timeInterval < 0 {
+                return "Overdue"
+            } else if timeInterval < 24 * 60 * 60 {
+                return "Due today"
+            } else {
+                return "Due in \(Int(timeInterval / (24 * 60 * 60))) days"
             }
         } else {
-            // Upcoming
-            let days = Int(timeInterval / (24 * 60 * 60))
-            if days == 0 {
-                return "Due today"
-            } else if days == 1 {
-                return "Due tomorrow"
-            } else {
-                return "Due in \(days) days"
-            }
+            // Future date - show upcoming status
+            return "Upcoming"
         }
     }
     
@@ -1008,16 +1097,26 @@ struct GroupedReminderCard: View {
             return .green
         }
         
-        guard let nextDue = reminder.nextDueDate else { return .gray }
-        let now = Date()
-        let timeInterval = nextDue.timeIntervalSince(now)
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let selectedDateStart = calendar.startOfDay(for: selectedDate)
         
-        if timeInterval < 0 {
-            return .red // Overdue
-        } else if timeInterval < 24 * 60 * 60 {
-            return .orange // Due within 24 hours
+        // Compare the selected date with today to determine the appropriate color
+        if selectedDateStart < today {
+            // Past date - red for overdue
+            return .red
+        } else if calendar.isDate(selectedDate, inSameDayAs: Date()) {
+            // Today - check if overdue or due today
+            let actualDueDate = getActualDueDate(for: selectedDate)
+            let timeInterval = actualDueDate.timeIntervalSince(Date())
+            if timeInterval < 0 {
+                return .red // Overdue
+            } else {
+                return .orange // Due today
+            }
         } else {
-            return .blue // Due later
+            // Future date - blue for upcoming
+            return .blue
         }
     }
     

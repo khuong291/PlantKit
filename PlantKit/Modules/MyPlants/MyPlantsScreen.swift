@@ -782,6 +782,13 @@ struct MyPlantsScreen: View {
         return allReminders.filter { reminder in
             guard reminder.isEnabled else { return false }
             
+            // Check if this reminder was completed today and we're viewing today
+            if Calendar.current.isDate(selectedDate, inSameDayAs: Date()) {
+                if careReminderManager.isCompletionMarked(for: reminder, date: Date()) {
+                    return true // Show completed reminders for today
+                }
+            }
+            
             // Check if this is a recurring reminder
             if let repeatTypeString = reminder.repeatType,
                let repeatType = careReminderManager.getRepeatType(from: repeatTypeString),

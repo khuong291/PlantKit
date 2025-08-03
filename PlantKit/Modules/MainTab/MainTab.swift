@@ -102,7 +102,7 @@ struct MainTab: View {
                 }
             }) && !homeRouter.stack.contains(where: { route in
                 switch route {
-                case .plantDetails, .samplePlantDetails, .articleDetails, .diseaseCategoryDetail:
+                case .plantDetails, .samplePlantDetails, .articleDetails, .diseaseCategoryDetail, .diseaseSymptomArticle, .homeRemedyDetail:
                     return true
                 default:
                     return false

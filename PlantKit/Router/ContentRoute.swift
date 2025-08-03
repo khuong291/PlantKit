@@ -16,6 +16,7 @@ enum ContentRoute: Routable, Equatable {
     case articleDetails(ArticleDetails)
     case diseaseCategoryDetail(DiseaseCategory, [DiseaseSymptom])
     case diseaseSymptomArticle(DiseaseSymptom)
+    case homeRemedyDetail(HomeRemedy)
 
     static func == (lhs: ContentRoute, rhs: ContentRoute) -> Bool {
         switch (lhs, rhs) {
@@ -28,6 +29,7 @@ enum ContentRoute: Routable, Equatable {
         case let (.diseaseCategoryDetail(cat1, syms1), .diseaseCategoryDetail(cat2, syms2)):
             return cat1 == cat2 && syms1.map(\.id) == syms2.map(\.id)
         case let (.diseaseSymptomArticle(s1), .diseaseSymptomArticle(s2)): return s1.id == s2.id
+        case let (.homeRemedyDetail(r1), .homeRemedyDetail(r2)): return r1.id == r2.id
         default: return false
         }
     }
@@ -58,6 +60,8 @@ enum ContentRoute: Routable, Equatable {
             DiseaseCategoryDetailView(category: category, symptoms: symptoms)
         case .diseaseSymptomArticle(let symptom):
             SymptomArticleView(symptom: symptom)
+        case .homeRemedyDetail(let remedy):
+            HomeRemedyDetailView(remedy: remedy)
         }
     }
 }

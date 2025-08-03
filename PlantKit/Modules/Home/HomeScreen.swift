@@ -38,12 +38,20 @@ struct DiseaseSymptom: Identifiable, Hashable {
 
 // MARK: - Home Remedy Model
 
-struct HomeRemedy: Identifiable {
+struct HomeRemedy: Identifiable, Hashable {
     let id = UUID()
     let title: String
     let imageName: String
     let tag: String
     let description: String
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: HomeRemedy, rhs: HomeRemedy) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
 let homeRemedies: [HomeRemedy] = [
@@ -315,7 +323,7 @@ struct HomeScreen: View {
                 .bold()
             
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
+                LazyHStack(spacing: 8) {
                     PopularPlantCard(
                         name: "Monstera Deliciosa",
                         imageName: "monstera",
@@ -369,7 +377,7 @@ struct HomeScreen: View {
                 .bold()
             
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
+                LazyHStack(spacing: 8) {
                     PopularPlantCard(
                         name: "Hydrangea",
                         imageName: "hydrangea",
@@ -423,7 +431,7 @@ struct HomeScreen: View {
                 .bold()
             
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
+                LazyHStack(spacing: 8) {
                     ForEach(homeRemedies) { remedy in
                         HomeRemedyCard(
                             title: remedy.title,
@@ -432,7 +440,7 @@ struct HomeScreen: View {
                             description: remedy.description,
                             onTap: {
                                 Haptics.shared.play()
-                                // TODO: Implement navigation to remedy details
+                                homeRouter.navigate(to: .homeRemedyDetail(remedy))
                             }
                         )
                     }
@@ -866,5 +874,285 @@ struct HomeRemedyCard: View {
             .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
         }
         .buttonStyle(CardButtonStyle())
+    }
+}
+
+struct HomeRemedyDetailView: View {
+    let remedy: HomeRemedy
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            ScrollView(showsIndicators: false) {
+                ZStack(alignment: .top) {
+                    // Header image
+                    Image(remedy.imageName)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxWidth: UIScreen.main.bounds.width)
+                        .frame(height: 260)
+                        .clipped()
+                        .ignoresSafeArea(edges: .top)
+
+                    VStack(spacing: 0) {
+                        Spacer().frame(height: 220)
+                        VStack(alignment: .leading, spacing: 20) {
+                            Capsule()
+                                .fill(Color.gray.opacity(0.2))
+                                .frame(width: 40, height: 5)
+                                .frame(maxWidth: .infinity)
+                                .offset(y: -10)
+
+                            Text(remedy.title)
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(.primary)
+
+                            Text(remedy.description)
+                                .font(.system(size: 17))
+                                .foregroundColor(.secondary)
+
+                            remedyContent
+                        }
+                        .padding(24)
+                        .background(
+                            RoundedRectangle(cornerRadius: 32)
+                                .fill(Color.white)
+                                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: -2)
+                        )
+                    }
+                }
+            }
+            .overlay(
+                HStack {
+                    Button(action: { 
+                        Haptics.shared.play()
+                        dismiss() 
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.black.opacity(0.6))
+                                .frame(width: 36, height: 36)
+                            Image(systemName: "chevron.left")
+                                .foregroundColor(.white)
+                                .font(.system(size: 15, weight: .semibold))
+                                .frame(width: 36, height: 36)
+                        }
+                    }
+                    .padding(.leading, 16)
+                    .padding(.top, 44) // For safe area
+                    Spacer()
+                }, alignment: .topLeading
+            )
+        }
+        .background(EnableSwipeBack())
+        .ignoresSafeArea(edges: .top)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+    }
+    
+    @ViewBuilder
+    private var remedyContent: some View {
+        switch remedy.imageName {
+        case "baking-soda":
+            VStack(alignment: .leading, spacing: 16) {
+                Text("What you'll need:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.orange)
+                
+                Text("• 1 tablespoon baking soda\n• 1 gallon water\n• 1 teaspoon liquid soap\n• Spray bottle")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+                
+                Text("How to make it:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.blue)
+                    .padding(.top, 8)
+                
+                Text("1. Mix 1 tablespoon of baking soda with 1 gallon of water\n2. Add 1 teaspoon of liquid soap as a surfactant\n3. Pour into a spray bottle\n4. Shake well before each use")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+                
+                Text("How to use:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.green)
+                    .padding(.top, 8)
+                
+                Text("• Spray affected plants thoroughly, covering both sides of leaves\n• Apply early in the morning or late afternoon\n• Reapply every 7-10 days or after rain\n• Test on a small area first")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+                
+                Text("Tip:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.green)
+                    .padding(.top, 8)
+                
+                Text("Baking soda works best for powdery mildew and other fungal diseases. It's safe for most plants but avoid using on very young seedlings.")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+            }
+            
+        case "garlic-spray":
+            VStack(alignment: .leading, spacing: 16) {
+                Text("What you'll need:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.orange)
+                
+                Text("• 2-3 garlic cloves\n• 1 quart water\n• 1 teaspoon liquid soap\n• Blender or food processor\n• Spray bottle")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+                
+                Text("How to make it:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.blue)
+                    .padding(.top, 8)
+                
+                Text("1. Crush 2-3 garlic cloves finely\n2. Add to 1 quart of water and let steep for 24 hours\n3. Strain the mixture and add 1 teaspoon liquid soap\n4. Pour into a spray bottle")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+                
+                Text("How to use:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.green)
+                    .padding(.top, 8)
+                
+                Text("• Spray on affected plants, covering all surfaces\n• Apply in the evening to avoid sun damage\n• Reapply every 3-5 days\n• Can be used as a preventive measure")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+                
+                Text("Tip:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.green)
+                    .padding(.top, 8)
+                
+                Text("Garlic spray is effective against aphids, spider mites, and some fungal diseases. The strong odor also acts as a deterrent for many pests.")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+            }
+            
+        case "neem-oil":
+            VStack(alignment: .leading, spacing: 16) {
+                Text("What you'll need:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.orange)
+                
+                Text("• Pure neem oil\n• Warm water\n• Liquid soap\n• Spray bottle\n• Measuring spoons")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+                
+                Text("How to make it:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.blue)
+                    .padding(.top, 8)
+                
+                Text("1. Mix 1 teaspoon neem oil with 1 quart warm water\n2. Add 1/4 teaspoon liquid soap as emulsifier\n3. Shake vigorously until well mixed\n4. Use immediately or store in refrigerator")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+                
+                Text("How to use:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.green)
+                    .padding(.top, 8)
+                
+                Text("• Spray thoroughly on affected plants\n• Apply in the evening to avoid leaf burn\n• Cover both sides of leaves\n• Reapply every 7-14 days")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+                
+                Text("Tip:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.green)
+                    .padding(.top, 8)
+                
+                Text("Neem oil is most effective against soft-bodied insects like aphids, whiteflies, and spider mites. It also has antifungal properties.")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+            }
+            
+        case "epsom-salt":
+            VStack(alignment: .leading, spacing: 16) {
+                Text("What you'll need:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.orange)
+                
+                Text("• Epsom salt (magnesium sulfate)\n• Water\n• Measuring spoons\n• Watering can or spray bottle")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+                
+                Text("How to make it:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.blue)
+                    .padding(.top, 8)
+                
+                Text("1. Dissolve 1 tablespoon Epsom salt in 1 gallon water\n2. For foliar spray: use 2 tablespoons per gallon\n3. Stir until completely dissolved\n4. Use immediately")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+                
+                Text("How to use:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.green)
+                    .padding(.top, 8)
+                
+                Text("• Water plants at the base with the solution\n• For foliar feeding, spray leaves lightly\n• Apply once per month during growing season\n• Avoid over-application")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+                
+                Text("Tip:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.green)
+                    .padding(.top, 8)
+                
+                Text("Epsom salt provides magnesium and sulfur, essential nutrients for plant health. It's especially beneficial for tomatoes, peppers, and roses.")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+            }
+            
+        case "cinnamon-powder":
+            VStack(alignment: .leading, spacing: 16) {
+                Text("What you'll need:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.orange)
+                
+                Text("• Ground cinnamon powder\n• Small brush or cotton swab\n• Water (for cinnamon tea)\n• Spray bottle (optional)")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+                
+                Text("How to make it:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.blue)
+                    .padding(.top, 8)
+                
+                Text("1. For direct application: Use pure ground cinnamon\n2. For cinnamon tea: Steep 1 tablespoon in 1 cup hot water\n3. Let cool and strain\n4. Pour into spray bottle if using liquid form")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+                
+                Text("How to use:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.green)
+                    .padding(.top, 8)
+                
+                Text("• Dust cinnamon powder directly on affected areas\n• Apply to fresh cuts or wounds on plants\n• Use cinnamon tea as a soil drench\n• Reapply as needed")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+                
+                Text("Tip:")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.green)
+                    .padding(.top, 8)
+                
+                Text("Cinnamon is a natural antifungal that helps prevent damping off in seedlings and protects against root rot. It also deters some pests.")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+            }
+            
+        default:
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Remedy Details")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.orange)
+                
+                Text("This home remedy helps with plant health and pest control. Follow the instructions carefully and always test on a small area first.")
+                    .font(.system(size: 17))
+                    .foregroundColor(.primary)
+            }
+        }
     }
 }

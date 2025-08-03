@@ -36,6 +36,49 @@ struct DiseaseSymptom: Identifiable, Hashable {
     }
 }
 
+// MARK: - Home Remedy Model
+
+struct HomeRemedy: Identifiable {
+    let id = UUID()
+    let title: String
+    let imageName: String
+    let tag: String
+    let description: String
+}
+
+let homeRemedies: [HomeRemedy] = [
+    HomeRemedy(
+        title: "Baking Soda Spray for Plant Fungal Problems",
+        imageName: "baking-soda",
+        tag: "Fungicide",
+        description: "Natural solution for fungal issues on plants"
+    ),
+    HomeRemedy(
+        title: "Homemade Garlic Fungus and Pest Control",
+        imageName: "garlic-spray",
+        tag: "Fungicide",
+        description: "Effective natural pest and fungus deterrent"
+    ),
+    HomeRemedy(
+        title: "Neem Oil Treatment for Pests",
+        imageName: "neem-oil",
+        tag: "Pesticide",
+        description: "Organic pest control solution"
+    ),
+    HomeRemedy(
+        title: "Epsom Salt for Plant Health",
+        imageName: "epsom-salt",
+        tag: "Fertilizer",
+        description: "Natural magnesium supplement for plants"
+    ),
+    HomeRemedy(
+        title: "Cinnamon Powder for Root Rot",
+        imageName: "cinnamon-powder",
+        tag: "Antifungal",
+        description: "Natural antifungal treatment for root issues"
+    )
+]
+
 let diseaseSymptoms: [DiseaseCategory: [DiseaseSymptom]] = [
     .wholePlant: [
         DiseaseSymptom(imageName: "pale-plant", description: "The entire plant is getting pale, and the stems are lengthening."),
@@ -138,6 +181,8 @@ struct HomeScreen: View {
                     popularIndoorPlantsView
                         .padding(.top, 32)
                     popularOutdoorPlantsView
+                        .padding(.top, 32)
+                    homeRemediesView
                         .padding(.top, 32)
                     commonPlantDiseasesView
                         .padding(.top, 32)
@@ -365,6 +410,32 @@ struct HomeScreen: View {
                             homeRouter.navigate(to: .samplePlantDetails(SamplePlantData.boxwood, UIImage(named: "boxwood")!))
                         }
                     )
+                }
+                .padding(.horizontal, 4)
+            }
+        }
+    }
+    
+    private var homeRemediesView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Home Remedies")
+                .font(.system(size: 20))
+                .bold()
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(homeRemedies) { remedy in
+                        HomeRemedyCard(
+                            title: remedy.title,
+                            imageName: remedy.imageName,
+                            tag: remedy.tag,
+                            description: remedy.description,
+                            onTap: {
+                                Haptics.shared.play()
+                                // TODO: Implement navigation to remedy details
+                            }
+                        )
+                    }
                 }
                 .padding(.horizontal, 4)
             }
@@ -743,6 +814,55 @@ struct ArticleSuggestionCard: View {
             .padding()
             .background(Color.white)
             .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+        }
+        .buttonStyle(CardButtonStyle())
+    }
+}
+
+struct HomeRemedyCard: View {
+    let title: String
+    let imageName: String
+    let tag: String
+    let description: String
+    let onTap: (() -> Void)?
+    
+    var body: some View {
+        Button(action: {
+            Haptics.shared.play()
+            onTap?()
+        }) {
+            VStack(alignment: .leading, spacing: 8) {
+                ZStack(alignment: .bottomLeading) {
+                    Image(imageName)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 260, height: 140)
+                        .clipped()
+                    
+                    // Tag overlay
+                    Text(tag)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.black.opacity(0.2))
+                        .cornerRadius(6)
+                        .padding(8)
+                }
+                
+                Text(title)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(.primary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                    .padding(.horizontal, 8)
+                    .frame(height: 44, alignment: .topLeading)
+            }
+            .frame(width: 260)
+            .background(Color.white)
+            .cornerRadius(12)
+            .clipped()
             .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
         }
         .buttonStyle(CardButtonStyle())

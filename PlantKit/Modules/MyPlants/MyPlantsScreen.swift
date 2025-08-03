@@ -690,8 +690,13 @@ struct MyPlantsScreen: View {
             
             // Days of week header
             HStack(spacing: 0) {
-                ForEach(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], id: \.self) { day in
-                    Text(day)
+                let calendar = Calendar.current
+                let firstWeekday = calendar.firstWeekday
+                let weekdaySymbols = calendar.shortWeekdaySymbols
+                
+                ForEach(0..<7, id: \.self) { index in
+                    let weekdayIndex = (firstWeekday - 1 + index) % 7
+                    Text(weekdaySymbols[weekdayIndex])
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.secondary)
                         .frame(maxWidth: .infinity)

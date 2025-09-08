@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+import Mixpanel
 
 struct ContentView: View {
     @ObservedObject var proManager: ProManager = .shared
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
+    @AppStorage("didInstall") var didInstall = false
     
     var body: some View {
         Group {
@@ -24,6 +26,14 @@ struct ContentView: View {
         }
         .onAppear {
             ProManager.shared.setup()
+            
+            if !didInstall {
+                didInstall = true
+                let countryCode = Locale.current.region?.identifier ?? "Unknown"
+                Mixpanel.mainInstance().track(event:"Installed", properties: [
+                    "country": countryCode,
+                ])
+            }
         }
     }
 }

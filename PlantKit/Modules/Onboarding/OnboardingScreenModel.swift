@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Mixpanel
 
 enum OnboardingStep: CaseIterable {
     case welcome
@@ -64,6 +65,7 @@ class OnboardingScreenModel: ObservableObject {
         case .rating:
             // Mark onboarding as completed
             hasCompletedOnboarding = true
+            Mixpanel.mainInstance().track(event:"Onboarded", properties: [:])
             break
         }
     }

@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseCore
 import UserNotifications
+import Mixpanel
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication,
@@ -19,6 +20,8 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         
         // Setup notification delegate
         UNUserNotificationCenter.current().delegate = self
+        
+        Mixpanel.initialize(token: "878869591d46e4dac2d5280cb456ad3d", trackAutomaticEvents: false)
         
         // Setup CareReminderManager and request notification permissions
         // Note: We'll request permissions when user actually uses reminder features

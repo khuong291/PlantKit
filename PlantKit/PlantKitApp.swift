@@ -10,6 +10,27 @@ import FirebaseCore
 import UserNotifications
 import Mixpanel
 
+// Global flag to track Mixpanel initialization
+class MixpanelManager {
+    static let shared = MixpanelManager()
+    private var isInitialized = false
+    
+    private init() {}
+    
+    func initialize(token: String, trackAutomaticEvents: Bool) {
+        Mixpanel.initialize(token: token, trackAutomaticEvents: trackAutomaticEvents)
+        isInitialized = true
+    }
+    
+    func track(event: String, properties: [String: Any] = [:]) {
+        guard isInitialized else {
+            print("Mixpanel not initialized, skipping event: \(event)")
+            return
+        }
+        Mixpanel.mainInstance().track(event: event, properties: [:])
+    }
+}
+
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
@@ -21,7 +42,17 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         // Setup notification delegate
         UNUserNotificationCenter.current().delegate = self
         
-        Mixpanel.initialize(token: "c524cc1d2aec80e590e53342dd080151", trackAutomaticEvents: false)
+        MixpanelManager.shared.initialize(token: "c524cc1d2aec80e590e53342dd080151", trackAutomaticEvents: false)
+        
+        // Track app installation event
+        let didInstall = UserDefaults.standard.bool(forKey: "didInstall")
+        if !didInstall {
+            UserDefaults.standard.set(true, forKey: "didInstall")
+            let countryCode = Locale.current.region?.identifier ?? "Unknown"
+            MixpanelManager.shared.track(event:"Installed", properties: [
+                "country": countryCode,
+            ])
+        }
         
         // Setup CareReminderManager and request notification permissions
         // Note: We'll request permissions when user actually uses reminder features

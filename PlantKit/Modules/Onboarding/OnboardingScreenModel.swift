@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Mixpanel
 
 enum OnboardingStep: CaseIterable {
     case welcome
@@ -66,12 +65,8 @@ class OnboardingScreenModel: ObservableObject {
             // Mark onboarding as completed
             hasCompletedOnboarding = true
             
-            // Ensure Mixpanel is initialized before tracking
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                if Mixpanel.mainInstance() != nil {
-                    Mixpanel.mainInstance().track(event:"Onboarded", properties: [:])
-                }
-            }
+            // Track onboarding completion using safe MixpanelManager
+            MixpanelManager.shared.track(event:"Onboarded", properties: [:])
             break
         }
     }

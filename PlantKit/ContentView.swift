@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Mixpanel
 
 struct ContentView: View {
     @ObservedObject var proManager: ProManager = .shared
@@ -26,20 +25,6 @@ struct ContentView: View {
         }
         .onAppear {
             ProManager.shared.setup()
-            
-            if !didInstall {
-                didInstall = true
-                let countryCode = Locale.current.region?.identifier ?? "Unknown"
-                
-                // Ensure Mixpanel is initialized before tracking
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    if Mixpanel.mainInstance() != nil {
-                        Mixpanel.mainInstance().track(event:"Installed", properties: [
-                            "country": countryCode,
-                        ])
-                    }
-                }
-            }
         }
     }
 }

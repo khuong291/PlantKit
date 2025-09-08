@@ -21,7 +21,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         // Setup notification delegate
         UNUserNotificationCenter.current().delegate = self
         
-        Mixpanel.initialize(token: "878869591d46e4dac2d5280cb456ad3d", trackAutomaticEvents: false)
+        Mixpanel.initialize(token: "c524cc1d2aec80e590e53342dd080151", trackAutomaticEvents: false)
         
         // Setup CareReminderManager and request notification permissions
         // Note: We'll request permissions when user actually uses reminder features

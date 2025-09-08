@@ -65,7 +65,13 @@ class OnboardingScreenModel: ObservableObject {
         case .rating:
             // Mark onboarding as completed
             hasCompletedOnboarding = true
-            Mixpanel.mainInstance().track(event:"Onboarded", properties: [:])
+            
+            // Ensure Mixpanel is initialized before tracking
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if Mixpanel.mainInstance() != nil {
+                    Mixpanel.mainInstance().track(event:"Onboarded", properties: [:])
+                }
+            }
             break
         }
     }

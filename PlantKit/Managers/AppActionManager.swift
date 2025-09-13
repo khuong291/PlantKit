@@ -56,7 +56,7 @@ final class AppActionManager {
 }
 
 private struct App {
-    static var name = "Plant Identifier - PlantKit"
+    static var name = "PlantKit - Plant Identifier"
     static var id = "id6746693209"
     static var websiteUrl = "https://www.plantkit.app/"
     static var twitterUrl = "https://x.com/PlantKitApp"
